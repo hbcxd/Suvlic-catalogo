@@ -168,7 +168,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app); // Inicialización del motor de autenticación
 
-        const supabase = createClient('https://wwgbgfkukyjxvxtsantv.supabase.co/rest/v1/', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Z2JnZmt1a3lqeHZ4dHNhbnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTE2MTgsImV4cCI6MjA5Nzk4NzYxOH0.KvgqVOgB8WLdmGlFf1SG57Gl6IEwm2sdAIzlM5v_0Q0');
+        const supabase = createClient('https://wwgbgfkukyjxvxtsantv.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Z2JnZmt1a3lqeHZ4dHNhbnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTE2MTgsImV4cCI6MjA5Nzk4NzYxOH0.KvgqVOgB8WLdmGlFf1SG57Gl6IEwm2sdAIzlM5v_0Q0');
 
         // --- 🔒 MONITOR DE ESTADO DE SESIÓN (ESCUCHADOR EN TIEMPO REAL) ---
         onAuthStateChanged(auth, (user) => {
