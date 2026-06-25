@@ -153,7 +153,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ✅ CORRECCIÓN APLICADA: Configuración limpia
+        // ✅ Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk",
             authDomain: "suvlic-catalogo.firebaseapp.com",
@@ -184,7 +184,6 @@
         const toggleMenu = (show) => {
             if (show) {
                 menuBackdrop.classList.remove("hidden");
-                // Pequeño delay para permitir que el display block se aplique antes de la opacidad
                 setTimeout(() => {
                     menuBackdrop.classList.remove("opacity-0");
                     sideMenu.classList.remove("-translate-x-full");
@@ -216,12 +215,33 @@
                 
                 telefonoWhatsAppGlobal = data.telefono || telefonoWhatsAppGlobal;
 
+                // --- NUEVO MOTOR DE ESTILOS Y COLORES ---
                 const temaElegido = data.tema || "oscuro";
-                if (temaElegido === "claro") {
+                const root = document.documentElement;
+
+                if (temaElegido === "personalizado" && data.colores) {
+                    document.body.className = ""; // Limpia clases base
+                    // Aplica variables CSS en tiempo real
+                    root.style.setProperty('--bg-body', data.colores.bg);
+                    root.style.setProperty('--bg-app', data.colores.bg);
+                    root.style.setProperty('--bg-card', data.colores.card);
+                    root.style.setProperty('--text-title', data.colores.text);
+                    root.style.setProperty('--text-desc', data.colores.text);
+                    root.style.setProperty('--bg-btn', data.colores.accent);
+                    
+                    root.style.setProperty('--border', data.colores.card);
+                    root.style.setProperty('--bg-input', data.colores.bg);
+                    root.style.setProperty('--text-input', data.colores.text);
+                    root.style.setProperty('--text-btn', '#ffffff'); 
+                    root.style.setProperty('--hover-item', data.colores.card);
+                } else if (temaElegido === "claro") {
                     document.body.className = "theme-light";
+                    root.removeAttribute('style'); // Borra configuraciones personalizadas
                 } else {
                     document.body.className = "theme-dark";
+                    root.removeAttribute('style'); // Borra configuraciones personalizadas
                 }
+                // --- FIN DEL MOTOR DE COLORES ---
 
                 if (data.logoUrl) {
                     document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
@@ -249,7 +269,7 @@
             }
 
             docs.forEach(cat => {
-                // 1. Botones del Menú Horizontal
+                // Botones del Menú Horizontal
                 const btnTab = document.createElement("button");
                 btnTab.id = `t-${cat.id}`;
                 btnTab.className = catActiva === cat.id 
@@ -262,16 +282,15 @@
                 };
                 tabsContainer.appendChild(btnTab);
 
-                // 2. Botones del Menú Lateral Deslizable
+                // Botones del Menú Lateral Deslizable
                 const btnSide = document.createElement("button");
                 btnSide.className = `w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover ${catActiva === cat.id ? 'bg-[var(--hover-item)]' : ''}`;
                 btnSide.textContent = `• ${cat.nombre}`;
                 btnSide.onclick = () => {
                     catActiva = cat.id;
                     render();
-                    toggleMenu(false); // Cierra el menú
+                    toggleMenu(false); 
                     
-                    // Desliza suavemente hasta los productos
                     const anchor = document.getElementById("catalog-scroll-anchor");
                     window.scrollTo({ top: anchor.offsetTop - 20, behavior: "smooth" });
                 };
@@ -301,7 +320,7 @@
             const sideButtons = document.querySelectorAll("#side-categories button");
             sideButtons.forEach(btn => {
                 if (btn.textContent.includes(document.getElementById(`t-${catActiva}`).textContent.toLowerCase().replace(/^\w/, c => c.toUpperCase()))) {
-                     // Lógica simple para marcar visualmente (aunque el menú lateral se recrea onSnapshot, esto es para render interno)
+                     // Lógica simple para marcar visualmente
                 }
             });
 
@@ -405,7 +424,6 @@
                 carrito.push({ id: prodId, nombre: nombreProducto, opciones: opcionesSeleccionadas, cantidad: cantidad });
             }
 
-            // Animación y aviso al usuario
             alert(`¡Guardado en el pedido!`);
             render();
             const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
@@ -435,7 +453,6 @@
             if (!nombreCliente) {
                 alert("Para procesar tu pedido, necesitamos saber tu nombre. Llénalo en la sección 'Tus Datos' arriba.");
                 
-                // Deslizar al input, enfocarlo y pintarlo de rojo por unos segundos
                 window.scrollTo({ top: 0, behavior: "smooth" });
                 nombreClienteInput.focus();
                 const box = document.getElementById("client-box");
