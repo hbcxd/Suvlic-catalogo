@@ -50,11 +50,43 @@
 </head>
 <body class="theme-dark">
 
+    <!-- 🚨 MODAL DE BIENVENIDA E INFORMATIVO (Basado en la captura 1001278482.jpg) -->
+    <div id="welcome-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+        <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
+            
+            <!-- Logo Dinámico dentro de la notificación -->
+            <div id="modal-logo" class="w-20 h-20 mx-auto rounded-full p-1 border shadow-md flex items-center justify-center overflow-hidden dyn-border" style="background-color: var(--bg-body)">
+                <div class="text-xs dyn-text-desc">...</div>
+            </div>
+
+            <!-- Título del Aviso -->
+            <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">
+                ¡Bienvenido al Menú Interactivo de <span id="modal-nombre-header" class="text-pink-500">...</span>! 🚀
+            </h2>
+
+            <!-- Bloques de Texto Informativo -->
+            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">
+                En este menú puedes armar tu pedido fácilmente. No te preocupes, ya que <span class="font-bold text-pink-500">no tienes que hacer ningún pago aquí</span>.
+            </p>
+            
+            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">
+                <span class="font-bold dyn-text-title">Pedir es muy sencillo:</span> Agrega productos a tu carrito, rellena tus datos y luego te conectaremos de nuevo con <span id="modal-nombre-body" class="font-bold dyn-text-title">...</span> para que termines tu compra con ellos en WhatsApp.
+            </p>
+
+            <!-- Botón de Aceptación -->
+            <button id="btn-close-modal" class="w-full font-bold text-sm py-3.5 px-4 rounded-xl shadow-lg transition-all transform active:scale-95 dyn-btn">
+                Ok, quiero ver el Menú
+            </button>
+        </div>
+    </div>
+
     <div class="app-container pb-28">
+        <!-- Banner de Fondo -->
         <div class="h-32 bg-zinc-900 relative flex items-center justify-center">
             <div class="absolute inset-0 opacity-20 bg-gradient-to-br from-[#e51d74] via-[#00c2cb] to-[#facc15]"></div>
         </div>
 
+        <!-- Perfil Dinámico -->
         <div class="px-6 text-center -mt-12 relative z-10">
             <div id="wrapper-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-xl flex items-center justify-center overflow-hidden dyn-card dyn-border">
                 <div id="logo-loader" class="text-xs dyn-text-desc">...</div>
@@ -63,16 +95,30 @@
             <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc">Por favor espera un momento</p>
         </div>
 
-        <div class="mt-6 border-b sticky top-0 backdrop-blur z-20 dyn-border" style="background-color: var(--bg-app); opacity: 0.95;">
-            <div id="tabs-container" class="flex overflow-x-auto px-6 gap-6 text-sm font-bold py-2 hide-scrollbar">
-                </div>
+        <!-- 👤 IDENTIFICACIÓN DEL CLIENTE -->
+        <div class="px-6 mt-6">
+            <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border">
+                <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1">
+                    👤 Tus Datos para el Pedido
+                </label>
+                <input type="text" id="client-name" placeholder="Escribe tu Nombre y Apellido" class="text-sm rounded-xl p-3 focus:outline-none w-full border font-medium transition-all dyn-input focus:border-pink-500">
+            </div>
         </div>
 
+        <!-- Categorías Dinámicas (Tabs) -->
+        <div class="mt-6 border-b sticky top-0 backdrop-blur z-20 dyn-border" style="background-color: var(--bg-app); opacity: 0.95;">
+            <div id="tabs-container" class="flex overflow-x-auto px-6 gap-6 text-sm font-bold py-2 hide-scrollbar">
+                <!-- Se inyectan dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Listado de Productos -->
         <div id="catalog-container" class="p-4 space-y-4"></div>
 
+        <!-- Botón Inferior WhatsApp -->
         <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
             <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn">
-                <span>Enviar pedido a WhatsApp</span>
+                <span>Enviar factura a WhatsApp</span>
                 <span id="counter" class="bg-pink-600 text-white px-2.5 py-0.5 rounded text-xs font-bold">0 ítems</span>
             </button>
         </div>
@@ -82,7 +128,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const firebaseConfig = { apiKey: const firebaseConfig = {
   apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk",
   authDomain: "suvlic-catalogo.firebaseapp.com",
   projectId: "suvlic-catalogo",
@@ -96,18 +142,30 @@
         let catActiva = "";
         let listadoCompleto = [];
         let carrito = [];
-        let telefonoWhatsAppGlobal = "584120000000";
+        let telefonoWhatsAppGlobal = "584244178356";
+
+        // --- 🔘 MANEJO DEL CIERRE DEL MODAL DE BIENVENIDA ---
+        document.getElementById("btn-close-modal").onclick = () => {
+            document.getElementById("welcome-modal").classList.add("hidden");
+        };
 
         // 1. ESCUCHAR IDENTIDAD VISUAL Y TEMA EN TIEMPO REAL ⚡
         onSnapshot(doc(db, "configuracion", "perfil"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                document.getElementById("dyn-nombre").textContent = data.nombre || "Tu Tienda";
+                const nombreTienda = data.nombre || "Tu Tienda";
+                
+                // Actualizaciones generales
+                document.getElementById("dyn-nombre").textContent = nombreTienda;
                 document.getElementById("dyn-descripcion").textContent = data.descripcion || "";
-                document.title = data.nombre || "Catálogo";
+                document.title = nombreTienda;
+                
+                // 🔄 Inyección dinámica del nombre configurado en la notificación emergente
+                document.getElementById("modal-nombre-header").textContent = nombreTienda;
+                document.getElementById("modal-nombre-body").textContent = nombreTienda;
+                
                 telefonoWhatsAppGlobal = data.telefono || telefonoWhatsAppGlobal;
 
-                // CAMBIO DE TEMA INSTANTÁNEO
                 const temaElegido = data.tema || "oscuro";
                 if (temaElegido === "claro") {
                     document.body.className = "theme-light";
@@ -115,12 +173,15 @@
                     document.body.className = "theme-dark";
                 }
 
+                // Inyección del logo guardado tanto en el perfil como en la ventana emergente
                 if (data.logoUrl) {
                     document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
+                    document.getElementById("modal-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
                 } else {
                     document.getElementById("wrapper-logo").innerHTML = `<div class="text-2xl">🛍️</div>`;
+                    document.getElementById("modal-logo").innerHTML = `<div class="text-xl">🛍️</div>`;
                 }
-                render(); // Re-renderizar para ajustar bordes activos de pestañas
+                render();
             }
         });
 
@@ -137,14 +198,11 @@
             docs.forEach(cat => {
                 const btn = document.createElement("button");
                 btn.id = `t-${cat.id}`;
-                
-                // Aplicar estilo activo o inactivo usando variables CSS de manera inteligente
                 if (catActiva === cat.id) {
                     btn.className = "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)]";
                 } else {
                     btn.className = "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent";
                 }
-
                 btn.textContent = cat.nombre.toUpperCase();
                 btn.onclick = () => {
                     catActiva = cat.id;
@@ -162,7 +220,6 @@
         });
 
         function render() {
-            // Re-sincronizar clases en pestañas de categorías superiores
             const tabsButtons = document.querySelectorAll("#tabs-container button");
             tabsButtons.forEach(btn => {
                 if (btn.id === `t-${catActiva}`) {
@@ -278,15 +335,53 @@
             document.getElementById("counter").textContent = `${totalItems} ítems`;
         }
 
+        // --- 🧾 PROCESADOR DE ENVÍO DE FACTURA DIGITAL ---
         document.getElementById("btn-whatsapp").onclick = () => {
-            if (carrito.length === 0) return alert("Configura y añade algún artículo.");
-            let texto = `¡Hola! 👋 Quiero procesar este pedido desde el catálogo digital:\n\n`;
+            if (carrito.length === 0) return alert("Por favor, configura y añade al menos un artículo a tu carrito antes de enviar.");
+            
+            const nombreCliente = document.getElementById("client-name").value.trim();
+            if (!nombreCliente) {
+                alert("Por favor, introduce tu nombre completo en la parte superior para poder procesar la factura.");
+                document.getElementById("client-name").focus();
+                return;
+            }
+            
+            const hoy = new Date();
+            const fechaFactura = hoy.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const horaFactura = hoy.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const nombreTienda = document.getElementById("dyn-nombre").textContent.toUpperCase();
+
+            let textoFactura = `🧾 *NOTA DE PEDIDO / FACTURA DIGITAL* 🧾\n`;
+            textoFactura += `🏢 *EMPRESA:* ${nombreTienda}\n`;
+            textoFactura += `👤 *CLIENTE:* ${nombreCliente.toUpperCase()}\n`;
+            textoFactura += `📅 *FECHA:* ${fechaFactura}\n`;
+            textoFactura += `⏰ *HORA:* ${horaFactura}\n`;
+            textoFactura += `===============================\n\n`;
+            textoFactura += `🛍️ *DETALLE DEL CONTENIDO:*\n\n`;
+
+            let totalArticulosGlobales = 0;
+
             carrito.forEach((item, index) => {
-                texto += `📦 *${index + 1}. ${item.nombre}* (Cant: ${item.cantidad})\n`;
-                item.opciones.forEach(opt => texto += `   ↳ ${opt}\n`);
-                texto += `\n`;
+                textoFactura += `*${index + 1}️⃣ ${item.nombre.toUpperCase()}*\n`;
+                textoFactura += `   🔹 *Cantidad:* ${item.cantidad} ud.\n`;
+                
+                if (item.opciones && item.opciones.length > 0) {
+                    textoFactura += `   🔹 *Variaciones elegidas:*\n`;
+                    item.opciones.forEach(opt => {
+                        textoFactura += `      • ${opt}\n`;
+                    });
+                }
+                textoFactura += `-----------------------------------------------\n`;
+                totalArticulosGlobales += item.cantidad;
             });
-            window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(texto)}`, "_blank");
+
+            textoFactura += `📊 *TOTAL DE ARTÍCULOS:* ${totalArticulosGlobales} piezas\n`;
+            textoFactura += `===============================\n\n`;
+            textoFactura += `👋 ¡Hola! Mi nombre es ${nombreCliente}. Acabo de armar este pedido desde el catálogo web. Quedo a la espera de que verifiques la disponibilidad para coordinar el pago y la entrega. ¡Muchas gracias!`;
+
+            const numeroDestino = telefonoWhatsAppGlobal;
+
+            window.open(`https://api.whatsapp.com/send?phone=${numeroDestino}&text=${encodeURIComponent(textoFactura)}`, "_blank");
         }
     </script>
 </body>
