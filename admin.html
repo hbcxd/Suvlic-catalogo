@@ -157,17 +157,18 @@
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
         const firebaseConfig = {
-  apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk",
-  authDomain: "suvlic-catalogo.firebaseapp.com",
-  projectId: "suvlic-catalogo",
-  storageBucket: "suvlic-catalogo.firebasestorage.app",
-  messagingSenderId: "944310483909",
-  appId: "1:944310483909:web:81852b2a7edb73e807e9ac"
-};
+            apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk",
+            authDomain: "suvlic-catalogo.firebaseapp.com",
+            projectId: "suvlic-catalogo",
+            storageBucket: "suvlic-catalogo.firebasestorage.app",
+            messagingSenderId: "944310483909",
+            appId: "1:944310483909:web:81852b2a7edb73e807e9ac"
+        };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app); // Inicialización del motor de autenticación
 
+        // CORRECCIÓN 1: Eliminado el '/rest/v1/' de la URL de Supabase
         const supabase = createClient('https://wwgbgfkukyjxvxtsantv.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Z2JnZmt1a3lqeHZ4dHNhbnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTE2MTgsImV4cCI6MjA5Nzk4NzYxOH0.KvgqVOgB8WLdmGlFf1SG57Gl6IEwm2sdAIzlM5v_0Q0');
 
         // --- 🔒 MONITOR DE ESTADO DE SESIÓN (ESCUCHADOR EN TIEMPO REAL) ---
@@ -289,7 +290,10 @@
                 let logoUrl = "";
 
                 if (logoFile) {
-                    const uniqueName = `logo_${Date.now()}.${logoFile.name.split('.').pop()}`;
+                    // CORRECCIÓN 2: Extracción de extensión segura (para celulares)
+                    const extension = logoFile.type.split('/')[1] || 'png';
+                    const uniqueName = `logo_${Date.now()}.${extension}`;
+                    
                     const { data, error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, logoFile);
                     if (error) throw error;
                     logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl;
@@ -356,7 +360,10 @@
 
             try {
                 const file = document.getElementById("a-file").files[0];
-                const uniqueName = `${Date.now()}_prod.${file.name.split('.').pop()}`;
+                
+                // CORRECCIÓN 3: Extracción de extensión segura (para celulares) en productos
+                const extension = file.type.split('/')[1] || 'png';
+                const uniqueName = `${Date.now()}_prod.${extension}`;
                 
                 const { error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, file);
                 if (error) throw error;
