@@ -100,7 +100,7 @@
             </svg>
         </button>
 
-        <div class="h-32 bg-zinc-900 relative flex items-center justify-center">
+        <div id="dyn-banner" class="h-32 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center transition-all duration-500">
             <div class="absolute inset-0 opacity-20 bg-gradient-to-br from-[#e51d74] via-[#00c2cb] to-[#facc15]"></div>
         </div>
 
@@ -160,7 +160,7 @@
             <p class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc text-center">¿Tienes una duda rápida?</p>
             <button id="btn-whatsapp-consulta" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-transform active:scale-95">
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 0C5.385 0 0 5.383 0 12.032c0 2.651.688 5.176 1.996 7.424L.373 24l4.714-1.554C7.26 23.633 9.61 24.062 12.03 24.062c6.645 0 12.03-5.383 12.03-12.03C24.061 5.383 18.676 0 12.031 0zm0 22.037c-2.222 0-4.4-.59-6.305-1.705l-.45-.265-3.155 1.04.843-3.076-.293-.464c-1.228-1.95-1.874-4.204-1.874-6.536 0-5.526 4.498-10.024 10.024-10.024 5.525 0 10.022 4.498 10.022 10.024 0 5.526-4.497 10.024-10.022 10.024zm5.502-7.525c-.302-.15-1.782-.88-2.057-.98-.276-.1-.476-.15-.677.15-.2.302-.777.98-.952 1.18-.175.2-.35.225-.652.075-1.964-.972-3.354-2.26-4.267-3.96-.15-.276-.015-.426.136-.576.136-.135.302-.35.453-.526.15-.175.2-.3.302-.5.1-.2.05-.375-.025-.525-.075-.15-.677-1.63-.927-2.23-.245-.586-.495-.505-.677-.515-.175-.01-.375-.01-.575-.01-.2 0-.526.075-.802.375-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.076 2.9 1.226 3.1.15.2 2.115 3.226 5.122 4.525 2.186.945 2.986.825 3.51.75.602-.085 1.782-.726 2.032-1.425.25-.7.25-1.3.175-1.426-.075-.125-.276-.2-.577-.35z"></path>
+                    <path d="M12.031 0C5.385 0 0 5.383 0 12.032c0 2.651.688 5.176 1.996 7.424L.373 24l4.714-1.554C7.26 23.633 9.61 24.062 12.03 24.062c6.645 0 12.03-5.383 12.03-12.03C24.061 5.383 18.676 0 12.031 0zm0 22.037c-2.222 0-4.4-.59-6.305-1.705l-.45-.265-3.155 1.04.843-3.076-.293-.464c-1.228-1.95-1.874-4.204-1.874-6.536 0-5.526 4.498-10.024 10.024-10.024 5.525 0 10.022 4.498 10.022 10.024 0 5.526 4.497 10.024-10.022 10.024zm5.502-7.525c-.302-.15-1.782-.88-2.057-.98-.276-.1-.476-.15-.677.15-.2.302-.777.98-.952 1.18-.175.2-.35.225-.652.075-1.964-.972-3.354-2.26-4.267-3.96-.15-.276-.015-.426.136-.576.136-.135.302-.35.453-.526.15-.175.2-.3.302-.5.1-.2.05-.375-.025-.525-.075-.15-.677-1.63-.927-2.23-.245-.586-.495-.505-.677-.515-.175-.01-.375-.01-.575-.01-.2 0-.526.075-.802.375-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.076 2.9 1.226 3.1.15.2 2.115 3.226 5.122 4.525 2.186.945 2.986.825 3.51.75.602-.085 1.782-.726 2.032-1.425.25-.7.25-1.3.175-1.426-.075-.125-.276-.2-.577-.35z"></path>
                 </svg>
                 Chat Directo
             </button>
@@ -231,6 +231,14 @@
                 document.getElementById("modal-nombre-body").textContent = nombreTienda;
                 
                 telefonoWhatsAppGlobal = data.telefono || telefonoWhatsAppGlobal;
+
+                // SE AGREGÓ: Renderizar la imagen de fondo cargada en el banner si existe
+                const bannerElement = document.getElementById("dyn-banner");
+                if (data.bannerUrl) {
+                    bannerElement.style.backgroundImage = `url('${data.bannerUrl}')`;
+                } else {
+                    bannerElement.style.backgroundImage = 'none';
+                }
 
                 // --- NUEVO MOTOR DE ESTILOS Y COLORES ---
                 const temaElegido = data.tema || "oscuro";
@@ -439,7 +447,7 @@
             if (existeIndex > -1) {
                 carrito[existeIndex].cantidad += cantidad;
             } else {
-                carrito.push({ id: prodId, nombre: nombreProducto, opciones: opcionesSeleccionadas, cantidad: cantidad });
+                carrito.push({ id: prodId, nombre: nombreProducto, opciones: opcionesSeleccionadas, cantidad: candy });
             }
 
             alert(`¡Guardado en el pedido!`);
