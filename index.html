@@ -6,7 +6,7 @@
     <title>Catálogo Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* DEFINICIÓN MAESTRA DE LOS DOS TEMAS (Intercambiables en vivo) */
+        /* DEFINICIÓN MAESTRA DE LOS TEMAS (Intercambiables en vivo) */
         .theme-dark {
             --bg-body: #0f172a;
             --bg-app: #121214;
@@ -33,6 +33,21 @@
             --text-btn: #ffffff;
             --hover-item: #e4e4e7;
         }
+        /* NUEVO: Tema Tornasol Suvlic */
+        .theme-tornasol {
+            --bg-body: #0b0f19;
+            --bg-app: #0b0f19;
+            --bg-card: #0f172a;
+            --text-title: #ffffff;
+            --text-desc: #94a3b8;
+            --border: #1e293b;
+            --bg-input: #0b0f19;
+            --text-input: #f8fafc;
+            /* Gradiente idéntico al panel administrativo */
+            --bg-btn: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%);
+            --text-btn: #ffffff;
+            --hover-item: #1e293b;
+        }
 
         /* Transiciones fluidas para un efecto visual premium */
         body { background-color: var(--bg-body); font-family: system-ui, -apple-system, sans-serif; transition: background 0.4s ease; }
@@ -45,7 +60,10 @@
         .dyn-text-desc { color: var(--text-desc); transition: color 0.4s ease; }
         .dyn-border { border-color: var(--border); transition: border-color 0.4s ease; }
         .dyn-input { background-color: var(--bg-input); border-color: var(--border); color: var(--text-input); transition: all 0.4s ease; }
-        .dyn-btn { background-color: var(--bg-btn); color: var(--text-btn); transition: all 0.4s ease; }
+        
+        /* Nota: background en vez de background-color para aceptar gradientes */
+        .dyn-btn { background: var(--bg-btn); color: var(--text-btn); transition: all 0.4s ease; background-size: 150% auto; }
+        .dyn-btn:hover { background-position: right center; }
         
         .dyn-hover:hover { background-color: var(--hover-item); }
 
@@ -199,7 +217,6 @@
         btnCloseMenu.onclick = () => toggleMenu(false);
         menuBackdrop.onclick = () => toggleMenu(false);
 
-
         // --- 1. ESCUCHAR IDENTIDAD VISUAL Y TEMA EN TIEMPO REAL ---
         onSnapshot(doc(db, "configuracion", "perfil"), (docSnap) => {
             if (docSnap.exists()) {
@@ -219,7 +236,12 @@
                 const temaElegido = data.tema || "oscuro";
                 const root = document.documentElement;
 
-                if (temaElegido === "personalizado" && data.colores) {
+                // LÓGICA AGREGADA PARA RECONOCER EL TEMA TORNASOL
+                if (temaElegido === "tornasol") {
+                    document.body.className = "theme-tornasol";
+                    root.removeAttribute('style'); 
+                } 
+                else if (temaElegido === "personalizado" && data.colores) {
                     document.body.className = ""; // Limpia clases base
                     // Aplica variables CSS en tiempo real
                     root.style.setProperty('--bg-body', data.colores.bg);
@@ -269,7 +291,6 @@
             }
 
             docs.forEach(cat => {
-                // Botones del Menú Horizontal
                 const btnTab = document.createElement("button");
                 btnTab.id = `t-${cat.id}`;
                 btnTab.className = catActiva === cat.id 
@@ -282,7 +303,6 @@
                 };
                 tabsContainer.appendChild(btnTab);
 
-                // Botones del Menú Lateral Deslizable
                 const btnSide = document.createElement("button");
                 btnSide.className = `w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover ${catActiva === cat.id ? 'bg-[var(--hover-item)]' : ''}`;
                 btnSide.textContent = `• ${cat.nombre}`;
@@ -306,7 +326,6 @@
         });
 
         function render() {
-            // Actualizar diseño de Tabs Superiores
             const tabsButtons = document.querySelectorAll("#tabs-container button");
             tabsButtons.forEach(btn => {
                 if (btn.id === `t-${catActiva}`) {
@@ -316,7 +335,6 @@
                 }
             });
 
-            // Actualizar diseño del Menú Lateral
             const sideButtons = document.querySelectorAll("#side-categories button");
             sideButtons.forEach(btn => {
                 if (btn.textContent.includes(document.getElementById(`t-${catActiva}`).textContent.toLowerCase().replace(/^\w/, c => c.toUpperCase()))) {
@@ -434,7 +452,7 @@
             setTimeout(() => btnCounter.classList.remove("animate-pulse"), 1000);
         }
 
-        // --- 💬 WHATSAPP BOTÓN CONSULTAS GENERALES (Menú Lateral) ---
+        // --- 💬 WHATSAPP BOTÓN CONSULTAS GENERALES ---
         document.getElementById("btn-whatsapp-consulta").onclick = () => {
             const nombreCliente = document.getElementById("client-name").value.trim();
             const saludo = nombreCliente ? `¡Hola! Soy ${nombreCliente}.` : `¡Hola!`;
