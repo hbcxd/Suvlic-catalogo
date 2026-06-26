@@ -101,10 +101,17 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Actualizar Logo de la Página</label>
-                    <input type="file" id="c-logo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-fuchsia-500/10 file:text-fuchsia-400 hover:file:bg-fuchsia-500/20 cursor-pointer">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Actualizar Logo de la Página</label>
+                        <input type="file" id="c-logo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-fuchsia-500/10 file:text-fuchsia-400 hover:file:bg-fuchsia-500/20 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Actualizar Imagen de Fondo (Banner Tornasol)</label>
+                        <input type="file" id="c-banner-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20 cursor-pointer">
+                    </div>
                 </div>
+
                 <button type="submit" id="btn-save-config" class="w-full bg-gradient-to-r from-fuchsia-600 via-purple-600 to-cyan-600 hover:opacity-90 text-white font-bold text-xs py-3 rounded-xl transition-all shadow">
                     Guardar Cambios de Configuración
                 </button>
@@ -371,22 +378,35 @@
             });
         }
 
-        // GUARDAR CONFIGURACIÓN Y COLORES
+        // GUARDAR CONFIGURACIÓN, COLORES Y BANNER
         document.getElementById("config-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btn-save-config");
             btn.disabled = true; btn.textContent = "Guardando...";
 
             try {
+                // 1. Procesar Archivo de Logo
                 const logoFile = document.getElementById("c-logo-file").files[0];
                 let logoUrl = "";
 
                 if (logoFile) {
                     const extension = logoFile.type.split('/')[1] || 'png';
                     const uniqueName = `logo_${Date.now()}.${extension}`;
-                    const { data, error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, logoFile);
+                    const { error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, logoFile);
                     if (error) throw error;
                     logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl;
+                }
+
+                // SE AGREGÓ: 2. Procesar Archivo de Banner de Fondo
+                const bannerFile = document.getElementById("c-banner-file").files[0];
+                let bannerUrl = "";
+
+                if (bannerFile) {
+                    const extension = bannerFile.type.split('/')[1] || 'png';
+                    const uniqueName = `banner_${Date.now()}.${extension}`;
+                    const { error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, bannerFile);
+                    if (error) throw error;
+                    bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl;
                 }
 
                 const temaSeleccionado = document.getElementById("c-tema").value;
@@ -407,7 +427,14 @@
                 }
 
                 if (logoUrl) payload.logoUrl = logoUrl;
+                if (bannerUrl) payload.bannerUrl = bannerUrl; // SE AGREGÓ AL ENVIAR A FIRESTORE
+
                 await setDoc(doc(db, "configuracion", "perfil"), payload, { merge: true });
+                
+                // Limpiar inputs de archivo tras guardar con éxito
+                document.getElementById("c-logo-file").value = "";
+                document.getElementById("c-banner-file").value = "";
+                
                 alert("¡Configuración y Diseño guardados exitosamente con el esquema de la marca!");
             } catch (err) {
                 alert("Error: " + err.message);
