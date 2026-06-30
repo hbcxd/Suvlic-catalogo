@@ -377,11 +377,7 @@
                         
                         <!-- CONTENEDOR DE IMAGEN OPTIMIZADO: Garantiza la imagen completa (object-contain + padding) -->
                         <div class="w-full h-[280px] sm:h-[320px] relative overflow-hidden flex items-center justify-center p-5 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5">
-                            
-                            <!-- SE AGREGÓ LOADING LAZY Y DECODING ASYNC AQUÍ -->
                             <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" 
-                                 loading="lazy"
-                                 decoding="async"
                                  class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 filter drop-shadow-md" 
                                  alt="${p.nombre}">
                                  
