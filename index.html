@@ -171,7 +171,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ✅ Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk",
             authDomain: "suvlic-catalogo.firebaseapp.com",
@@ -188,12 +187,10 @@
         let carrito = [];
         let telefonoWhatsAppGlobal = "584244178356";
 
-        // --- 🔘 MANEJO DEL CIERRE DEL MODAL DE BIENVENIDA ---
         document.getElementById("btn-close-modal").onclick = () => {
             document.getElementById("welcome-modal").classList.add("hidden");
         };
 
-        // --- 🍔 LÓGICA DEL MENÚ LATERAL ---
         const btnMenu = document.getElementById("btn-open-menu");
         const btnCloseMenu = document.getElementById("btn-close-menu");
         const menuBackdrop = document.getElementById("menu-backdrop");
@@ -217,7 +214,6 @@
         btnCloseMenu.onclick = () => toggleMenu(false);
         menuBackdrop.onclick = () => toggleMenu(false);
 
-        // --- 1. ESCUCHAR IDENTIDAD VISUAL Y TEMA EN TIEMPO REAL ---
         onSnapshot(doc(db, "configuracion", "perfil"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -239,7 +235,6 @@
                     bannerElement.style.backgroundImage = 'none';
                 }
 
-                // --- MOTOR DE ESTILOS Y COLORES ---
                 const temaElegido = data.tema || "oscuro";
                 const root = document.documentElement;
 
@@ -279,7 +274,6 @@
             }
         });
 
-        // --- 2. ESCUCHAR CATEGORÍAS ---
         onSnapshot(collection(db, "categorias"), (snapshot) => {
             const tabsContainer = document.getElementById("tabs-container");
             const sideCategories = document.getElementById("side-categories");
@@ -322,7 +316,6 @@
             render();
         });
 
-        // --- 3. ESCUCHAR PRODUCTOS ---
         onSnapshot(collection(db, "productos"), (snap) => {
             listadoCompleto = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             render();
@@ -349,27 +342,27 @@
 
             filtrados.forEach(p => {
                 const card = document.createElement("div");
-                // Tarjeta limpia y moderna
-                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm";
+                // Tarjeta con efecto de elevación suave (hover:shadow-xl)
+                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl";
                 
                 let htmlSelects = "";
                 if (p.caracteristicas && p.caracteristicas.length > 0) {
-                    htmlSelects = `<div class="mt-1 space-y-3">`;
+                    htmlSelects = `<div class="mt-1 space-y-4">`;
                     p.caracteristicas.forEach((feat, index) => {
                         const isDisabled = index > 0 ? "disabled" : "";
                         htmlSelects += `
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">Paso ${index + 1}: ${feat.titulo}</label>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">👉 Paso ${index + 1}: ${feat.titulo}</label>
                                 <select 
                                     id="select-${p.id}-${index}" 
                                     data-prod="${p.id}" 
                                     data-index="${index}"
                                     data-titulo="${feat.titulo}"
                                     onchange="evaluarPaso(this, '${p.id}', ${index}, ${p.caracteristicas.length})"
-                                    class="text-xs rounded-xl p-3 focus:outline-none w-full border dyn-input"
+                                    class="text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-colors focus:border-pink-500"
                                     ${isDisabled}
                                 >
-                                    <option value="" disabled selected>-- Selecciona opción --</option>
+                                    <option value="" disabled selected>-- Elige una opción --</option>
                                     ${feat.opciones.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
                             </div>
@@ -378,34 +371,56 @@
                     htmlSelects += `</div>`;
                 }
 
-                // Diseño rediseñado: 
-                // 1. La imagen no se recorta (object-contain) y puede crecer a su formato natural hasta 350px.
-                // 2. Toda la parte superior (foto + titulo) es un gran botón para abrir las opciones.
+                // NUEVO DISEÑO: Imagen intocable, contenedor espacioso y menú descriptivo interactivo.
                 card.innerHTML = `
-                    <div class="cursor-pointer group" onclick="toggleOpciones('${p.id}')">
-                        <div class="w-full relative overflow-hidden bg-black/5 dark:bg-white/5 flex items-center justify-center">
-                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" class="w-full h-auto max-h-[350px] object-contain transition-transform duration-500 group-hover:scale-105" alt="${p.nombre}">
+                    <div class="cursor-pointer group flex flex-col h-full" onclick="toggleOpciones('${p.id}')">
+                        
+                        <!-- CONTENEDOR DE IMAGEN OPTIMIZADO: Garantiza la imagen completa (object-contain + padding) -->
+                        <div class="w-full h-[280px] sm:h-[320px] relative overflow-hidden flex items-center justify-center p-5 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5">
+                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" 
+                                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 filter drop-shadow-md" 
+                                 alt="${p.nombre}">
+                                 
+                            <!-- Badge interactivo de "Seleccionar" (aparece/sube en hover) -->
+                            <div class="absolute bottom-4 right-4 bg-[var(--bg-btn)] text-[var(--text-btn)] text-[10px] font-bold px-3.5 py-2 rounded-full flex items-center gap-1.5 opacity-90 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <span>Seleccionar</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"></path></svg>
+                            </div>
                         </div>
                         
-                        <div class="p-4 pb-2 flex flex-col gap-2">
+                        <!-- TEXTO DEL PRODUCTO -->
+                        <div class="p-5 pb-4 flex flex-col gap-2 z-10 bg-[var(--bg-card)]">
                             <div class="flex justify-between items-start gap-3">
-                                <h3 class="font-bold text-lg leading-tight dyn-text-title">${p.nombre}</h3>
-                                <svg class="w-6 h-6 flex-shrink-0 dyn-text-desc transform transition-transform duration-300" id="icon-toggle-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <h3 class="font-bold text-lg leading-tight dyn-text-title group-hover:text-pink-500 transition-colors">${p.nombre}</h3>
+                                
+                                <!-- Icono flecha acordeón con estilo botón -->
+                                <div class="p-1.5 rounded-full bg-[var(--bg-input)] dyn-border border shadow-sm group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5 flex-shrink-0 dyn-text-desc transform transition-transform duration-300" id="icon-toggle-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
                             </div>
-                            ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line">${p.descripcion}</p>` : ''}
+                            ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line mt-1 opacity-90">${p.descripcion}</p>` : ''}
                         </div>
                     </div>
 
-                    <div id="opciones-${p.id}" class="hidden flex-col gap-3 px-4 pb-4">
+                    <!-- MENÚ DE OPCIONES DESPLEGABLE -->
+                    <div id="opciones-${p.id}" class="hidden flex-col gap-4 px-5 pb-5 bg-[var(--bg-card)]">
+                        <div class="w-full h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent opacity-50 mb-1"></div>
+                        
                         ${htmlSelects}
-                        <div id="control-${p.id}" class="${p.caracteristicas?.length > 0 ? 'hidden' : 'flex'} mt-2 pt-3 border-t items-center justify-between gap-4 dyn-border">
-                            <div class="flex items-center rounded-xl border dyn-input w-[110px] justify-between">
-                                <button onclick="cambiarCantidadInput('${p.id}', -1)" class="font-bold px-3 py-2 hover:text-red-400 text-sm dyn-text-title transition-colors">-</button>
+                        
+                        <div id="control-${p.id}" class="${p.caracteristicas?.length > 0 ? 'hidden' : 'flex'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border">
+                            
+                            <!-- Control de cantidad -->
+                            <div class="flex items-center rounded-xl border dyn-input w-[120px] justify-between shadow-sm">
+                                <button onclick="cambiarCantidadInput('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
                                 <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
-                                <button onclick="cambiarCantidadInput('${p.id}', 1)" class="font-bold px-3 py-2 hover:text-emerald-400 text-sm dyn-text-title transition-colors">+</button>
+                                <button onclick="cambiarCantidadInput('${p.id}', 1)" class="font-bold px-4 py-3 hover:text-emerald-500 text-sm dyn-text-title transition-colors">+</button>
                             </div>
-                            <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0})" class="flex-1 text-sm font-bold py-3 px-4 rounded-xl shadow text-center dyn-btn active:scale-95 transition-transform">
-                                Añadir al carrito
+
+                            <!-- Botón añadir -->
+                            <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0})" class="flex-1 text-sm font-bold py-3.5 px-3 rounded-xl shadow-md text-center dyn-btn active:scale-95 transition-transform flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                Añadir
                             </button>
                         </div>
                     </div>
@@ -414,7 +429,6 @@
             });
         }
 
-        // --- 🔘 LÓGICA DE APERTURA DE OPCIONES (ACORDEÓN) ---
         window.toggleOpciones = (prodId) => {
             const panel = document.getElementById(`opciones-${prodId}`);
             const icon = document.getElementById(`icon-toggle-${prodId}`);
@@ -469,10 +483,8 @@
 
             alert(`¡Guardado en el pedido!`);
             
-            // Cerrar el panel automáticamente después de añadir al carrito para que sigan viendo otros productos
             toggleOpciones(prodId);
 
-            // Reiniciar inputs del producto
             document.getElementById(`cant-${prodId}`).value = 1;
             for (let i = 0; i < totalSteps; i++) {
                 const select = document.getElementById(`select-${prodId}-${i}`);
@@ -495,7 +507,6 @@
             setTimeout(() => btnCounter.classList.remove("animate-pulse"), 1000);
         }
 
-        // --- 💬 WHATSAPP BOTÓN CONSULTAS GENERALES ---
         document.getElementById("btn-whatsapp-consulta").onclick = () => {
             const nombreCliente = document.getElementById("client-name").value.trim();
             const saludo = nombreCliente ? `¡Hola! Soy ${nombreCliente}.` : `¡Hola!`;
@@ -504,7 +515,6 @@
             window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(textoConsulta)}`, "_blank");
         };
 
-        // --- 🧾 PROCESADOR DE ENVÍO DE FACTURA DIGITAL ---
         document.getElementById("btn-whatsapp").onclick = () => {
             if (carrito.length === 0) return alert("Por favor, configura y añade al menos un artículo a tu carrito antes de enviar.");
             
