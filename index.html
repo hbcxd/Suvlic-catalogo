@@ -130,7 +130,7 @@
 
         <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
             <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95">
-                <span>Enviar factura a WhatsApp</span>
+                <span>Enviar pedido a WhatsApp</span>
                 <span id="counter" class="bg-pink-600 text-white px-2.5 py-0.5 rounded text-xs font-bold">0 ítems</span>
             </button>
         </div>
@@ -349,12 +349,12 @@
 
             filtrados.forEach(p => {
                 const card = document.createElement("div");
-                // Modificada la tarjeta para ser de estructura vertical (tipo galería)
-                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md";
+                // Tarjeta limpia y moderna
+                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm";
                 
                 let htmlSelects = "";
                 if (p.caracteristicas && p.caracteristicas.length > 0) {
-                    htmlSelects = `<div class="mt-2 space-y-3">`;
+                    htmlSelects = `<div class="mt-1 space-y-3">`;
                     p.caracteristicas.forEach((feat, index) => {
                         const isDisabled = index > 0 ? "disabled" : "";
                         htmlSelects += `
@@ -366,7 +366,7 @@
                                     data-index="${index}"
                                     data-titulo="${feat.titulo}"
                                     onchange="evaluarPaso(this, '${p.id}', ${index}, ${p.caracteristicas.length})"
-                                    class="text-xs rounded-xl p-2.5 focus:outline-none w-full border dyn-input"
+                                    class="text-xs rounded-xl p-3 focus:outline-none w-full border dyn-input"
                                     ${isDisabled}
                                 >
                                     <option value="" disabled selected>-- Selecciona opción --</option>
@@ -378,35 +378,35 @@
                     htmlSelects += `</div>`;
                 }
 
-                // Nuevo diseño de la tarjeta: Imagen protagonista y acordeón para los detalles
+                // Diseño rediseñado: 
+                // 1. La imagen no se recorta (object-contain) y puede crecer a su formato natural hasta 350px.
+                // 2. Toda la parte superior (foto + titulo) es un gran botón para abrir las opciones.
                 card.innerHTML = `
-                    <div class="w-full h-52 relative bg-zinc-800 cursor-pointer overflow-hidden" onclick="toggleOpciones('${p.id}')">
-                        <img src="${p.imagenUrl || 'https://via.placeholder.com/400x300'}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
-                            <h3 class="font-bold text-lg leading-tight text-white shadow-sm">${p.nombre}</h3>
+                    <div class="cursor-pointer group" onclick="toggleOpciones('${p.id}')">
+                        <div class="w-full relative overflow-hidden bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" class="w-full h-auto max-h-[350px] object-contain transition-transform duration-500 group-hover:scale-105" alt="${p.nombre}">
+                        </div>
+                        
+                        <div class="p-4 pb-2 flex flex-col gap-2">
+                            <div class="flex justify-between items-start gap-3">
+                                <h3 class="font-bold text-lg leading-tight dyn-text-title">${p.nombre}</h3>
+                                <svg class="w-6 h-6 flex-shrink-0 dyn-text-desc transform transition-transform duration-300" id="icon-toggle-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line">${p.descripcion}</p>` : ''}
                         </div>
                     </div>
-                    
-                    <div class="p-4 flex flex-col gap-3">
-                        ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line line-clamp-2">${p.descripcion}</p>` : ''}
-                        
-                        <button onclick="toggleOpciones('${p.id}')" class="w-full text-xs font-bold py-3 px-4 rounded-xl border dyn-border dyn-text-title flex justify-between items-center transition-all active:scale-95 bg-black/5 dark:bg-white/5">
-                            <span>Configurar y añadir al carrito</span>
-                            <svg class="w-4 h-4 transform transition-transform" id="icon-toggle-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
 
-                        <div id="opciones-${p.id}" class="hidden flex-col gap-3 pt-2">
-                            ${htmlSelects}
-                            <div id="control-${p.id}" class="${p.caracteristicas?.length > 0 ? 'hidden' : 'flex'} mt-2 pt-3 border-t items-center justify-between gap-4 dyn-border">
-                                <div class="flex items-center rounded-xl border dyn-input w-[100px] justify-between">
-                                    <button onclick="cambiarCantidadInput('${p.id}', -1)" class="font-bold px-3 py-2 hover:text-red-400 text-sm dyn-text-title">-</button>
-                                    <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-xs font-bold focus:outline-none dyn-text-title">
-                                    <button onclick="cambiarCantidadInput('${p.id}', 1)" class="font-bold px-3 py-2 hover:text-emerald-400 text-sm dyn-text-title">+</button>
-                                </div>
-                                <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0})" class="flex-1 text-xs font-bold py-3 px-4 rounded-xl shadow text-center dyn-btn">
-                                    Añadir al carrito
-                                </button>
+                    <div id="opciones-${p.id}" class="hidden flex-col gap-3 px-4 pb-4">
+                        ${htmlSelects}
+                        <div id="control-${p.id}" class="${p.caracteristicas?.length > 0 ? 'hidden' : 'flex'} mt-2 pt-3 border-t items-center justify-between gap-4 dyn-border">
+                            <div class="flex items-center rounded-xl border dyn-input w-[110px] justify-between">
+                                <button onclick="cambiarCantidadInput('${p.id}', -1)" class="font-bold px-3 py-2 hover:text-red-400 text-sm dyn-text-title transition-colors">-</button>
+                                <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
+                                <button onclick="cambiarCantidadInput('${p.id}', 1)" class="font-bold px-3 py-2 hover:text-emerald-400 text-sm dyn-text-title transition-colors">+</button>
                             </div>
+                            <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0})" class="flex-1 text-sm font-bold py-3 px-4 rounded-xl shadow text-center dyn-btn active:scale-95 transition-transform">
+                                Añadir al carrito
+                            </button>
                         </div>
                     </div>
                 `;
@@ -464,14 +464,31 @@
             if (existeIndex > -1) {
                 carrito[existeIndex].cantidad += cantidad;
             } else {
-                // Aquí corregí un error donde decía "candy" en lugar de "cantidad"
                 carrito.push({ id: prodId, nombre: nombreProducto, opciones: opcionesSeleccionadas, cantidad: cantidad });
             }
 
             alert(`¡Guardado en el pedido!`);
-            render();
-            const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
             
+            // Cerrar el panel automáticamente después de añadir al carrito para que sigan viendo otros productos
+            toggleOpciones(prodId);
+
+            // Reiniciar inputs del producto
+            document.getElementById(`cant-${prodId}`).value = 1;
+            for (let i = 0; i < totalSteps; i++) {
+                const select = document.getElementById(`select-${prodId}-${i}`);
+                select.value = "";
+                if (i > 0) select.disabled = true;
+            }
+            if(totalSteps > 0) {
+                document.getElementById(`control-${prodId}`).classList.add("hidden");
+                document.getElementById(`control-${prodId}`).classList.remove("flex");
+            }
+
+            renderCarritoTotal();
+        }
+
+        function renderCarritoTotal() {
+            const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
             const btnCounter = document.getElementById("counter");
             btnCounter.textContent = `${totalItems} ítems`;
             btnCounter.classList.add("animate-pulse");
