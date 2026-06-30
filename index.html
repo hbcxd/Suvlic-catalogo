@@ -126,7 +126,7 @@
                 </div>
         </div>
 
-        <div id="catalog-container" class="p-4 space-y-4"></div>
+        <div id="catalog-container" class="p-4 space-y-5"></div>
 
         <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
             <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95">
@@ -232,7 +232,6 @@
                 
                 telefonoWhatsAppGlobal = data.telefono || telefonoWhatsAppGlobal;
 
-                // SE AGREGÓ: Renderizar la imagen de fondo cargada en el banner si existe
                 const bannerElement = document.getElementById("dyn-banner");
                 if (data.bannerUrl) {
                     bannerElement.style.backgroundImage = `url('${data.bannerUrl}')`;
@@ -240,25 +239,22 @@
                     bannerElement.style.backgroundImage = 'none';
                 }
 
-                // --- NUEVO MOTOR DE ESTILOS Y COLORES ---
+                // --- MOTOR DE ESTILOS Y COLORES ---
                 const temaElegido = data.tema || "oscuro";
                 const root = document.documentElement;
 
-                // LÓGICA AGREGADA PARA RECONOCER EL TEMA TORNASOL
                 if (temaElegido === "tornasol") {
                     document.body.className = "theme-tornasol";
                     root.removeAttribute('style'); 
                 } 
                 else if (temaElegido === "personalizado" && data.colores) {
-                    document.body.className = ""; // Limpia clases base
-                    // Aplica variables CSS en tiempo real
+                    document.body.className = "";
                     root.style.setProperty('--bg-body', data.colores.bg);
                     root.style.setProperty('--bg-app', data.colores.bg);
                     root.style.setProperty('--bg-card', data.colores.card);
                     root.style.setProperty('--text-title', data.colores.text);
                     root.style.setProperty('--text-desc', data.colores.text);
                     root.style.setProperty('--bg-btn', data.colores.accent);
-                    
                     root.style.setProperty('--border', data.colores.card);
                     root.style.setProperty('--bg-input', data.colores.bg);
                     root.style.setProperty('--text-input', data.colores.text);
@@ -266,12 +262,11 @@
                     root.style.setProperty('--hover-item', data.colores.card);
                 } else if (temaElegido === "claro") {
                     document.body.className = "theme-light";
-                    root.removeAttribute('style'); // Borra configuraciones personalizadas
+                    root.removeAttribute('style');
                 } else {
                     document.body.className = "theme-dark";
-                    root.removeAttribute('style'); // Borra configuraciones personalizadas
+                    root.removeAttribute('style');
                 }
-                // --- FIN DEL MOTOR DE COLORES ---
 
                 if (data.logoUrl) {
                     document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
@@ -343,13 +338,6 @@
                 }
             });
 
-            const sideButtons = document.querySelectorAll("#side-categories button");
-            sideButtons.forEach(btn => {
-                if (btn.textContent.includes(document.getElementById(`t-${catActiva}`).textContent.toLowerCase().replace(/^\w/, c => c.toUpperCase()))) {
-                     // Lógica simple para marcar visualmente
-                }
-            });
-
             const container = document.getElementById("catalog-container");
             container.innerHTML = "";
             const filtrados = listadoCompleto.filter(p => p.categoriaId === catActiva && p.activo);
@@ -361,7 +349,8 @@
 
             filtrados.forEach(p => {
                 const card = document.createElement("div");
-                card.className = "border rounded-2xl p-4 flex flex-col gap-3 dyn-card dyn-border";
+                // Modificada la tarjeta para ser de estructura vertical (tipo galería)
+                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md";
                 
                 let htmlSelects = "";
                 if (p.caracteristicas && p.caracteristicas.length > 0) {
@@ -389,31 +378,57 @@
                     htmlSelects += `</div>`;
                 }
 
+                // Nuevo diseño de la tarjeta: Imagen protagonista y acordeón para los detalles
                 card.innerHTML = `
-                    <div class="flex gap-4 items-start">
-                        <div class="flex-1">
-                            <h3 class="font-bold text-base leading-tight dyn-text-title">${p.nombre}</h3>
-                            <p class="text-xs mt-1 leading-relaxed dyn-text-desc whitespace-pre-line">${p.descripcion}</p>
-                        </div>
-                        <div class="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border dyn-border" style="background-color: var(--bg-body)">
-                            <img src="${p.imagenUrl || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover">
+                    <div class="w-full h-52 relative bg-zinc-800 cursor-pointer overflow-hidden" onclick="toggleOpciones('${p.id}')">
+                        <img src="${p.imagenUrl || 'https://via.placeholder.com/400x300'}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
+                            <h3 class="font-bold text-lg leading-tight text-white shadow-sm">${p.nombre}</h3>
                         </div>
                     </div>
-                    ${htmlSelects}
-                    <div id="control-${p.id}" class="hidden mt-2 pt-3 border-t flex items-center justify-between gap-4 dyn-border">
-                        <div class="flex items-center rounded-xl border dyn-input">
-                            <button onclick="cambiarCantidadInput('${p.id}', -1)" class="font-bold px-3 py-1.5 hover:text-red-400 text-sm dyn-text-title">-</button>
-                            <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-10 bg-transparent text-center text-xs font-bold focus:outline-none dyn-text-title">
-                            <button onclick="cambiarCantidadInput('${p.id}', 1)" class="font-bold px-3 py-1.5 hover:text-emerald-400 text-sm dyn-text-title">+</button>
-                        </div>
-                        <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0})" class="flex-1 text-xs font-bold py-3 px-4 rounded-xl shadow text-center dyn-btn">
-                            Añadir combinación
+                    
+                    <div class="p-4 flex flex-col gap-3">
+                        ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line line-clamp-2">${p.descripcion}</p>` : ''}
+                        
+                        <button onclick="toggleOpciones('${p.id}')" class="w-full text-xs font-bold py-3 px-4 rounded-xl border dyn-border dyn-text-title flex justify-between items-center transition-all active:scale-95 bg-black/5 dark:bg-white/5">
+                            <span>Configurar y añadir al carrito</span>
+                            <svg class="w-4 h-4 transform transition-transform" id="icon-toggle-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
+
+                        <div id="opciones-${p.id}" class="hidden flex-col gap-3 pt-2">
+                            ${htmlSelects}
+                            <div id="control-${p.id}" class="${p.caracteristicas?.length > 0 ? 'hidden' : 'flex'} mt-2 pt-3 border-t items-center justify-between gap-4 dyn-border">
+                                <div class="flex items-center rounded-xl border dyn-input w-[100px] justify-between">
+                                    <button onclick="cambiarCantidadInput('${p.id}', -1)" class="font-bold px-3 py-2 hover:text-red-400 text-sm dyn-text-title">-</button>
+                                    <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-xs font-bold focus:outline-none dyn-text-title">
+                                    <button onclick="cambiarCantidadInput('${p.id}', 1)" class="font-bold px-3 py-2 hover:text-emerald-400 text-sm dyn-text-title">+</button>
+                                </div>
+                                <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0})" class="flex-1 text-xs font-bold py-3 px-4 rounded-xl shadow text-center dyn-btn">
+                                    Añadir al carrito
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
+
+        // --- 🔘 LÓGICA DE APERTURA DE OPCIONES (ACORDEÓN) ---
+        window.toggleOpciones = (prodId) => {
+            const panel = document.getElementById(`opciones-${prodId}`);
+            const icon = document.getElementById(`icon-toggle-${prodId}`);
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                panel.classList.add('flex');
+                icon.classList.add('rotate-180');
+            } else {
+                panel.classList.add('hidden');
+                panel.classList.remove('flex');
+                icon.classList.remove('rotate-180');
+            }
+        };
 
         window.evaluarPaso = (selectElement, prodId, currentIndex, totalSteps) => {
             if (selectElement.value !== "") {
@@ -422,7 +437,9 @@
                     const nextSelect = document.getElementById(`select-${prodId}-${nextIndex}`);
                     if (nextSelect) nextSelect.disabled = false;
                 } else {
-                    document.getElementById(`control-${prodId}`).classList.remove("hidden");
+                    const control = document.getElementById(`control-${prodId}`);
+                    control.classList.remove("hidden");
+                    control.classList.add("flex");
                 }
             }
         }
@@ -447,7 +464,8 @@
             if (existeIndex > -1) {
                 carrito[existeIndex].cantidad += cantidad;
             } else {
-                carrito.push({ id: prodId, nombre: nombreProducto, opciones: opcionesSeleccionadas, cantidad: candy });
+                // Aquí corregí un error donde decía "candy" en lugar de "cantidad"
+                carrito.push({ id: prodId, nombre: nombreProducto, opciones: opcionesSeleccionadas, cantidad: cantidad });
             }
 
             alert(`¡Guardado en el pedido!`);
