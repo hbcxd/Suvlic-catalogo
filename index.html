@@ -25,7 +25,6 @@
 
         select:disabled { opacity: 0.3; cursor: not-allowed; }
         
-        /* Animación para indicar error de validación */
         .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
     </style>
@@ -69,7 +68,6 @@
             <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc">Espera un momento</p>
         </div>
 
-        <!-- Validación Estricta del Cliente -->
         <div id="client-section" class="px-6 mt-6">
             <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border transition-all duration-300" id="client-box">
                 <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1 text-pink-500">
@@ -80,7 +78,6 @@
         </div>
 
         <div id="catalog-scroll-anchor" class="mt-4 border-b sticky top-0 backdrop-blur z-20 dyn-border shadow-sm pb-2" style="background-color: var(--bg-app); opacity: 0.98;">
-            <!-- Barra de Búsqueda -->
             <div class="px-6 pt-3 pb-1">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -89,7 +86,6 @@
                     <input type="text" id="search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border focus:border-pink-500 focus:outline-none">
                 </div>
             </div>
-            <!-- Pestañas Categorías -->
             <div id="tabs-container" class="flex overflow-x-auto px-6 gap-6 text-sm font-bold pt-2 hide-scrollbar"></div>
         </div>
 
@@ -103,7 +99,6 @@
         </div>
     </div>
 
-    <!-- Menú Lateral -->
     <div id="menu-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[50] hidden opacity-0 transition-opacity duration-300"></div>
     <div id="side-menu" class="fixed top-0 left-0 bottom-0 w-[280px] z-[55] transform -translate-x-full transition-transform duration-300 flex flex-col dyn-card dyn-border border-r">
         <div class="p-5 flex justify-between items-center border-b dyn-border">
@@ -138,6 +133,38 @@
         let telefonoWhatsAppGlobal = "584244178356";
         let searchTerm = "";
 
+        // --- LÓGICA DE COLORES ---
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+        }
+
+        function obtenerNombreColor(hex) {
+            const paleta = [
+                { nombre: "Negro", hex: "#000000" }, { nombre: "Blanco", hex: "#ffffff" },
+                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Verde", hex: "#00ff00" },
+                { nombre: "Azul", hex: "#0000ff" }, { nombre: "Amarillo", hex: "#ffff00" },
+                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Morado", hex: "#800080" },
+                { nombre: "Rosa", hex: "#ffc0cb" }, { nombre: "Gris", hex: "#808080" },
+                { nombre: "Marrón", hex: "#a52a2a" }, { nombre: "Cian", hex: "#00ffff" },
+                { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Beige", hex: "#f5f5dc" },
+                { nombre: "Dorado", hex: "#ffd700" }, { nombre: "Plateado", hex: "#c0c0c0" },
+                { nombre: "Vino", hex: "#800000" }, { nombre: "Menta", hex: "#98ff98" },
+                { nombre: "Turquesa", hex: "#40e0d0"}, { nombre: "Coral", hex: "#ff7f50" }
+            ];
+            const c1 = hexToRgb(hex);
+            if(!c1) return hex;
+            let menorDistancia = Infinity;
+            let colorCercano = hex;
+            paleta.forEach(c2 => {
+                const rgb2 = hexToRgb(c2.hex);
+                const distancia = Math.sqrt(Math.pow(c1.r - rgb2.r, 2) + Math.pow(c1.g - rgb2.g, 2) + Math.pow(c1.b - rgb2.b, 2));
+                if(distancia < menorDistancia) { menorDistancia = distancia; colorCercano = c2.nombre; }
+            });
+            return colorCercano;
+        }
+        // --- FIN LÓGICA DE COLORES ---
+
         document.getElementById("btn-close-modal").onclick = () => document.getElementById("welcome-modal").classList.add("hidden");
         document.getElementById("search-input").addEventListener("input", (e) => { searchTerm = e.target.value.toLowerCase(); render(); });
 
@@ -150,7 +177,6 @@
         document.getElementById("btn-close-menu").onclick = () => toggleMenu(false);
         document.getElementById("menu-backdrop").onclick = () => toggleMenu(false);
 
-        // Zoom de Imagen
         window.abrirZoom = (url) => {
             const m = document.getElementById("image-modal");
             const img = document.getElementById("modal-img-zoom");
@@ -228,8 +254,6 @@
 
             const container = document.getElementById("catalog-container");
             container.innerHTML = "";
-            
-            // Filtro por Categoria, Actividad y Búsqueda
             const filtrados = listadoCompleto.filter(p => p.categoriaId === catActiva && p.activo && p.nombre.toLowerCase().includes(searchTerm));
 
             if (filtrados.length === 0) {
@@ -241,7 +265,6 @@
                 const card = document.createElement("div");
                 card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl";
                 
-                // SISTEMA DE COLORES VISUALES
                 let htmlColores = "";
                 let reqColor = false;
                 if (p.colores && p.colores.length > 0) {
@@ -266,7 +289,6 @@
                 if (p.caracteristicas && p.caracteristicas.length > 0) {
                     htmlSelects = `<div class="mt-2 space-y-4">`;
                     p.caracteristicas.forEach((feat, index) => {
-                        // Si requiere color, bloquea el primer select. Si no, lo deja activo.
                         const isDisabled = (index > 0 || reqColor) ? "disabled" : "";
                         htmlSelects += `
                             <div class="flex flex-col gap-1.5">
@@ -283,7 +305,6 @@
                     htmlSelects += `</div>`;
                 }
 
-                // Si no hay selects ni color, se muestra directo. Si no, arranca hidden.
                 const esDirecto = !reqColor && (!p.caracteristicas || p.caracteristicas.length === 0);
 
                 card.innerHTML = `
@@ -292,7 +313,6 @@
                             <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-105 filter drop-shadow-md" alt="${p.nombre}">
                             <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[9px] uppercase font-bold px-2 py-1 rounded-md">✨ Personalizable</div>
                         </div>
-                        
                         <div class="p-5 pb-4 flex flex-col gap-2 z-10 bg-[var(--bg-card)] cursor-pointer" onclick="tOpc('${p.id}')">
                             <div class="flex justify-between items-start gap-3">
                                 <h3 class="font-bold text-lg leading-tight dyn-text-title group-hover:text-pink-500 transition-colors">${p.nombre}</h3>
@@ -303,19 +323,17 @@
                             ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line mt-1 opacity-90">${p.descripcion}</p>` : ''}
                         </div>
                     </div>
-
                     <div id="opc-${p.id}" class="hidden flex-col gap-4 px-5 pb-5 bg-[var(--bg-card)]">
                         <div class="w-full h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent opacity-50 mb-1"></div>
                         ${htmlColores}
                         ${htmlSelects}
-                        
                         <div id="ctrl-${p.id}" class="${esDirecto ? 'flex' : 'hidden'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border">
                             <div class="flex items-center rounded-xl border dyn-input w-[120px] justify-between shadow-sm">
                                 <button onclick="cCant('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
                                 <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
                                 <button onclick="cCant('${p.id}', 1)" class="font-bold px-4 py-3 hover:text-emerald-500 text-sm dyn-text-title transition-colors">+</button>
                             </div>
-                            <button onclick="addCar('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0}, ${reqColor})" class="flex-1 text-sm font-bold py-3.5 px-3 rounded-xl shadow-md text-center dyn-btn active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <button onclick="window.addCar('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0}, ${reqColor})" class="flex-1 text-sm font-bold py-3.5 px-3 rounded-xl shadow-md text-center dyn-btn active:scale-95 transition-transform flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                 Añadir
                             </button>
@@ -333,13 +351,10 @@
         };
 
         window.selecColor = (prodId, colorHex, btnObj, totalSteps) => {
-            // Estilizar el seleccionado
             document.querySelectorAll(`.color-btn-${prodId}`).forEach(b => { b.classList.remove('border-pink-500', 'scale-110'); b.innerHTML = ''; });
             btnObj.classList.add('border-pink-500', 'scale-110');
             btnObj.innerHTML = `<svg class="w-5 h-5 text-white/90 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
             document.getElementById(`c-val-${prodId}`).value = colorHex;
-            
-            // Si hay selects, habilitar el primero. Si no hay, mostrar botón de compra.
             if (totalSteps > 0) { document.getElementById(`s-${prodId}-0`).disabled = false; } 
             else { document.getElementById(`ctrl-${prodId}`).classList.remove("hidden"); document.getElementById(`ctrl-${prodId}`).classList.add("flex"); }
         }
@@ -356,26 +371,21 @@
         window.addCar = (id, n, max, hasColor) => {
             const c = parseInt(document.getElementById(`cant-${id}`).value);
             const opc = [];
-            
             if(hasColor) {
                 const colorSel = document.getElementById(`c-val-${id}`).value;
                 if(!colorSel) return alert("Por favor, selecciona un color.");
-                opc.push(`Color: ${colorSel}`);
+                // AQUÍ SE HACE LA TRADUCCIÓN
+                opc.push(`Color: ${obtenerNombreColor(colorSel)}`);
             }
-
             for (let i = 0; i < max; i++) {
                 const s = document.getElementById(`s-${id}-${i}`);
                 if(!s.value) return alert("Completa las opciones requeridas.");
                 opc.push(`${s.getAttribute("data-titulo")}: ${s.value}`);
             }
-
             const idx = carrito.findIndex(i => i.id === id && JSON.stringify(i.opc) === JSON.stringify(opc));
             if (idx > -1) carrito[idx].c += c; else carrito.push({ id: id, n: n, opc: opc, c: c });
-
             alert("¡Añadido al pedido!");
             tOpc(id);
-            
-            // Reset
             document.getElementById(`cant-${id}`).value = 1;
             if(hasColor) {
                 document.getElementById(`c-val-${id}`).value = "";
@@ -383,8 +393,6 @@
             }
             for (let i = 0; i < max; i++) { const s = document.getElementById(`s-${id}-${i}`); s.value = ""; s.disabled = true; }
             if(max > 0 || hasColor) { document.getElementById(`ctrl-${id}`).classList.add("hidden"); document.getElementById(`ctrl-${id}`).classList.remove("flex"); }
-
-            // UI feedback cart
             const btnCounter = document.getElementById("counter");
             btnCounter.textContent = `${carrito.reduce((s, i) => s + i.c, 0)} ítems`;
             btnCounter.classList.add("animate-pulse"); setTimeout(() => btnCounter.classList.remove("animate-pulse"), 1000);
@@ -394,22 +402,11 @@
 
         document.getElementById("btn-whatsapp").onclick = () => {
             if (carrito.length === 0) return alert("Por favor, añade al menos un artículo a tu carrito antes de enviar.");
-            
             const nInput = document.getElementById("client-name");
             const name = nInput.value.trim();
-            
-            if (!name) {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                nInput.focus();
-                const box = document.getElementById("client-box");
-                box.classList.add("shake-error");
-                setTimeout(() => box.classList.remove("shake-error"), 1000);
-                return;
-            }
-            
+            if (!name) { window.scrollTo({ top: 0, behavior: "smooth" }); nInput.focus(); const box = document.getElementById("client-box"); box.classList.add("shake-error"); setTimeout(() => box.classList.remove("shake-error"), 1000); return; }
             const h = new Date();
             let txt = `🧾 *NOTA DE PEDIDO / DIGITAL* 🧾\n🏢 *EMPRESA:* ${document.getElementById("dyn-nombre").textContent.toUpperCase()}\n👤 *CLIENTE:* ${name.toUpperCase()}\n📅 *FECHA:* ${h.toLocaleDateString('es-ES')} - ${h.toLocaleTimeString('es-ES')}\n===============================\n🛍️ *DETALLES:*\n\n`;
-
             let tot = 0;
             carrito.forEach((i, x) => {
                 txt += `*${x + 1}️⃣ ${i.n.toUpperCase()}*\n   🔹 *Cantidad:* ${i.c} ud.\n`;
@@ -417,7 +414,6 @@
                 txt += `-----------------------------------------------\n`; tot += i.c;
             });
             txt += `📊 *TOTAL PIEZAS:* ${tot}\n===============================\n👋 ¡Hola! Soy ${name}. Acabo de armar este pedido para revisar disponibilidad y coordinar pago.`;
-
             window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(txt)}`, "_blank");
         }
     </script>
