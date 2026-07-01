@@ -6,124 +6,91 @@
     <title>Catálogo Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* DEFINICIÓN MAESTRA DE LOS TEMAS (Intercambiables en vivo) */
-        .theme-dark {
-            --bg-body: #0f172a;
-            --bg-app: #121214;
-            --bg-card: #18181b;
-            --text-title: #ffffff;
-            --text-desc: #a1a1aa;
-            --border: #27272a;
-            --bg-input: #27272a;
-            --text-input: #e4e4e7;
-            --bg-btn: #ffffff;
-            --text-btn: #121214;
-            --hover-item: #27272a;
-        }
-        .theme-light {
-            --bg-body: #e2e8f0;
-            --bg-app: #ffffff;
-            --bg-card: #f4f4f5;
-            --text-title: #0f172a;
-            --text-desc: #52525b;
-            --border: #e4e4e7;
-            --bg-input: #ffffff;
-            --text-input: #18181b;
-            --bg-btn: #18181b;
-            --text-btn: #ffffff;
-            --hover-item: #e4e4e7;
-        }
-        /* NUEVO: Tema Tornasol Suvlic */
-        .theme-tornasol {
-            --bg-body: #0b0f19;
-            --bg-app: #0b0f19;
-            --bg-card: #0f172a;
-            --text-title: #ffffff;
-            --text-desc: #94a3b8;
-            --border: #1e293b;
-            --bg-input: #0b0f19;
-            --text-input: #f8fafc;
-            /* Gradiente idéntico al panel administrativo */
-            --bg-btn: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%);
-            --text-btn: #ffffff;
-            --hover-item: #1e293b;
-        }
+        .theme-dark { --bg-body: #0f172a; --bg-app: #121214; --bg-card: #18181b; --text-title: #ffffff; --text-desc: #a1a1aa; --border: #27272a; --bg-input: #27272a; --text-input: #e4e4e7; --bg-btn: #ffffff; --text-btn: #121214; --hover-item: #27272a; }
+        .theme-light { --bg-body: #e2e8f0; --bg-app: #ffffff; --bg-card: #f4f4f5; --text-title: #0f172a; --text-desc: #52525b; --border: #e4e4e7; --bg-input: #ffffff; --text-input: #18181b; --bg-btn: #18181b; --text-btn: #ffffff; --hover-item: #e4e4e7; }
+        .theme-tornasol { --bg-body: #0b0f19; --bg-app: #0b0f19; --bg-card: #0f172a; --text-title: #ffffff; --text-desc: #94a3b8; --border: #1e293b; --bg-input: #0b0f19; --text-input: #f8fafc; --bg-btn: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%); --text-btn: #ffffff; --hover-item: #1e293b; }
 
-        /* Transiciones fluidas para un efecto visual premium */
         body { background-color: var(--bg-body); font-family: system-ui, -apple-system, sans-serif; transition: background 0.4s ease; }
         .app-container { max-width: 450px; margin: 0 auto; background-color: var(--bg-app); min-height: 100vh; position: relative; transition: background 0.4s ease; overflow-x: hidden;}
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Enlace de elementos a las variables */
         .dyn-card { background-color: var(--bg-card); border-color: var(--border); transition: all 0.4s ease; }
         .dyn-text-title { color: var(--text-title); transition: color 0.4s ease; }
         .dyn-text-desc { color: var(--text-desc); transition: color 0.4s ease; }
         .dyn-border { border-color: var(--border); transition: border-color 0.4s ease; }
         .dyn-input { background-color: var(--bg-input); border-color: var(--border); color: var(--text-input); transition: all 0.4s ease; }
-        
-        /* Nota: background en vez de background-color para aceptar gradientes */
         .dyn-btn { background: var(--bg-btn); color: var(--text-btn); transition: all 0.4s ease; background-size: 150% auto; }
         .dyn-btn:hover { background-position: right center; }
-        
         .dyn-hover:hover { background-color: var(--hover-item); }
 
         select:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        /* Animación para indicar error de validación */
+        .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
     </style>
 </head>
 <body class="theme-dark">
 
+    <!-- Modal Visor de Imágenes (ZOOM) -->
+    <div id="image-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-300 opacity-0 cursor-zoom-out" onclick="cerrarZoom()">
+        <button class="absolute top-5 right-5 text-white/70 hover:text-white p-2 transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <img id="modal-img-zoom" src="" class="max-w-[95%] max-h-[85vh] object-contain drop-shadow-2xl rounded-lg scale-95 transition-transform duration-300">
+    </div>
+
+    <!-- Modal Bienvenida -->
     <div id="welcome-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
         <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
-            <div id="modal-logo" class="w-20 h-20 mx-auto rounded-full p-1 border shadow-md flex items-center justify-center overflow-hidden dyn-border" style="background-color: var(--bg-body)">
-                <div class="text-xs dyn-text-desc">...</div>
+            <div id="modal-logo" class="w-20 h-20 mx-auto rounded-full p-1 border shadow-md flex items-center justify-center overflow-hidden dyn-border" style="background-color: var(--bg-body)"><div class="text-xs dyn-text-desc">...</div></div>
+            <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">¡Bienvenido al Catálogo de <span id="modal-nombre-header" class="text-pink-500">...</span>! 🚀</h2>
+            
+            <div class="bg-pink-500/10 border border-pink-500/20 rounded-xl p-3">
+                <p class="text-xs font-bold text-pink-400">✨ Todos nuestros productos son 100% personalizables.</p>
             </div>
-            <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">
-                ¡Bienvenido al Menú Interactivo de <span id="modal-nombre-header" class="text-pink-500">...</span>! 🚀
-            </h2>
-            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">
-                En este menú puedes armar tu pedido fácilmente. No te preocupes, ya que <span class="font-bold text-pink-500">no tienes que hacer ningún pago aquí</span>.
-            </p>
-            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">
-                <span class="font-bold dyn-text-title">Pedir es muy sencillo:</span> Agrega productos a tu carrito, rellena tus datos y luego te conectaremos de nuevo con <span id="modal-nombre-body" class="font-bold dyn-text-title">...</span> para que termines tu compra con ellos en WhatsApp.
-            </p>
-            <button id="btn-close-modal" class="w-full font-bold text-sm py-3.5 px-4 rounded-xl shadow-lg transition-all transform active:scale-95 dyn-btn">
-                Ok, quiero ver el Menú
-            </button>
+            
+            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Aquí puedes armar tu pedido. <span class="font-bold text-pink-500">No tienes que hacer ningún pago aquí</span>.</p>
+            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Agrega productos a tu carrito y te conectaremos con nuestro WhatsApp.</p>
+            <button id="btn-close-modal" class="w-full font-bold text-sm py-3.5 px-4 rounded-xl shadow-lg transition-all transform active:scale-95 dyn-btn">Ver el Menú</button>
         </div>
     </div>
 
     <div class="app-container pb-28 relative">
-        
         <button id="btn-open-menu" class="absolute top-4 left-4 z-40 p-2 rounded-xl shadow-lg border dyn-card dyn-border transition-transform active:scale-95">
-            <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
+            <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
 
-        <div id="dyn-banner" class="h-32 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center transition-all duration-500">
-            <div class="absolute inset-0 opacity-20 bg-gradient-to-br from-[#e51d74] via-[#00c2cb] to-[#facc15]"></div>
-        </div>
+        <div id="dyn-banner" class="h-32 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center transition-all duration-500"><div class="absolute inset-0 opacity-20 bg-gradient-to-br from-[#e51d74] via-[#00c2cb] to-[#facc15]"></div></div>
 
         <div class="px-6 text-center -mt-12 relative z-10">
-            <div id="wrapper-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-xl flex items-center justify-center overflow-hidden dyn-card dyn-border">
-                <div id="logo-loader" class="text-xs dyn-text-desc">...</div>
-            </div>
+            <div id="wrapper-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-xl flex items-center justify-center overflow-hidden dyn-card dyn-border"><div id="logo-loader" class="text-xs dyn-text-desc">...</div></div>
             <h1 id="dyn-nombre" class="mt-3 text-xl font-bold tracking-tight dyn-text-title">Cargando...</h1>
-            <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc">Por favor espera un momento</p>
+            <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc">Espera un momento</p>
         </div>
 
+        <!-- Validación Estricta del Cliente -->
         <div id="client-section" class="px-6 mt-6">
-            <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border transition-colors duration-300" id="client-box">
-                <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1">
-                    👤 Tus Datos para el Pedido
+            <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border transition-all duration-300" id="client-box">
+                <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1 text-pink-500">
+                    👤 Tu Nombre (Requerido para comprar)
                 </label>
-                <input type="text" id="client-name" placeholder="Escribe tu Nombre y Apellido" class="text-sm rounded-xl p-3 focus:outline-none w-full border font-medium transition-all dyn-input focus:border-pink-500">
+                <input type="text" id="client-name" required placeholder="Escribe tu Nombre y Apellido" class="text-sm rounded-xl p-3 focus:outline-none w-full border font-medium transition-all dyn-input focus:border-pink-500">
             </div>
         </div>
 
-        <div id="catalog-scroll-anchor" class="mt-6 border-b sticky top-0 backdrop-blur z-20 dyn-border" style="background-color: var(--bg-app); opacity: 0.95;">
-            <div id="tabs-container" class="flex overflow-x-auto px-6 gap-6 text-sm font-bold py-2 hide-scrollbar">
+        <div id="catalog-scroll-anchor" class="mt-4 border-b sticky top-0 backdrop-blur z-20 dyn-border shadow-sm pb-2" style="background-color: var(--bg-app); opacity: 0.98;">
+            <!-- Barra de Búsqueda -->
+            <div class="px-6 pt-3 pb-1">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" id="search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border focus:border-pink-500 focus:outline-none">
                 </div>
+            </div>
+            <!-- Pestañas Categorías -->
+            <div id="tabs-container" class="flex overflow-x-auto px-6 gap-6 text-sm font-bold pt-2 hide-scrollbar"></div>
         </div>
 
         <div id="catalog-container" class="p-4 space-y-5"></div>
@@ -136,32 +103,22 @@
         </div>
     </div>
 
+    <!-- Menú Lateral -->
     <div id="menu-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[50] hidden opacity-0 transition-opacity duration-300"></div>
     <div id="side-menu" class="fixed top-0 left-0 bottom-0 w-[280px] z-[55] transform -translate-x-full transition-transform duration-300 flex flex-col dyn-card dyn-border border-r">
-        
         <div class="p-5 flex justify-between items-center border-b dyn-border">
-            <h2 class="font-bold text-lg dyn-text-title flex items-center gap-2">
-                <span>📚</span> Secciones
-            </h2>
+            <h2 class="font-bold text-lg dyn-text-title flex items-center gap-2"><span>📚</span> Secciones</h2>
             <button id="btn-close-menu" class="p-2 rounded-lg dyn-hover dyn-text-desc hover:text-red-500 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
-        
         <div class="flex-1 overflow-y-auto p-4 hide-scrollbar">
             <h3 class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc mb-3 px-2">Filtrar Productos</h3>
-            <div id="side-categories" class="space-y-1">
-                </div>
+            <div id="side-categories" class="space-y-1"></div>
         </div>
-
         <div class="p-5 border-t dyn-border space-y-3">
             <p class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc text-center">¿Tienes una duda rápida?</p>
             <button id="btn-whatsapp-consulta" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-transform active:scale-95">
-                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 0C5.385 0 0 5.383 0 12.032c0 2.651.688 5.176 1.996 7.424L.373 24l4.714-1.554C7.26 23.633 9.61 24.062 12.03 24.062c6.645 0 12.03-5.383 12.03-12.03C24.061 5.383 18.676 0 12.031 0zm0 22.037c-2.222 0-4.4-.59-6.305-1.705l-.45-.265-3.155 1.04.843-3.076-.293-.464c-1.228-1.95-1.874-4.204-1.874-6.536 0-5.526 4.498-10.024 10.024-10.024 5.525 0 10.022 4.498 10.022 10.024 0 5.526 4.497 10.024-10.022 10.024zm5.502-7.525c-.302-.15-1.782-.88-2.057-.98-.276-.1-.476-.15-.677.15-.2.302-.777.98-.952 1.18-.175.2-.35.225-.652.075-1.964-.972-3.354-2.26-4.267-3.96-.15-.276-.015-.426.136-.576.136-.135.302-.35.453-.526.15-.175.2-.3.302-.5.1-.2.05-.375-.025-.525-.075-.15-.677-1.63-.927-2.23-.245-.586-.495-.505-.677-.515-.175-.01-.375-.01-.575-.01-.2 0-.526.075-.802.375-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.076 2.9 1.226 3.1.15.2 2.115 3.226 5.122 4.525 2.186.945 2.986.825 3.51.75.602-.085 1.782-.726 2.032-1.425.25-.7.25-1.3.175-1.426-.075-.125-.276-.2-.577-.35z"></path>
-                </svg>
                 Chat Directo
             </button>
         </div>
@@ -171,14 +128,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk",
-            authDomain: "suvlic-catalogo.firebaseapp.com",
-            projectId: "suvlic-catalogo",
-            storageBucket: "suvlic-catalogo.firebasestorage.app",
-            messagingSenderId: "944310483909",
-            appId: "1:944310483909:web:81852b2a7edb73e807e9ac"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk", authDomain: "suvlic-catalogo.firebaseapp.com", projectId: "suvlic-catalogo", storageBucket: "suvlic-catalogo.firebasestorage.app", messagingSenderId: "944310483909", appId: "1:944310483909:web:81852b2a7edb73e807e9ac" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -186,132 +136,82 @@
         let listadoCompleto = [];
         let carrito = [];
         let telefonoWhatsAppGlobal = "584244178356";
+        let searchTerm = "";
 
-        document.getElementById("btn-close-modal").onclick = () => {
-            document.getElementById("welcome-modal").classList.add("hidden");
-        };
-
-        const btnMenu = document.getElementById("btn-open-menu");
-        const btnCloseMenu = document.getElementById("btn-close-menu");
-        const menuBackdrop = document.getElementById("menu-backdrop");
-        const sideMenu = document.getElementById("side-menu");
+        document.getElementById("btn-close-modal").onclick = () => document.getElementById("welcome-modal").classList.add("hidden");
+        document.getElementById("search-input").addEventListener("input", (e) => { searchTerm = e.target.value.toLowerCase(); render(); });
 
         const toggleMenu = (show) => {
-            if (show) {
-                menuBackdrop.classList.remove("hidden");
-                setTimeout(() => {
-                    menuBackdrop.classList.remove("opacity-0");
-                    sideMenu.classList.remove("-translate-x-full");
-                }, 10);
-            } else {
-                menuBackdrop.classList.add("opacity-0");
-                sideMenu.classList.add("-translate-x-full");
-                setTimeout(() => menuBackdrop.classList.add("hidden"), 300);
-            }
+            const b = document.getElementById("menu-backdrop"), m = document.getElementById("side-menu");
+            if (show) { b.classList.remove("hidden"); setTimeout(() => { b.classList.remove("opacity-0"); m.classList.remove("-translate-x-full"); }, 10); } 
+            else { b.classList.add("opacity-0"); m.classList.add("-translate-x-full"); setTimeout(() => b.classList.add("hidden"), 300); }
         };
+        document.getElementById("btn-open-menu").onclick = () => toggleMenu(true);
+        document.getElementById("btn-close-menu").onclick = () => toggleMenu(false);
+        document.getElementById("menu-backdrop").onclick = () => toggleMenu(false);
 
-        btnMenu.onclick = () => toggleMenu(true);
-        btnCloseMenu.onclick = () => toggleMenu(false);
-        menuBackdrop.onclick = () => toggleMenu(false);
+        // Zoom de Imagen
+        window.abrirZoom = (url) => {
+            const m = document.getElementById("image-modal");
+            const img = document.getElementById("modal-img-zoom");
+            img.src = url;
+            m.classList.remove("hidden");
+            setTimeout(() => { m.classList.remove("opacity-0"); img.classList.remove("scale-95"); img.classList.add("scale-100"); }, 10);
+        };
+        window.cerrarZoom = () => {
+            const m = document.getElementById("image-modal");
+            const img = document.getElementById("modal-img-zoom");
+            m.classList.add("opacity-0"); img.classList.remove("scale-100"); img.classList.add("scale-95");
+            setTimeout(() => { m.classList.add("hidden"); img.src = ""; }, 300);
+        };
 
         onSnapshot(doc(db, "configuracion", "perfil"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                const nombreTienda = data.nombre || "Tu Tienda";
-                
-                document.getElementById("dyn-nombre").textContent = nombreTienda;
+                document.getElementById("dyn-nombre").textContent = data.nombre || "Tu Tienda";
                 document.getElementById("dyn-descripcion").textContent = data.descripcion || "";
-                document.title = nombreTienda;
-                
-                document.getElementById("modal-nombre-header").textContent = nombreTienda;
-                document.getElementById("modal-nombre-body").textContent = nombreTienda;
-                
+                document.title = data.nombre || "Catálogo";
+                document.getElementById("modal-nombre-header").textContent = data.nombre || "";
                 telefonoWhatsAppGlobal = data.telefono || telefonoWhatsAppGlobal;
 
-                const bannerElement = document.getElementById("dyn-banner");
-                if (data.bannerUrl) {
-                    bannerElement.style.backgroundImage = `url('${data.bannerUrl}')`;
-                } else {
-                    bannerElement.style.backgroundImage = 'none';
-                }
+                const b = document.getElementById("dyn-banner");
+                if (data.bannerUrl) b.style.backgroundImage = `url('${data.bannerUrl}')`;
 
-                const temaElegido = data.tema || "oscuro";
                 const root = document.documentElement;
-
-                if (temaElegido === "tornasol") {
-                    document.body.className = "theme-tornasol";
-                    root.removeAttribute('style'); 
-                } 
-                else if (temaElegido === "personalizado" && data.colores) {
+                if (data.tema === "tornasol") { document.body.className = "theme-tornasol"; root.removeAttribute('style'); } 
+                else if (data.tema === "personalizado" && data.colores) {
                     document.body.className = "";
-                    root.style.setProperty('--bg-body', data.colores.bg);
-                    root.style.setProperty('--bg-app', data.colores.bg);
-                    root.style.setProperty('--bg-card', data.colores.card);
-                    root.style.setProperty('--text-title', data.colores.text);
-                    root.style.setProperty('--text-desc', data.colores.text);
-                    root.style.setProperty('--bg-btn', data.colores.accent);
-                    root.style.setProperty('--border', data.colores.card);
-                    root.style.setProperty('--bg-input', data.colores.bg);
-                    root.style.setProperty('--text-input', data.colores.text);
-                    root.style.setProperty('--text-btn', '#ffffff'); 
-                    root.style.setProperty('--hover-item', data.colores.card);
-                } else if (temaElegido === "claro") {
-                    document.body.className = "theme-light";
-                    root.removeAttribute('style');
-                } else {
-                    document.body.className = "theme-dark";
-                    root.removeAttribute('style');
-                }
+                    root.style.setProperty('--bg-body', data.colores.bg); root.style.setProperty('--bg-app', data.colores.bg); root.style.setProperty('--bg-card', data.colores.card); root.style.setProperty('--text-title', data.colores.text); root.style.setProperty('--text-desc', data.colores.text); root.style.setProperty('--bg-btn', data.colores.accent); root.style.setProperty('--border', data.colores.card); root.style.setProperty('--bg-input', data.colores.bg); root.style.setProperty('--text-input', data.colores.text); root.style.setProperty('--text-btn', '#ffffff'); root.style.setProperty('--hover-item', data.colores.card);
+                } else if (data.tema === "claro") { document.body.className = "theme-light"; root.removeAttribute('style'); } 
+                else { document.body.className = "theme-dark"; root.removeAttribute('style'); }
 
                 if (data.logoUrl) {
                     document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
                     document.getElementById("modal-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
-                } else {
-                    document.getElementById("wrapper-logo").innerHTML = `<div class="text-2xl">🛍️</div>`;
-                    document.getElementById("modal-logo").innerHTML = `<div class="text-xl">🛍️</div>`;
                 }
                 render();
             }
         });
 
         onSnapshot(collection(db, "categorias"), (snapshot) => {
-            const tabsContainer = document.getElementById("tabs-container");
-            const sideCategories = document.getElementById("side-categories");
-            
-            tabsContainer.innerHTML = "";
-            sideCategories.innerHTML = "";
-            
+            const tC = document.getElementById("tabs-container"), sC = document.getElementById("side-categories");
+            tC.innerHTML = ""; sC.innerHTML = "";
             const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.orden - b.orden);
-
-            if(docs.length > 0 && !catActiva) {
-                catActiva = docs[0].id;
-            }
+            if(docs.length > 0 && !catActiva) catActiva = docs[0].id;
 
             docs.forEach(cat => {
-                const btnTab = document.createElement("button");
-                btnTab.id = `t-${cat.id}`;
-                btnTab.className = catActiva === cat.id 
-                    ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)]"
-                    : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent";
-                btnTab.textContent = cat.nombre.toUpperCase();
-                btnTab.onclick = () => {
-                    catActiva = cat.id;
-                    render();
-                };
-                tabsContainer.appendChild(btnTab);
+                const bT = document.createElement("button");
+                bT.id = `t-${cat.id}`;
+                bT.className = catActiva === cat.id ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)]" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent";
+                bT.textContent = cat.nombre.toUpperCase();
+                bT.onclick = () => { catActiva = cat.id; render(); };
+                tC.appendChild(bT);
 
-                const btnSide = document.createElement("button");
-                btnSide.className = `w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover ${catActiva === cat.id ? 'bg-[var(--hover-item)]' : ''}`;
-                btnSide.textContent = `• ${cat.nombre}`;
-                btnSide.onclick = () => {
-                    catActiva = cat.id;
-                    render();
-                    toggleMenu(false); 
-                    
-                    const anchor = document.getElementById("catalog-scroll-anchor");
-                    window.scrollTo({ top: anchor.offsetTop - 20, behavior: "smooth" });
-                };
-                sideCategories.appendChild(btnSide);
+                const bS = document.createElement("button");
+                bS.className = `w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover ${catActiva === cat.id ? 'bg-[var(--hover-item)]' : ''}`;
+                bS.textContent = `• ${cat.nombre}`;
+                bS.onclick = () => { catActiva = cat.id; render(); toggleMenu(false); window.scrollTo({ top: document.getElementById("catalog-scroll-anchor").offsetTop - 20, behavior: "smooth" }); };
+                sC.appendChild(bS);
             });
             render();
         });
@@ -322,46 +222,58 @@
         });
 
         function render() {
-            const tabsButtons = document.querySelectorAll("#tabs-container button");
-            tabsButtons.forEach(btn => {
-                if (btn.id === `t-${catActiva}`) {
-                    btn.className = "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all";
-                } else {
-                    btn.className = "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all";
-                }
+            document.querySelectorAll("#tabs-container button").forEach(btn => {
+                btn.className = btn.id === `t-${catActiva}` ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all";
             });
 
             const container = document.getElementById("catalog-container");
             container.innerHTML = "";
-            const filtrados = listadoCompleto.filter(p => p.categoriaId === catActiva && p.activo);
+            
+            // Filtro por Categoria, Actividad y Búsqueda
+            const filtrados = listadoCompleto.filter(p => p.categoriaId === catActiva && p.activo && p.nombre.toLowerCase().includes(searchTerm));
 
             if (filtrados.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm py-8 dyn-text-desc">No hay artículos en esta categoría.</p>`;
+                container.innerHTML = `<p class="text-center text-sm py-8 dyn-text-desc">No se encontraron productos aquí.</p>`;
                 return;
             }
 
             filtrados.forEach(p => {
                 const card = document.createElement("div");
-                // Tarjeta con efecto de elevación suave (hover:shadow-xl)
                 card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl";
                 
+                // SISTEMA DE COLORES VISUALES
+                let htmlColores = "";
+                let reqColor = false;
+                if (p.colores && p.colores.length > 0) {
+                    reqColor = true;
+                    htmlColores = `
+                        <div class="flex flex-col gap-2 mt-1 mb-2">
+                            <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">🎨 Color Disponible (Requerido)</label>
+                            <div class="flex flex-wrap gap-3">
+                                ${p.colores.map(c => `
+                                    <button type="button" onclick="selecColor('${p.id}', '${c}', this, ${p.caracteristicas ? p.caracteristicas.length : 0})" 
+                                            class="color-btn-${p.id} w-9 h-9 rounded-full border-2 border-transparent shadow-md hover:scale-110 transition-transform flex items-center justify-center" 
+                                            style="background-color: ${c};" title="Seleccionar color">
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <input type="hidden" id="c-val-${p.id}" value="">
+                        </div>
+                    `;
+                }
+
                 let htmlSelects = "";
                 if (p.caracteristicas && p.caracteristicas.length > 0) {
-                    htmlSelects = `<div class="mt-1 space-y-4">`;
+                    htmlSelects = `<div class="mt-2 space-y-4">`;
                     p.caracteristicas.forEach((feat, index) => {
-                        const isDisabled = index > 0 ? "disabled" : "";
+                        // Si requiere color, bloquea el primer select. Si no, lo deja activo.
+                        const isDisabled = (index > 0 || reqColor) ? "disabled" : "";
                         htmlSelects += `
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">👉 Paso ${index + 1}: ${feat.titulo}</label>
-                                <select 
-                                    id="select-${p.id}-${index}" 
-                                    data-prod="${p.id}" 
-                                    data-index="${index}"
-                                    data-titulo="${feat.titulo}"
-                                    onchange="evaluarPaso(this, '${p.id}', ${index}, ${p.caracteristicas.length})"
-                                    class="text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-colors focus:border-pink-500"
-                                    ${isDisabled}
-                                >
+                                <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">👉 ${feat.titulo}</label>
+                                <select id="s-${p.id}-${index}" data-prod="${p.id}" data-titulo="${feat.titulo}"
+                                    onchange="evalPaso('${p.id}', ${index}, ${p.caracteristicas.length})"
+                                    class="text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-colors focus:border-pink-500" ${isDisabled}>
                                     <option value="" disabled selected>-- Elige una opción --</option>
                                     ${feat.opciones.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
@@ -371,54 +283,39 @@
                     htmlSelects += `</div>`;
                 }
 
-                // NUEVO DISEÑO: Imagen intocable, contenedor espacioso y menú descriptivo interactivo.
+                // Si no hay selects ni color, se muestra directo. Si no, arranca hidden.
+                const esDirecto = !reqColor && (!p.caracteristicas || p.caracteristicas.length === 0);
+
                 card.innerHTML = `
-                    <div class="cursor-pointer group flex flex-col h-full" onclick="toggleOpciones('${p.id}')">
-                        
-                        <!-- CONTENEDOR DE IMAGEN OPTIMIZADO: Garantiza la imagen completa (object-contain + padding) -->
-                        <div class="w-full h-[280px] sm:h-[320px] relative overflow-hidden flex items-center justify-center p-5 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5">
-                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" 
-                                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 filter drop-shadow-md" 
-                                 alt="${p.nombre}">
-                                 
-                            <!-- Badge interactivo de "Seleccionar" (aparece/sube en hover) -->
-                            <div class="absolute bottom-4 right-4 bg-[var(--bg-btn)] text-[var(--text-btn)] text-[10px] font-bold px-3.5 py-2 rounded-full flex items-center gap-1.5 opacity-90 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                                <span>Seleccionar</span>
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"></path></svg>
-                            </div>
+                    <div class="group flex flex-col h-full relative">
+                        <div class="w-full h-[280px] sm:h-[320px] relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 cursor-zoom-in" onclick="abrirZoom('${p.imagenUrl || 'https://via.placeholder.com/400'}')">
+                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-105 filter drop-shadow-md" alt="${p.nombre}">
+                            <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[9px] uppercase font-bold px-2 py-1 rounded-md">✨ Personalizable</div>
                         </div>
                         
-                        <!-- TEXTO DEL PRODUCTO -->
-                        <div class="p-5 pb-4 flex flex-col gap-2 z-10 bg-[var(--bg-card)]">
+                        <div class="p-5 pb-4 flex flex-col gap-2 z-10 bg-[var(--bg-card)] cursor-pointer" onclick="tOpc('${p.id}')">
                             <div class="flex justify-between items-start gap-3">
                                 <h3 class="font-bold text-lg leading-tight dyn-text-title group-hover:text-pink-500 transition-colors">${p.nombre}</h3>
-                                
-                                <!-- Icono flecha acordeón con estilo botón -->
                                 <div class="p-1.5 rounded-full bg-[var(--bg-input)] dyn-border border shadow-sm group-hover:scale-110 transition-transform">
-                                    <svg class="w-5 h-5 flex-shrink-0 dyn-text-desc transform transition-transform duration-300" id="icon-toggle-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <svg class="w-5 h-5 flex-shrink-0 dyn-text-desc transform transition-transform duration-300" id="icon-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
                             ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line mt-1 opacity-90">${p.descripcion}</p>` : ''}
                         </div>
                     </div>
 
-                    <!-- MENÚ DE OPCIONES DESPLEGABLE -->
-                    <div id="opciones-${p.id}" class="hidden flex-col gap-4 px-5 pb-5 bg-[var(--bg-card)]">
+                    <div id="opc-${p.id}" class="hidden flex-col gap-4 px-5 pb-5 bg-[var(--bg-card)]">
                         <div class="w-full h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent opacity-50 mb-1"></div>
-                        
+                        ${htmlColores}
                         ${htmlSelects}
                         
-                        <div id="control-${p.id}" class="${p.caracteristicas?.length > 0 ? 'hidden' : 'flex'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border">
-                            
-                            <!-- Control de cantidad -->
+                        <div id="ctrl-${p.id}" class="${esDirecto ? 'flex' : 'hidden'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border">
                             <div class="flex items-center rounded-xl border dyn-input w-[120px] justify-between shadow-sm">
-                                <button onclick="cambiarCantidadInput('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
+                                <button onclick="cCant('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
                                 <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
-                                <button onclick="cambiarCantidadInput('${p.id}', 1)" class="font-bold px-4 py-3 hover:text-emerald-500 text-sm dyn-text-title transition-colors">+</button>
+                                <button onclick="cCant('${p.id}', 1)" class="font-bold px-4 py-3 hover:text-emerald-500 text-sm dyn-text-title transition-colors">+</button>
                             </div>
-
-                            <!-- Botón añadir -->
-                            <button onclick="agregarAlCarrito('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0})" class="flex-1 text-sm font-bold py-3.5 px-3 rounded-xl shadow-md text-center dyn-btn active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <button onclick="addCar('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0}, ${reqColor})" class="flex-1 text-sm font-bold py-3.5 px-3 rounded-xl shadow-md text-center dyn-btn active:scale-95 transition-transform flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                 Añadir
                             </button>
@@ -429,144 +326,99 @@
             });
         }
 
-        window.toggleOpciones = (prodId) => {
-            const panel = document.getElementById(`opciones-${prodId}`);
-            const icon = document.getElementById(`icon-toggle-${prodId}`);
-            
-            if (panel.classList.contains('hidden')) {
-                panel.classList.remove('hidden');
-                panel.classList.add('flex');
-                icon.classList.add('rotate-180');
-            } else {
-                panel.classList.add('hidden');
-                panel.classList.remove('flex');
-                icon.classList.remove('rotate-180');
-            }
+        window.tOpc = (id) => {
+            const p = document.getElementById(`opc-${id}`), i = document.getElementById(`icon-${id}`);
+            if (p.classList.contains('hidden')) { p.classList.remove('hidden'); p.classList.add('flex'); i.classList.add('rotate-180'); } 
+            else { p.classList.add('hidden'); p.classList.remove('flex'); i.classList.remove('rotate-180'); }
         };
 
-        window.evaluarPaso = (selectElement, prodId, currentIndex, totalSteps) => {
-            if (selectElement.value !== "") {
-                const nextIndex = currentIndex + 1;
-                if (nextIndex < totalSteps) {
-                    const nextSelect = document.getElementById(`select-${prodId}-${nextIndex}`);
-                    if (nextSelect) nextSelect.disabled = false;
-                } else {
-                    const control = document.getElementById(`control-${prodId}`);
-                    control.classList.remove("hidden");
-                    control.classList.add("flex");
-                }
-            }
-        }
-
-        window.cambiarCantidadInput = (prodId, cambio) => {
-            const input = document.getElementById(`cant-${prodId}`);
-            let val = parseInt(input.value) + cambio;
-            if (val < 1) val = 1;
-            input.value = val;
-        }
-
-        window.agregarAlCarrito = (prodId, nombreProducto, totalSteps) => {
-            const cantidad = parseInt(document.getElementById(`cant-${prodId}`).value);
-            const opcionesSeleccionadas = [];
-
-            for (let i = 0; i < totalSteps; i++) {
-                const select = document.getElementById(`select-${prodId}-${i}`);
-                opcionesSeleccionadas.push(`${select.getAttribute("data-titulo")}: ${select.value}`);
-            }
-
-            const existeIndex = carrito.findIndex(item => item.id === prodId && JSON.stringify(item.opciones) === JSON.stringify(opcionesSeleccionadas));
-            if (existeIndex > -1) {
-                carrito[existeIndex].cantidad += cantidad;
-            } else {
-                carrito.push({ id: prodId, nombre: nombreProducto, opciones: opcionesSeleccionadas, cantidad: cantidad });
-            }
-
-            alert(`¡Guardado en el pedido!`);
+        window.selecColor = (prodId, colorHex, btnObj, totalSteps) => {
+            // Estilizar el seleccionado
+            document.querySelectorAll(`.color-btn-${prodId}`).forEach(b => { b.classList.remove('border-pink-500', 'scale-110'); b.innerHTML = ''; });
+            btnObj.classList.add('border-pink-500', 'scale-110');
+            btnObj.innerHTML = `<svg class="w-5 h-5 text-white/90 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+            document.getElementById(`c-val-${prodId}`).value = colorHex;
             
-            toggleOpciones(prodId);
-
-            document.getElementById(`cant-${prodId}`).value = 1;
-            for (let i = 0; i < totalSteps; i++) {
-                const select = document.getElementById(`select-${prodId}-${i}`);
-                select.value = "";
-                if (i > 0) select.disabled = true;
-            }
-            if(totalSteps > 0) {
-                document.getElementById(`control-${prodId}`).classList.add("hidden");
-                document.getElementById(`control-${prodId}`).classList.remove("flex");
-            }
-
-            renderCarritoTotal();
+            // Si hay selects, habilitar el primero. Si no hay, mostrar botón de compra.
+            if (totalSteps > 0) { document.getElementById(`s-${prodId}-0`).disabled = false; } 
+            else { document.getElementById(`ctrl-${prodId}`).classList.remove("hidden"); document.getElementById(`ctrl-${prodId}`).classList.add("flex"); }
         }
 
-        function renderCarritoTotal() {
-            const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+        window.evalPaso = (id, idx, max) => {
+            if (document.getElementById(`s-${id}-${idx}`).value !== "") {
+                if (idx + 1 < max) document.getElementById(`s-${id}-${idx+1}`).disabled = false;
+                else { document.getElementById(`ctrl-${id}`).classList.remove("hidden"); document.getElementById(`ctrl-${id}`).classList.add("flex"); }
+            }
+        }
+
+        window.cCant = (id, c) => { const i = document.getElementById(`cant-${id}`); i.value = Math.max(1, parseInt(i.value) + c); }
+
+        window.addCar = (id, n, max, hasColor) => {
+            const c = parseInt(document.getElementById(`cant-${id}`).value);
+            const opc = [];
+            
+            if(hasColor) {
+                const colorSel = document.getElementById(`c-val-${id}`).value;
+                if(!colorSel) return alert("Por favor, selecciona un color.");
+                opc.push(`Color: ${colorSel}`);
+            }
+
+            for (let i = 0; i < max; i++) {
+                const s = document.getElementById(`s-${id}-${i}`);
+                if(!s.value) return alert("Completa las opciones requeridas.");
+                opc.push(`${s.getAttribute("data-titulo")}: ${s.value}`);
+            }
+
+            const idx = carrito.findIndex(i => i.id === id && JSON.stringify(i.opc) === JSON.stringify(opc));
+            if (idx > -1) carrito[idx].c += c; else carrito.push({ id: id, n: n, opc: opc, c: c });
+
+            alert("¡Añadido al pedido!");
+            tOpc(id);
+            
+            // Reset
+            document.getElementById(`cant-${id}`).value = 1;
+            if(hasColor) {
+                document.getElementById(`c-val-${id}`).value = "";
+                document.querySelectorAll(`.color-btn-${id}`).forEach(b => { b.classList.remove('border-pink-500', 'scale-110'); b.innerHTML = ''; });
+            }
+            for (let i = 0; i < max; i++) { const s = document.getElementById(`s-${id}-${i}`); s.value = ""; s.disabled = true; }
+            if(max > 0 || hasColor) { document.getElementById(`ctrl-${id}`).classList.add("hidden"); document.getElementById(`ctrl-${id}`).classList.remove("flex"); }
+
+            // UI feedback cart
             const btnCounter = document.getElementById("counter");
-            btnCounter.textContent = `${totalItems} ítems`;
-            btnCounter.classList.add("animate-pulse");
-            setTimeout(() => btnCounter.classList.remove("animate-pulse"), 1000);
+            btnCounter.textContent = `${carrito.reduce((s, i) => s + i.c, 0)} ítems`;
+            btnCounter.classList.add("animate-pulse"); setTimeout(() => btnCounter.classList.remove("animate-pulse"), 1000);
         }
 
-        document.getElementById("btn-whatsapp-consulta").onclick = () => {
-            const nombreCliente = document.getElementById("client-name").value.trim();
-            const saludo = nombreCliente ? `¡Hola! Soy ${nombreCliente}.` : `¡Hola!`;
-            const textoConsulta = `${saludo} Vengo desde su catálogo web y quisiera hacer una consulta rápida:`;
-            
-            window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(textoConsulta)}`, "_blank");
-        };
+        document.getElementById("btn-whatsapp-consulta").onclick = () => window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(`¡Hola! Vengo desde su catálogo web y quisiera hacer una consulta rápida:`)}`, "_blank");
 
         document.getElementById("btn-whatsapp").onclick = () => {
-            if (carrito.length === 0) return alert("Por favor, configura y añade al menos un artículo a tu carrito antes de enviar.");
+            if (carrito.length === 0) return alert("Por favor, añade al menos un artículo a tu carrito antes de enviar.");
             
-            const nombreClienteInput = document.getElementById("client-name");
-            const nombreCliente = nombreClienteInput.value.trim();
+            const nInput = document.getElementById("client-name");
+            const name = nInput.value.trim();
             
-            if (!nombreCliente) {
-                alert("Para procesar tu pedido, necesitamos saber tu nombre. Llénalo en la sección 'Tus Datos' arriba.");
-                
+            if (!name) {
                 window.scrollTo({ top: 0, behavior: "smooth" });
-                nombreClienteInput.focus();
+                nInput.focus();
                 const box = document.getElementById("client-box");
-                box.classList.add("border-red-500", "shadow-red-500/50", "shadow-lg");
-                setTimeout(() => box.classList.remove("border-red-500", "shadow-red-500/50", "shadow-lg"), 3000);
-                
+                box.classList.add("shake-error");
+                setTimeout(() => box.classList.remove("shake-error"), 1000);
                 return;
             }
             
-            const hoy = new Date();
-            const fechaFactura = hoy.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            const horaFactura = hoy.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            const nombreTienda = document.getElementById("dyn-nombre").textContent.toUpperCase();
+            const h = new Date();
+            let txt = `🧾 *NOTA DE PEDIDO / DIGITAL* 🧾\n🏢 *EMPRESA:* ${document.getElementById("dyn-nombre").textContent.toUpperCase()}\n👤 *CLIENTE:* ${name.toUpperCase()}\n📅 *FECHA:* ${h.toLocaleDateString('es-ES')} - ${h.toLocaleTimeString('es-ES')}\n===============================\n🛍️ *DETALLES:*\n\n`;
 
-            let textoFactura = `🧾 *NOTA DE PEDIDO / FACTURA DIGITAL* 🧾\n`;
-            textoFactura += `🏢 *EMPRESA:* ${nombreTienda}\n`;
-            textoFactura += `👤 *CLIENTE:* ${nombreCliente.toUpperCase()}\n`;
-            textoFactura += `📅 *FECHA:* ${fechaFactura}\n`;
-            textoFactura += `⏰ *HORA:* ${horaFactura}\n`;
-            textoFactura += `===============================\n\n`;
-            textoFactura += `🛍️ *DETALLE DEL CONTENIDO:*\n\n`;
-
-            let totalArticulosGlobales = 0;
-
-            carrito.forEach((item, index) => {
-                textoFactura += `*${index + 1}️⃣ ${item.nombre.toUpperCase()}*\n`;
-                textoFactura += `   🔹 *Cantidad:* ${item.cantidad} ud.\n`;
-                
-                if (item.opciones && item.opciones.length > 0) {
-                    textoFactura += `   🔹 *Variaciones elegidas:*\n`;
-                    item.opciones.forEach(opt => {
-                        textoFactura += `      • ${opt}\n`;
-                    });
-                }
-                textoFactura += `-----------------------------------------------\n`;
-                totalArticulosGlobales += item.cantidad;
+            let tot = 0;
+            carrito.forEach((i, x) => {
+                txt += `*${x + 1}️⃣ ${i.n.toUpperCase()}*\n   🔹 *Cantidad:* ${i.c} ud.\n`;
+                if (i.opc.length > 0) { txt += `   🔹 *Variaciones:*\n`; i.opc.forEach(o => txt += `      • ${o}\n`); }
+                txt += `-----------------------------------------------\n`; tot += i.c;
             });
+            txt += `📊 *TOTAL PIEZAS:* ${tot}\n===============================\n👋 ¡Hola! Soy ${name}. Acabo de armar este pedido para revisar disponibilidad y coordinar pago.`;
 
-            textoFactura += `📊 *TOTAL DE ARTÍCULOS:* ${totalArticulosGlobales} piezas\n`;
-            textoFactura += `===============================\n\n`;
-            textoFactura += `👋 ¡Hola! Mi nombre es ${nombreCliente}. Acabo de armar este pedido desde el catálogo web. Quedo a la espera de que verifiques la disponibilidad para coordinar el pago y la entrega. ¡Muchas gracias!`;
-
-            window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(textoFactura)}`, "_blank");
+            window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(txt)}`, "_blank");
         }
     </script>
 </body>
