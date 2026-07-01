@@ -203,13 +203,37 @@
                 const b = document.getElementById("dyn-banner");
                 if (data.bannerUrl) b.style.backgroundImage = `url('${data.bannerUrl}')`;
 
+                // --- NUEVA LÓGICA DE TEMAS ACTUALIZADA ---
                 const root = document.documentElement;
-                if (data.tema === "tornasol") { document.body.className = "theme-tornasol"; root.removeAttribute('style'); } 
-                else if (data.tema === "personalizado" && data.colores) {
+                const temaSeleccionado = data.temaPublico || data.tema || "tornasol";
+
+                if (temaSeleccionado === "tornasol") { 
+                    document.body.className = "theme-tornasol"; 
+                    root.removeAttribute('style'); 
+                } 
+                else if (temaSeleccionado === "personalizado" && data.colores) {
                     document.body.className = "";
-                    root.style.setProperty('--bg-body', data.colores.bg); root.style.setProperty('--bg-app', data.colores.bg); root.style.setProperty('--bg-card', data.colores.card); root.style.setProperty('--text-title', data.colores.text); root.style.setProperty('--text-desc', data.colores.text); root.style.setProperty('--bg-btn', data.colores.accent); root.style.setProperty('--border', data.colores.card); root.style.setProperty('--bg-input', data.colores.bg); root.style.setProperty('--text-input', data.colores.text); root.style.setProperty('--text-btn', '#ffffff'); root.style.setProperty('--hover-item', data.colores.card);
-                } else if (data.tema === "claro") { document.body.className = "theme-light"; root.removeAttribute('style'); } 
-                else { document.body.className = "theme-dark"; root.removeAttribute('style'); }
+                    root.style.setProperty('--bg-body', data.colores.bg); 
+                    root.style.setProperty('--bg-app', data.colores.bg); 
+                    root.style.setProperty('--bg-card', data.colores.card); 
+                    root.style.setProperty('--text-title', data.colores.text); 
+                    root.style.setProperty('--text-desc', data.colores.text); 
+                    root.style.setProperty('--bg-btn', data.colores.accent); 
+                    root.style.setProperty('--border', data.colores.card); 
+                    root.style.setProperty('--bg-input', data.colores.bg); 
+                    root.style.setProperty('--text-input', data.colores.text); 
+                    root.style.setProperty('--text-btn', '#ffffff'); 
+                    root.style.setProperty('--hover-item', data.colores.card);
+                } 
+                else if (temaSeleccionado === "claro") { 
+                    document.body.className = "theme-light"; 
+                    root.removeAttribute('style'); 
+                } 
+                else { // "oscuro" o por defecto
+                    document.body.className = "theme-dark"; 
+                    root.removeAttribute('style'); 
+                }
+                // -----------------------------------------
 
                 if (data.logoUrl) {
                     document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
