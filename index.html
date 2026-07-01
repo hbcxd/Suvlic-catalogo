@@ -27,11 +27,25 @@
         
         .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+        /* Efectos Metálicos Profesionales */
+        .metallic-focus:focus {
+            border-color: #94a3b8 !important;
+            box-shadow: 0 0 12px rgba(148, 163, 184, 0.5), inset 0 0 4px rgba(255, 255, 255, 0.1) !important;
+            outline: none;
+        }
+        .metallic-active {
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 0 14px rgba(203, 213, 225, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.3) !important;
+        }
+        .text-metallic-hover:hover {
+            color: #cbd5e1 !important;
+            text-shadow: 0 0 10px rgba(203, 213, 225, 0.6);
+        }
     </style>
 </head>
 <body class="theme-dark">
 
-    <!-- Modal Visor de Imágenes (ZOOM) -->
     <div id="image-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-300 opacity-0 cursor-zoom-out" onclick="cerrarZoom()">
         <button class="absolute top-5 right-5 text-white/70 hover:text-white p-2 transition-colors">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -39,17 +53,16 @@
         <img id="modal-img-zoom" src="" class="max-w-[95%] max-h-[85vh] object-contain drop-shadow-2xl rounded-lg scale-95 transition-transform duration-300">
     </div>
 
-    <!-- Modal Bienvenida -->
     <div id="welcome-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
         <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
             <div id="modal-logo" class="w-20 h-20 mx-auto rounded-full p-1 border shadow-md flex items-center justify-center overflow-hidden dyn-border" style="background-color: var(--bg-body)"><div class="text-xs dyn-text-desc">...</div></div>
-            <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">¡Bienvenido al Catálogo de <span id="modal-nombre-header" class="text-pink-500">...</span>! 🚀</h2>
+            <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">¡Bienvenido al Catálogo de <span id="modal-nombre-header" class="text-slate-300">...</span>! 🚀</h2>
             
-            <div class="bg-pink-500/10 border border-pink-500/20 rounded-xl p-3">
-                <p class="text-xs font-bold text-pink-400">✨ Todos nuestros productos son 100% personalizables.</p>
+            <div class="bg-slate-500/10 border border-slate-500/20 rounded-xl p-3">
+                <p class="text-xs font-bold text-slate-300">✨ Todos nuestros productos son 100% personalizables.</p>
             </div>
             
-            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Aquí puedes armar tu pedido. <span class="font-bold text-pink-500">No tienes que hacer ningún pago aquí</span>.</p>
+            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Aquí puedes armar tu pedido. <span class="font-bold text-slate-300">No tienes que hacer ningún pago aquí</span>.</p>
             <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Agrega productos a tu carrito y te conectaremos con nuestro WhatsApp.</p>
             <button id="btn-close-modal" class="w-full font-bold text-sm py-3.5 px-4 rounded-xl shadow-lg transition-all transform active:scale-95 dyn-btn">Ver el Catálogo</button>
         </div>
@@ -60,9 +73,9 @@
             <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
 
-        <div id="dyn-banner" class="h-32 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center transition-all duration-500"><div class="absolute inset-0 opacity-20 bg-gradient-to-br from-[#e51d74] via-[#00c2cb] to-[#facc15]"></div></div>
+        <div id="dyn-banner" class="h-32 sm:h-40 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center bg-no-repeat transition-all duration-500"></div>
 
-        <div class="px-6 text-center -mt-12 relative z-10">
+        <div class="px-6 text-center -mt-4 relative z-10">
             <div id="wrapper-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-xl flex items-center justify-center overflow-hidden dyn-card dyn-border"><div id="logo-loader" class="text-xs dyn-text-desc">...</div></div>
             <h1 id="dyn-nombre" class="mt-3 text-xl font-bold tracking-tight dyn-text-title">Cargando...</h1>
             <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc">Espera un momento</p>
@@ -70,10 +83,10 @@
 
         <div id="client-section" class="px-6 mt-6">
             <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border transition-all duration-300" id="client-box">
-                <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1 text-pink-500">
+                <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1 text-slate-400">
                     👤 Tu Nombre (Requerido para comprar)
                 </label>
-                <input type="text" id="client-name" required placeholder="Escribe tu Nombre y Apellido" class="text-sm rounded-xl p-3 focus:outline-none w-full border font-medium transition-all dyn-input focus:border-pink-500">
+                <input type="text" id="client-name" required placeholder="Escribe tu Nombre y Apellido" class="text-sm rounded-xl p-3 focus:outline-none w-full border font-medium transition-all dyn-input metallic-focus">
             </div>
         </div>
 
@@ -83,7 +96,7 @@
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
-                    <input type="text" id="search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border focus:border-pink-500 focus:outline-none">
+                    <input type="text" id="search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus">
                 </div>
             </div>
             <div id="tabs-container" class="flex overflow-x-auto px-6 gap-6 text-sm font-bold pt-2 hide-scrollbar"></div>
@@ -94,7 +107,7 @@
         <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
             <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95">
                 <span>Enviar pedido a WhatsApp</span>
-                <span id="counter" class="bg-pink-600 text-white px-2.5 py-0.5 rounded text-xs font-bold">0 ítems</span>
+                <span id="counter" class="bg-slate-700 text-white px-2.5 py-0.5 rounded text-xs font-bold">0 ítems</span>
             </button>
         </div>
     </div>
@@ -319,7 +332,7 @@
                                 <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">👉 ${feat.titulo}</label>
                                 <select id="s-${p.id}-${index}" data-prod="${p.id}" data-titulo="${feat.titulo}"
                                     onchange="evalPaso('${p.id}', ${index}, ${p.caracteristicas.length})"
-                                    class="text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-colors focus:border-pink-500" ${isDisabled}>
+                                    class="text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-colors metallic-focus" ${isDisabled}>
                                     <option value="" disabled selected>-- Elige una opción --</option>
                                     ${feat.opciones.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
@@ -339,7 +352,7 @@
                         </div>
                         <div class="p-5 pb-4 flex flex-col gap-2 z-10 bg-[var(--bg-card)] cursor-pointer" onclick="tOpc('${p.id}')">
                             <div class="flex justify-between items-start gap-3">
-                                <h3 class="font-bold text-lg leading-tight dyn-text-title group-hover:text-pink-500 transition-colors">${p.nombre}</h3>
+                                <h3 class="font-bold text-lg leading-tight dyn-text-title text-metallic-hover transition-colors">${p.nombre}</h3>
                                 <div class="p-1.5 rounded-full bg-[var(--bg-input)] dyn-border border shadow-sm group-hover:scale-110 transition-transform">
                                     <svg class="w-5 h-5 flex-shrink-0 dyn-text-desc transform transition-transform duration-300" id="icon-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
@@ -375,8 +388,8 @@
         };
 
         window.selecColor = (prodId, colorHex, btnObj, totalSteps) => {
-            document.querySelectorAll(`.color-btn-${prodId}`).forEach(b => { b.classList.remove('border-pink-500', 'scale-110'); b.innerHTML = ''; });
-            btnObj.classList.add('border-pink-500', 'scale-110');
+            document.querySelectorAll(`.color-btn-${prodId}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; });
+            btnObj.classList.add('metallic-active', 'scale-110');
             btnObj.innerHTML = `<svg class="w-5 h-5 text-white/90 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
             document.getElementById(`c-val-${prodId}`).value = colorHex;
             if (totalSteps > 0) { document.getElementById(`s-${prodId}-0`).disabled = false; } 
@@ -398,7 +411,6 @@
             if(hasColor) {
                 const colorSel = document.getElementById(`c-val-${id}`).value;
                 if(!colorSel) return alert("Por favor, selecciona un color.");
-                // AQUÍ SE HACE LA TRADUCCIÓN
                 opc.push(`Color: ${obtenerNombreColor(colorSel)}`);
             }
             for (let i = 0; i < max; i++) {
@@ -413,7 +425,7 @@
             document.getElementById(`cant-${id}`).value = 1;
             if(hasColor) {
                 document.getElementById(`c-val-${id}`).value = "";
-                document.querySelectorAll(`.color-btn-${id}`).forEach(b => { b.classList.remove('border-pink-500', 'scale-110'); b.innerHTML = ''; });
+                document.querySelectorAll(`.color-btn-${id}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; });
             }
             for (let i = 0; i < max; i++) { const s = document.getElementById(`s-${id}-${i}`); s.value = ""; s.disabled = true; }
             if(max > 0 || hasColor) { document.getElementById(`ctrl-${id}`).classList.add("hidden"); document.getElementById(`ctrl-${id}`).classList.remove("flex"); }
