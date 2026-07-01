@@ -8,13 +8,13 @@
     <style>
         .hide-scrollbar::-webkit-scrollbar { width: 6px; }
         .hide-scrollbar::-webkit-scrollbar-track { background: #0b0f19; border-radius: 8px; }
-        .hide-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
-        .bg-tornasol-suvlic { background: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%); }
+        .hide-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        .bg-tornasol-suvlic { background: linear-gradient(135deg, #d946ef 0%, #22d3ee 50%, #facc15 100%); }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-center items-center p-4">
 
-    <!-- [PANTALLA DE LOGIN SE MANTIENE IGUAL] -->
+    <!-- [PANTALLA DE LOGIN] -->
     <div id="login-screen" class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-6">
         <div class="text-center">
             <span class="text-4xl">🔐</span>
@@ -24,13 +24,13 @@
         <form id="login-form" class="space-y-4">
             <div>
                 <label class="block text-xs text-slate-400 mb-1">Correo Electrónico</label>
-                <input type="email" id="l-email" required placeholder="admin@suvlic.com" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                <input type="email" id="l-email" required placeholder="admin@suvlic.com" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition-colors">
             </div>
             <div>
                 <label class="block text-xs text-slate-400 mb-1">Contraseña</label>
-                <input type="password" id="l-password" required placeholder="••••••••" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                <input type="password" id="l-password" required placeholder="••••••••" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-fuchsia-400 transition-colors">
             </div>
-            <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-fuchsia-500 via-purple-600 to-cyan-500 hover:opacity-90 text-white font-bold text-sm py-3 rounded-xl transition-all shadow-md">
+            <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-fuchsia-500 via-cyan-400 to-yellow-400 hover:opacity-90 text-slate-900 font-extrabold text-sm py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                 Iniciar Sesión
             </button>
         </form>
@@ -40,15 +40,15 @@
         
         <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-xl flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
                 <p id="user-display" class="text-xs font-semibold text-slate-300">Sesión activa</p>
             </div>
-            <button id="btn-logout" class="bg-slate-800 hover:bg-red-600 hover:text-white text-slate-300 text-xs font-bold py-1.5 px-4 rounded-xl border border-slate-700 transition-all">
+            <button id="btn-logout" class="bg-slate-800 hover:bg-red-500 hover:text-white text-slate-300 text-xs font-bold py-1.5 px-4 rounded-xl border border-slate-700 transition-all">
                 Cerrar Sesión ↩
             </button>
         </div>
 
-        <!-- [CONFIGURACIÓN SE MANTIENE IGUAL] -->
+        <!-- [CONFIGURACIÓN ACTUALIZADA] -->
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
                 <span>🎨</span> Identidad, Datos y Tema
@@ -57,23 +57,35 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Nombre de la Empresa / Tienda</label>
-                        <input type="text" id="c-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                        <input type="text" id="c-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-400">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">WhatsApp Corporativo (Sin el +)</label>
-                        <input type="text" id="c-telefono" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                        <input type="text" id="c-telefono" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-400">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Eslogan o Descripción</label>
+                    <input type="text" id="c-descripcion" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+                </div>
+
+                <!-- NUEVOS SELECTORES DE TEMA -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-y border-slate-800/50 py-4 my-2">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Eslogan o Descripción</label>
-                        <input type="text" id="c-descripcion" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                        <label class="block text-xs text-cyan-400 font-bold mb-1">Tema: Catálogo Público 🛒</label>
+                        <select id="c-tema-publico" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 transition-colors">
+                            <option value="tornasol">✨ Tema Vibrante Suvlic</option>
+                            <option value="oscuro">🌙 Tema Oscuro Estándar</option>
+                            <option value="claro">☀️ Tema Claro Estándar</option>
+                            <option value="personalizado">🎨 Tema Personalizado</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Alineación Estética (Tema Visual)</label>
-                        <select id="c-tema" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
-                            <option value="tornasol">🌈 Tema Tornasol Suvlic</option>
-                            <option value="oscuro">🌙 Tema Oscuro Estándar</option>
+                        <label class="block text-xs text-fuchsia-400 font-bold mb-1">Tema: Panel Administrativo ⚙️</label>
+                        <select id="c-tema-admin" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-400 transition-colors">
+                            <option value="oscuro">🌙 Tema Oscuro (Defecto)</option>
+                            <option value="tornasol">✨ Tema Vibrante Suvlic</option>
                             <option value="personalizado">🎨 Tema Personalizado</option>
                         </select>
                     </div>
@@ -89,77 +101,80 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Actualizar Logo</label>
-                        <input type="file" id="c-logo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-fuchsia-500/10 file:text-fuchsia-400">
+                        <input type="file" id="c-logo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-fuchsia-500/10 file:text-fuchsia-400 hover:file:bg-fuchsia-500/20 file:transition-colors cursor-pointer">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Actualizar Banner</label>
-                        <input type="file" id="c-banner-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500/10 file:text-cyan-400">
+                        <input type="file" id="c-banner-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-yellow-400/10 file:text-yellow-400 hover:file:bg-yellow-400/20 file:transition-colors cursor-pointer">
                     </div>
                 </div>
 
-                <button type="submit" id="btn-save-config" class="w-full bg-gradient-to-r from-fuchsia-600 via-purple-600 to-cyan-600 hover:opacity-90 text-white font-bold text-xs py-3 rounded-xl transition-all shadow">
+                <button type="submit" id="btn-save-config" class="w-full bg-gradient-to-r from-fuchsia-500 via-cyan-400 to-yellow-400 hover:opacity-90 text-slate-900 font-extrabold text-xs py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(217,70,239,0.2)]">
                     Guardar Cambios de Configuración
                 </button>
             </form>
         </div>
 
-        <!-- [CATEGORÍAS SE MANTIENE IGUAL] -->
+        <!-- [CATEGORÍAS] -->
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
                 <span>📁</span> Gestión de Categorías
             </h2>
             <form id="category-form" class="flex gap-3 mb-4">
                 <div class="flex-1">
-                    <input type="text" id="cat-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                    <input type="text" id="cat-nombre" required placeholder="Nueva categoría..." class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400 transition-colors">
                 </div>
-                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-6 rounded-xl transition-colors">+ Crear</button>
+                <button type="submit" class="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-xs px-6 rounded-xl transition-colors">+ Crear</button>
             </form>
             <div class="border-t border-slate-800 pt-3">
                 <div id="admin-categories-list" class="space-y-2 max-h-40 overflow-y-auto pr-2 hide-scrollbar"></div>
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-purple-950 rounded-2xl p-6 border border-slate-800 shadow-2xl" id="product-form-section">
-            <h2 class="text-xl font-bold text-white mb-4 flex items-center justify-between border-b border-slate-800 pb-3">
+        <!-- [PUBLICADOR DE PRODUCTOS] -->
+        <div class="bg-gradient-to-br from-slate-900 via-[#0b0f19] to-slate-900 rounded-2xl p-6 border border-slate-800 shadow-2xl relative overflow-hidden" id="product-form-section">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-fuchsia-500/5 rounded-full blur-3xl"></div>
+
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center justify-between border-b border-slate-800 pb-3 relative z-10">
                 <div class="flex items-center gap-2"><span>📦</span> <span id="prod-form-title">Publicador de Productos</span></div>
-                <button type="button" id="btn-cancel-edit" class="hidden text-xs text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded-lg">Cancelar ✖</button>
+                <button type="button" id="btn-cancel-edit" class="hidden text-xs text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded-lg hover:bg-red-900/50 transition-colors">Cancelar ✖</button>
             </h2>
 
-            <form id="prod-form" class="space-y-5">
+            <form id="prod-form" class="space-y-5 relative z-10">
                 <input type="hidden" id="edit-prod-id" value="">
                 <input type="hidden" id="edit-prod-img" value="">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Nombre del Producto</label>
-                        <input type="text" id="a-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500">
+                        <input type="text" id="a-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-fuchsia-400 transition-colors">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Categoría Asignada</label>
-                        <select id="a-categoria" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500"></select>
+                        <select id="a-categoria" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-400 transition-colors"></select>
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Descripción del Artículo</label>
-                    <textarea id="a-descripcion" rows="2" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500"></textarea>
+                    <textarea id="a-descripcion" rows="2" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-400 transition-colors"></textarea>
                 </div>
 
-                <!-- NUEVO: Selector de Colores -->
-                <div class="border border-purple-900/40 rounded-xl p-4 bg-slate-950">
+                <div class="border border-fuchsia-900/30 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-sm font-bold bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">🎨 Colores Disponibles (Opcional)</span>
-                        <button type="button" id="btn-add-color" class="bg-cyan-600/10 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20">
+                        <button type="button" id="btn-add-color" class="bg-fuchsia-500/10 text-fuchsia-400 hover:bg-fuchsia-500/20 text-xs font-bold py-2 px-3 rounded-lg border border-fuchsia-500/30 transition-all">
                             + Añadir Color
                         </button>
                     </div>
                     <div id="dynamic-colors-container" class="flex flex-wrap gap-4"></div>
                 </div>
 
-                <div class="border border-purple-900/40 rounded-xl p-4 bg-slate-950">
+                <div class="border border-yellow-900/30 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-sm font-bold bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">Pasos de Selección Adicionales</span>
-                        <button type="button" id="btn-add-caract" class="bg-cyan-600/10 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20">
+                        <span class="text-sm font-bold bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent">⚙️ Pasos de Selección Adicionales</span>
+                        <button type="button" id="btn-add-caract" class="bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400/20 text-xs font-bold py-2 px-3 rounded-lg border border-yellow-400/30 transition-all">
                             + Añadir Paso
                         </button>
                     </div>
@@ -171,10 +186,10 @@
                         <span>Imagen del Producto</span>
                         <span id="img-edit-status" class="text-cyan-400 text-xs hidden">Mantiene imagen actual</span>
                     </label>
-                    <input type="file" id="a-file" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500/10 file:text-cyan-400">
+                    <input type="file" id="a-file" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20 file:transition-colors cursor-pointer">
                 </div>
 
-                <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-fuchsia-500 via-purple-600 to-cyan-500 text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-95 transition-all">
+                <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-fuchsia-500 via-cyan-400 to-yellow-400 text-slate-900 font-extrabold py-4 rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:opacity-90 hover:scale-[1.01] transition-all">
                     Guardar Producto
                 </button>
             </form>
@@ -189,6 +204,7 @@
 
     </div>
 
+    <!-- SCRIPT ACTUALIZADO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -237,16 +253,23 @@
 
         document.getElementById("btn-logout").addEventListener("click", () => signOut(auth));
 
-        document.getElementById("c-tema").addEventListener("change", (e) => {
+        // Listener para los nuevos selectores de tema
+        const handleThemeChange = () => {
+            const valPublico = document.getElementById("c-tema-publico").value;
+            const valAdmin = document.getElementById("c-tema-admin").value;
             const customColorsBox = document.getElementById("custom-colors-container");
-            if (e.target.value === "personalizado") {
+            
+            if (valPublico === "personalizado" || valAdmin === "personalizado") {
                 customColorsBox.classList.remove("hidden");
                 customColorsBox.classList.add("grid");
             } else {
                 customColorsBox.classList.add("hidden");
                 customColorsBox.classList.remove("grid");
             }
-        });
+        };
+
+        document.getElementById("c-tema-publico").addEventListener("change", handleThemeChange);
+        document.getElementById("c-tema-admin").addEventListener("change", handleThemeChange);
 
         async function cargarConfiguracionActual() {
             const docSnap = await getDoc(doc(db, "configuracion", "perfil"));
@@ -255,10 +278,14 @@
                 document.getElementById("c-nombre").value = data.nombre || "";
                 document.getElementById("c-telefono").value = data.telefono || "";
                 document.getElementById("c-descripcion").value = data.descripcion || "";
-                document.getElementById("c-tema").value = data.tema || "tornasol";
-                if(data.tema === "personalizado" && data.colores) {
-                    document.getElementById("custom-colors-container").classList.remove("hidden");
-                    document.getElementById("custom-colors-container").classList.add("grid");
+                
+                // Cargar temas por separado (con fallback si usabas 'tema' antes)
+                document.getElementById("c-tema-publico").value = data.temaPublico || data.tema || "tornasol";
+                document.getElementById("c-tema-admin").value = data.temaAdmin || "oscuro";
+                
+                handleThemeChange(); // Disparar revisión visual de la caja de colores
+
+                if((data.temaPublico === "personalizado" || data.temaAdmin === "personalizado") && data.colores) {
                     document.getElementById("col-bg").value = data.colores.bg || "#0b0f19";
                     document.getElementById("col-card").value = data.colores.card || "#0f172a";
                     document.getElementById("col-text").value = data.colores.text || "#ffffff";
@@ -285,8 +312,8 @@
                     catDiv.innerHTML = `
                         <span class="text-xs font-bold text-white">${cat.nombre}</span>
                         <div class="flex gap-2">
-                            <button onclick="editarCategoria('${docSnap.id}', '${cat.nombre}')" class="text-cyan-400 hover:text-cyan-300 text-[10px] font-bold px-2 py-1 bg-cyan-900/20 rounded">Editar</button>
-                            <button onclick="eliminarCategoria('${docSnap.id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-2 py-1 bg-red-900/20 rounded">Borrar</button>
+                            <button onclick="editarCategoria('${docSnap.id}', '${cat.nombre}')" class="text-cyan-400 hover:text-cyan-300 text-[10px] font-bold px-2 py-1 bg-cyan-900/20 rounded border border-cyan-500/20">Editar</button>
+                            <button onclick="eliminarCategoria('${docSnap.id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-2 py-1 bg-red-900/20 rounded border border-red-500/20">Borrar</button>
                         </div>
                     `;
                     catList.appendChild(catDiv);
@@ -309,8 +336,8 @@
                             <div class="overflow-hidden"><p class="text-sm font-bold text-white truncate">${prod.nombre}</p></div>
                         </div>
                         <div class="flex gap-2 flex-shrink-0">
-                            <button onclick="cargarParaEditar('${prod.id}')" class="bg-cyan-500/10 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20">Editar</button>
-                            <button onclick="eliminarProducto('${prod.id}')" class="bg-red-600/10 text-red-400 text-xs font-bold py-2 px-3 rounded-lg border border-red-500/20">Eliminar</button>
+                            <button onclick="cargarParaEditar('${prod.id}')" class="bg-cyan-500/10 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/30 hover:bg-cyan-500/20 transition-all">Editar</button>
+                            <button onclick="eliminarProducto('${prod.id}')" class="bg-red-600/10 text-red-400 text-xs font-bold py-2 px-3 rounded-lg border border-red-500/30 hover:bg-red-500/20 transition-all">Eliminar</button>
                         </div>
                     `;
                     listContainer.appendChild(itemDiv);
@@ -340,11 +367,16 @@
                     nombre: document.getElementById("c-nombre").value.trim(),
                     telefono: document.getElementById("c-telefono").value.trim(),
                     descripcion: document.getElementById("c-descripcion").value.trim(),
-                    tema: document.getElementById("c-tema").value
+                    // Guardar ambas configuraciones
+                    temaPublico: document.getElementById("c-tema-publico").value,
+                    temaAdmin: document.getElementById("c-tema-admin").value
                 };
-                if(payload.tema === "personalizado") {
+
+                // Si alguno de los dos temas es personalizado, guardar los colores
+                if(payload.temaPublico === "personalizado" || payload.temaAdmin === "personalizado") {
                     payload.colores = { bg: document.getElementById("col-bg").value, card: document.getElementById("col-card").value, text: document.getElementById("col-text").value, accent: document.getElementById("col-accent").value };
                 }
+
                 if (logoUrl) payload.logoUrl = logoUrl;
                 if (bannerUrl) payload.bannerUrl = bannerUrl;
 
@@ -364,9 +396,8 @@
         window.eliminarCategoria = async (id) => { if(confirm("¿Seguro?")) await deleteDoc(doc(db, "categorias", id)); };
         window.editarCategoria = async (id, actual) => { const n = prompt("Nuevo nombre:", actual); if(n) await updateDoc(doc(db, "categorias", id), { nombre: n.trim() }); };
 
-        // --- SISTEMA DE COLORES Y CARACTERÍSTICAS DINÁMICAS ---
         const cContainer = document.getElementById("dynamic-colors-container");
-        function createColorBlock(colorHex = "#ff0000") {
+        function createColorBlock(colorHex = "#d946ef") {
             const div = document.createElement("div");
             div.className = "flex items-center gap-2 bg-[#0b0f19] p-2 rounded-lg border border-slate-800 color-block";
             div.innerHTML = `
@@ -383,8 +414,8 @@
             div.className = "p-3 bg-[#0b0f19] rounded-xl border border-slate-800 relative feature-block";
             div.innerHTML = `
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div><input type="text" value="${titulo}" required class="f-titulo w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-purple-500"></div>
-                    <div><input type="text" value="${opciones}" required class="f-opciones w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-purple-500"></div>
+                    <div><input type="text" value="${titulo}" required placeholder="Ej: Talla" class="f-titulo w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-yellow-400 transition-colors"></div>
+                    <div><input type="text" value="${opciones}" required placeholder="Ej: S, M, L, XL" class="f-opciones w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-cyan-400 transition-colors"></div>
                 </div>
                 <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-slate-500 hover:text-red-400 text-xs">✕</button>
             `;
@@ -455,7 +486,7 @@
                     descripcion: document.getElementById("a-descripcion").value.trim(),
                     imagenUrl: imgUrl,
                     caracteristicas: caract,
-                    colores: colores, // Array guardado en DB
+                    colores: colores,
                     activo: true
                 };
 
