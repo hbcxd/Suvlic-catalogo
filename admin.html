@@ -354,12 +354,15 @@
                 const bannerFile = document.getElementById("c-banner-file").files[0];
 
                 if (logoFile) {
-                    const { error } = await supabase.storage.from('productos-imagenes').upload(`logo_${Date.now()}.${logoFile.type.split('/')[1]}`, logoFile);
-                    logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(`logo_${Date.now()}.${logoFile.type.split('/')[1]}`).data.publicUrl;
+                    const logoName = `logo_${Date.now()}.${logoFile.type.split('/')[1]}`;
+                    const { error } = await supabase.storage.from('productos-imagenes').upload(logoName, logoFile);
+                    logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(logoName).data.publicUrl;
                 }
+                
                 if (bannerFile) {
-                    const { error } = await supabase.storage.from('productos-imagenes').upload(`banner_${Date.now()}.${bannerFile.type.split('/')[1]}`, bannerFile);
-                    bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(`banner_${Date.now()}.${bannerFile.type.split('/')[1]}`).data.publicUrl;
+                    const bannerName = `banner_${Date.now()}.${bannerFile.type.split('/')[1]}`;
+                    const { error } = await supabase.storage.from('productos-imagenes').upload(bannerName, bannerFile);
+                    bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(bannerName).data.publicUrl;
                 }
 
                 const payload = {
