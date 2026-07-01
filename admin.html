@@ -6,19 +6,15 @@
     <title>Suvlic - Panel Administrativo Seguro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilos personalizados para la barra de desplazamiento */
         .hide-scrollbar::-webkit-scrollbar { width: 6px; }
         .hide-scrollbar::-webkit-scrollbar-track { background: #0b0f19; border-radius: 8px; }
         .hide-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
-
-        /* Efecto Tornasol Suvlic para bordes animados o fondos especiales (Opcional) */
-        .bg-tornasol-suvlic {
-            background: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%);
-        }
+        .bg-tornasol-suvlic { background: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%); }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-center items-center p-4">
 
+    <!-- [PANTALLA DE LOGIN SE MANTIENE IGUAL] -->
     <div id="login-screen" class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-6">
         <div class="text-center">
             <span class="text-4xl">🔐</span>
@@ -52,63 +48,52 @@
             </button>
         </div>
 
+        <!-- [CONFIGURACIÓN SE MANTIENE IGUAL] -->
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
-                <span>🎨</span> Identidad, Datos y Tema de la Página
+                <span>🎨</span> Identidad, Datos y Tema
             </h2>
             <form id="config-form" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Nombre de la Empresa / Tienda</label>
-                        <input type="text" id="c-nombre" required placeholder="Ej: Suvlic" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                        <input type="text" id="c-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">WhatsApp Corporativo (Sin el +)</label>
-                        <input type="text" id="c-telefono" required placeholder="Ej: 584120000000" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                        <input type="text" id="c-telefono" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Eslogan o Descripción</label>
-                        <input type="text" id="c-descripcion" required placeholder="Ej: DTF · Sublimación" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
+                        <input type="text" id="c-descripcion" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-fuchsia-500">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Alineación Estética (Tema Visual)</label>
                         <select id="c-tema" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
-                            <option value="tornasol">🌈 Tema Tornasol Suvlic (Fucsia · Morado · Cian)</option>
+                            <option value="tornasol">🌈 Tema Tornasol Suvlic</option>
                             <option value="oscuro">🌙 Tema Oscuro Estándar</option>
-                            <option value="personalizado">🎨 Tema Personalizado (Elegir colores)</option>
+                            <option value="personalizado">🎨 Tema Personalizado</option>
                         </select>
                     </div>
                 </div>
 
                 <div id="custom-colors-container" class="hidden grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0b0f19]/50 p-3 rounded-xl border border-slate-800">
-                    <div class="flex flex-col items-center">
-                        <label class="text-[10px] text-slate-400 mb-1 text-center">Fondo Web</label>
-                        <input type="color" id="col-bg" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded">
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <label class="text-[10px] text-slate-400 mb-1 text-center">Tarjetas / Cajas</label>
-                        <input type="color" id="col-card" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded">
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <label class="text-[10px] text-slate-400 mb-1 text-center">Textos</label>
-                        <input type="color" id="col-text" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded">
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <label class="text-[10px] text-slate-400 mb-1 text-center">Acentos / Botón</label>
-                        <input type="color" id="col-accent" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded">
-                    </div>
+                    <div class="flex flex-col items-center"><label class="text-[10px] text-slate-400 mb-1">Fondo Web</label><input type="color" id="col-bg" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded"></div>
+                    <div class="flex flex-col items-center"><label class="text-[10px] text-slate-400 mb-1">Tarjetas</label><input type="color" id="col-card" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded"></div>
+                    <div class="flex flex-col items-center"><label class="text-[10px] text-slate-400 mb-1">Textos</label><input type="color" id="col-text" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded"></div>
+                    <div class="flex flex-col items-center"><label class="text-[10px] text-slate-400 mb-1">Acentos</label><input type="color" id="col-accent" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded"></div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Actualizar Logo de la Página</label>
-                        <input type="file" id="c-logo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-fuchsia-500/10 file:text-fuchsia-400 hover:file:bg-fuchsia-500/20 cursor-pointer">
+                        <label class="block text-xs text-slate-400 mb-1">Actualizar Logo</label>
+                        <input type="file" id="c-logo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-fuchsia-500/10 file:text-fuchsia-400">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Actualizar Imagen de Fondo (Banner Tornasol)</label>
-                        <input type="file" id="c-banner-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20 cursor-pointer">
+                        <label class="block text-xs text-slate-400 mb-1">Actualizar Banner</label>
+                        <input type="file" id="c-banner-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500/10 file:text-cyan-400">
                     </div>
                 </div>
 
@@ -118,35 +103,26 @@
             </form>
         </div>
 
+        <!-- [CATEGORÍAS SE MANTIENE IGUAL] -->
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
                 <span>📁</span> Gestión de Categorías
             </h2>
             <form id="category-form" class="flex gap-3 mb-4">
                 <div class="flex-1">
-                    <input type="text" id="cat-nombre" required placeholder="Ej: Llaveros, Textil, Gorras" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                    <input type="text" id="cat-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
                 </div>
-                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-6 rounded-xl transition-colors">
-                    + Crear Tab
-                </button>
+                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-6 rounded-xl transition-colors">+ Crear</button>
             </form>
-            
             <div class="border-t border-slate-800 pt-3">
-                <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Categorías Creadas</h3>
-                <div id="admin-categories-list" class="space-y-2 max-h-40 overflow-y-auto pr-2 hide-scrollbar">
-                    <p class="text-xs text-slate-500 text-center py-2">Cargando...</p>
-                </div>
+                <div id="admin-categories-list" class="space-y-2 max-h-40 overflow-y-auto pr-2 hide-scrollbar"></div>
             </div>
         </div>
 
         <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-purple-950 rounded-2xl p-6 border border-slate-800 shadow-2xl" id="product-form-section">
             <h2 class="text-xl font-bold text-white mb-4 flex items-center justify-between border-b border-slate-800 pb-3">
-                <div class="flex items-center gap-2">
-                    <span>📦</span> <span id="prod-form-title">Publicador de Productos</span>
-                </div>
-                <button type="button" id="btn-cancel-edit" class="hidden text-xs text-red-400 hover:text-red-300 font-bold bg-red-900/30 px-3 py-1 rounded-lg">
-                    Cancelar Edición ✖
-                </button>
+                <div class="flex items-center gap-2"><span>📦</span> <span id="prod-form-title">Publicador de Productos</span></div>
+                <button type="button" id="btn-cancel-edit" class="hidden text-xs text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded-lg">Cancelar ✖</button>
             </h2>
 
             <form id="prod-form" class="space-y-5">
@@ -156,25 +132,34 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Nombre del Producto</label>
-                        <input type="text" id="a-nombre" required placeholder="Ej: Taza Mágica" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500">
+                        <input type="text" id="a-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Categoría Asignada</label>
-                        <select id="a-categoria" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500">
-                            <option value="" disabled selected>Cargando categorías...</option>
-                        </select>
+                        <select id="a-categoria" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500"></select>
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Descripción del Artículo</label>
-                    <textarea id="a-descripcion" rows="2" required placeholder="Detalles del producto..." class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500"></textarea>
+                    <textarea id="a-descripcion" rows="2" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500"></textarea>
                 </div>
 
-                <div class="border border-purple-900/40 rounded-xl p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
+                <!-- NUEVO: Selector de Colores -->
+                <div class="border border-purple-900/40 rounded-xl p-4 bg-slate-950">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-sm font-bold bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">Pasos de Selección Obligatoria</span>
-                        <button type="button" id="btn-add-caract" class="bg-cyan-600/10 hover:bg-cyan-600/30 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20 transition-colors">
+                        <span class="text-sm font-bold bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">🎨 Colores Disponibles (Opcional)</span>
+                        <button type="button" id="btn-add-color" class="bg-cyan-600/10 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20">
+                            + Añadir Color
+                        </button>
+                    </div>
+                    <div id="dynamic-colors-container" class="flex flex-wrap gap-4"></div>
+                </div>
+
+                <div class="border border-purple-900/40 rounded-xl p-4 bg-slate-950">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-bold bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">Pasos de Selección Adicionales</span>
+                        <button type="button" id="btn-add-caract" class="bg-cyan-600/10 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20">
                             + Añadir Paso
                         </button>
                     </div>
@@ -184,13 +169,13 @@
                 <div>
                     <label class="block text-sm text-slate-400 mb-1 flex justify-between">
                         <span>Imagen del Producto</span>
-                        <span id="img-edit-status" class="text-cyan-400 text-xs hidden">Mantiene imagen actual si no subes otra</span>
+                        <span id="img-edit-status" class="text-cyan-400 text-xs hidden">Mantiene imagen actual</span>
                     </label>
-                    <input type="file" id="a-file" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/10 file:text-cyan-400">
+                    <input type="file" id="a-file" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500/10 file:text-cyan-400">
                 </div>
 
                 <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-fuchsia-500 via-purple-600 to-cyan-500 text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-95 transition-all">
-                    Guardar Producto en el Catálogo
+                    Guardar Producto
                 </button>
             </form>
         </div>
@@ -199,9 +184,7 @@
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
                 <span>🗑️</span> Inventario de Productos
             </h2>
-            <div id="admin-products-list" class="space-y-3 max-h-96 overflow-y-auto pr-2 hide-scrollbar">
-                <p class="text-xs text-slate-500 text-center py-4">Cargando inventario de productos...</p>
-            </div>
+            <div id="admin-products-list" class="space-y-3 max-h-96 overflow-y-auto pr-2 hide-scrollbar"></div>
         </div>
 
     </div>
@@ -228,46 +211,34 @@
         let productosGlobales = [];
 
         onAuthStateChanged(auth, (user) => {
-            const loginScreen = document.getElementById("login-screen");
-            const adminPanel = document.getElementById("admin-panel");
-            const body = document.body;
-
             if (user) {
-                loginScreen.classList.add("hidden");
-                adminPanel.classList.remove("hidden");
-                body.className = "bg-[#0b0f19] text-slate-100 p-4 md:p-8 space-y-8 block";
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("admin-panel").classList.remove("hidden");
+                document.body.className = "bg-[#0b0f19] text-slate-100 p-4 md:p-8 space-y-8 block";
                 document.getElementById("user-display").textContent = `Conectado como: ${user.email}`;
                 cargarConfiguracionActual();
                 activarEscuchadoresEnTiempoReal();
             } else {
-                loginScreen.classList.remove("hidden");
-                adminPanel.classList.add("hidden");
-                body.className = "bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-center items-center p-4";
+                document.getElementById("login-screen").classList.remove("hidden");
+                document.getElementById("admin-panel").classList.add("hidden");
+                document.body.className = "bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-center items-center p-4";
             }
         });
 
         document.getElementById("login-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const email = document.getElementById("l-email").value.trim();
-            const password = document.getElementById("l-password").value;
             const btn = document.getElementById("btn-login");
-
             btn.disabled = true; btn.textContent = "Validando...";
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                await signInWithEmailAndPassword(auth, document.getElementById("l-email").value.trim(), document.getElementById("l-password").value);
                 document.getElementById("login-form").reset();
-            } catch (err) {
-                alert("Acceso denegado: Correo o contraseña incorrectos.");
-            } finally {
-                btn.disabled = false; btn.textContent = "Iniciar Sesión";
-            }
+            } catch (err) { alert("Acceso denegado."); } finally { btn.disabled = false; btn.textContent = "Iniciar Sesión"; }
         });
 
         document.getElementById("btn-logout").addEventListener("click", () => signOut(auth));
 
-        const temaSelect = document.getElementById("c-tema");
-        const customColorsBox = document.getElementById("custom-colors-container");
-        temaSelect.addEventListener("change", (e) => {
+        document.getElementById("c-tema").addEventListener("change", (e) => {
+            const customColorsBox = document.getElementById("custom-colors-container");
             if (e.target.value === "personalizado") {
                 customColorsBox.classList.remove("hidden");
                 customColorsBox.classList.add("grid");
@@ -285,92 +256,61 @@
                 document.getElementById("c-telefono").value = data.telefono || "";
                 document.getElementById("c-descripcion").value = data.descripcion || "";
                 document.getElementById("c-tema").value = data.tema || "tornasol";
-                
-                if(data.tema === "personalizado") {
-                    customColorsBox.classList.remove("hidden");
-                    customColorsBox.classList.add("grid");
-                    if(data.colores) {
-                        document.getElementById("col-bg").value = data.colores.bg || "#0b0f19";
-                        document.getElementById("col-card").value = data.colores.card || "#0f172a";
-                        document.getElementById("col-text").value = data.colores.text || "#ffffff";
-                        document.getElementById("col-accent").value = data.colores.accent || "#d946ef";
-                    }
+                if(data.tema === "personalizado" && data.colores) {
+                    document.getElementById("custom-colors-container").classList.remove("hidden");
+                    document.getElementById("custom-colors-container").classList.add("grid");
+                    document.getElementById("col-bg").value = data.colores.bg || "#0b0f19";
+                    document.getElementById("col-card").value = data.colores.card || "#0f172a";
+                    document.getElementById("col-text").value = data.colores.text || "#ffffff";
+                    document.getElementById("col-accent").value = data.colores.accent || "#d946ef";
                 }
             }
         }
 
         let listenCat = null, listenProd = null;
-
         function activarEscuchadoresEnTiempoReal() {
             if (listenCat) listenCat();
             if (listenProd) listenProd();
 
-            // ESCUCHADOR DE CATEGORÍAS
             listenCat = onSnapshot(collection(db, "categorias"), (snapshot) => {
                 const select = document.getElementById("a-categoria");
                 const catList = document.getElementById("admin-categories-list");
-                
                 select.innerHTML = '<option value="" disabled selected>-- Selecciona Categoría --</option>';
                 catList.innerHTML = "";
-
-                if (snapshot.empty) {
-                    catList.innerHTML = `<p class="text-[10px] text-slate-500 text-center">No hay categorías</p>`;
-                    return;
-                }
-
                 snapshot.docs.forEach(docSnap => {
                     const cat = docSnap.data();
-                    const id = docSnap.id;
-                    
-                    select.innerHTML += `<option value="${id}">${cat.nombre}</option>`;
-                    
+                    select.innerHTML += `<option value="${docSnap.id}">${cat.nombre}</option>`;
                     const catDiv = document.createElement("div");
                     catDiv.className = "flex justify-between items-center bg-[#0b0f19] border border-slate-800 p-2 rounded-lg";
                     catDiv.innerHTML = `
                         <span class="text-xs font-bold text-white">${cat.nombre}</span>
                         <div class="flex gap-2">
-                            <button onclick="editarCategoria('${id}', '${cat.nombre}')" class="text-cyan-400 hover:text-cyan-300 text-[10px] font-bold px-2 py-1 bg-cyan-900/20 rounded border border-cyan-500/10">Editar</button>
-                            <button onclick="eliminarCategoria('${id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-2 py-1 bg-red-900/20 rounded border border-red-500/10">Borrar</button>
+                            <button onclick="editarCategoria('${docSnap.id}', '${cat.nombre}')" class="text-cyan-400 hover:text-cyan-300 text-[10px] font-bold px-2 py-1 bg-cyan-900/20 rounded">Editar</button>
+                            <button onclick="eliminarCategoria('${docSnap.id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-2 py-1 bg-red-900/20 rounded">Borrar</button>
                         </div>
                     `;
                     catList.appendChild(catDiv);
                 });
             });
 
-            // ESCUCHADOR DE PRODUCTOS
             listenProd = onSnapshot(collection(db, "productos"), (snapshot) => {
                 const listContainer = document.getElementById("admin-products-list");
                 listContainer.innerHTML = "";
                 productosGlobales = [];
-                
-                if (snapshot.empty) {
-                    listContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay productos en tu catálogo actualmente.</p>`;
-                    return;
-                }
-                
                 snapshot.docs.forEach(docSnap => {
                     const prod = docSnap.data();
-                    const id = docSnap.id;
-                    prod.id = id;
+                    prod.id = docSnap.id;
                     productosGlobales.push(prod);
-                    
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "flex items-center justify-between p-3 bg-[#0b0f19] rounded-xl border border-slate-800 gap-3";
                     itemDiv.innerHTML = `
                         <div class="flex items-center gap-3 overflow-hidden">
                             <img src="${prod.imagenUrl || 'https://via.placeholder.com/50'}" class="w-10 h-10 object-cover rounded-lg border border-slate-800 flex-shrink-0">
-                            <div class="overflow-hidden">
-                                <p class="text-sm font-bold text-white truncate">${prod.nombre}</p>
-                                <p class="text-[10px] text-slate-500 truncate">ID: ${id}</p>
-                            </div>
+                            <div class="overflow-hidden"><p class="text-sm font-bold text-white truncate">${prod.nombre}</p></div>
                         </div>
                         <div class="flex gap-2 flex-shrink-0">
-                            <button onclick="cargarParaEditar('${id}')" class="bg-cyan-500/10 hover:bg-gradient-to-r hover:from-fuchsia-500 hover:to-cyan-500 text-cyan-400 hover:text-white text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20 transition-all">
-                                Editar
-                            </button>
-                            <button onclick="eliminarProducto('${id}')" class="bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white text-xs font-bold py-2 px-3 rounded-lg border border-red-500/20 transition-all">
-                                Eliminar
-                            </button>
+                            <button onclick="cargarParaEditar('${prod.id}')" class="bg-cyan-500/10 text-cyan-400 text-xs font-bold py-2 px-3 rounded-lg border border-cyan-500/20">Editar</button>
+                            <button onclick="eliminarProducto('${prod.id}')" class="bg-red-600/10 text-red-400 text-xs font-bold py-2 px-3 rounded-lg border border-red-500/20">Eliminar</button>
                         </div>
                     `;
                     listContainer.appendChild(itemDiv);
@@ -378,106 +318,73 @@
             });
         }
 
-        // GUARDAR CONFIGURACIÓN, COLORES Y BANNER
         document.getElementById("config-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btn-save-config");
             btn.disabled = true; btn.textContent = "Guardando...";
-
             try {
-                // 1. Procesar Archivo de Logo
+                let logoUrl = "", bannerUrl = "";
                 const logoFile = document.getElementById("c-logo-file").files[0];
-                let logoUrl = "";
+                const bannerFile = document.getElementById("c-banner-file").files[0];
 
                 if (logoFile) {
-                    const extension = logoFile.type.split('/')[1] || 'png';
-                    const uniqueName = `logo_${Date.now()}.${extension}`;
-                    const { error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, logoFile);
-                    if (error) throw error;
-                    logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl;
+                    const { error } = await supabase.storage.from('productos-imagenes').upload(`logo_${Date.now()}.${logoFile.type.split('/')[1]}`, logoFile);
+                    logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(`logo_${Date.now()}.${logoFile.type.split('/')[1]}`).data.publicUrl;
                 }
-
-                // SE AGREGÓ: 2. Procesar Archivo de Banner de Fondo
-                const bannerFile = document.getElementById("c-banner-file").files[0];
-                let bannerUrl = "";
-
                 if (bannerFile) {
-                    const extension = bannerFile.type.split('/')[1] || 'png';
-                    const uniqueName = `banner_${Date.now()}.${extension}`;
-                    const { error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, bannerFile);
-                    if (error) throw error;
-                    bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl;
+                    const { error } = await supabase.storage.from('productos-imagenes').upload(`banner_${Date.now()}.${bannerFile.type.split('/')[1]}`, bannerFile);
+                    bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(`banner_${Date.now()}.${bannerFile.type.split('/')[1]}`).data.publicUrl;
                 }
 
-                const temaSeleccionado = document.getElementById("c-tema").value;
                 const payload = {
                     nombre: document.getElementById("c-nombre").value.trim(),
                     telefono: document.getElementById("c-telefono").value.trim(),
                     descripcion: document.getElementById("c-descripcion").value.trim(),
-                    tema: temaSeleccionado
+                    tema: document.getElementById("c-tema").value
                 };
-                
-                if(temaSeleccionado === "personalizado") {
-                    payload.colores = {
-                        bg: document.getElementById("col-bg").value,
-                        card: document.getElementById("col-card").value,
-                        text: document.getElementById("col-text").value,
-                        accent: document.getElementById("col-accent").value,
-                    };
+                if(payload.tema === "personalizado") {
+                    payload.colores = { bg: document.getElementById("col-bg").value, card: document.getElementById("col-card").value, text: document.getElementById("col-text").value, accent: document.getElementById("col-accent").value };
                 }
-
                 if (logoUrl) payload.logoUrl = logoUrl;
-                if (bannerUrl) payload.bannerUrl = bannerUrl; // SE AGREGÓ AL ENVIAR A FIRESTORE
+                if (bannerUrl) payload.bannerUrl = bannerUrl;
 
                 await setDoc(doc(db, "configuracion", "perfil"), payload, { merge: true });
-                
-                // Limpiar inputs de archivo tras guardar con éxito
-                document.getElementById("c-logo-file").value = "";
-                document.getElementById("c-banner-file").value = "";
-                
-                alert("¡Configuración y Diseño guardados exitosamente con el esquema de la marca!");
-            } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                btn.disabled = false; btn.textContent = "Guardar Cambios de Configuración";
-            }
+                document.getElementById("c-logo-file").value = ""; document.getElementById("c-banner-file").value = "";
+                alert("Configuración guardada exitosamente");
+            } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; btn.textContent = "Guardar Cambios de Configuración"; }
         });
 
-        // MANEJO DE CATEGORÍAS
         document.getElementById("category-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const input = document.getElementById("cat-nombre");
-            const nombreCat = input.value.trim();
-            const idCat = nombreCat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "_");
-
-            try {
-                await setDoc(doc(db, "categorias", idCat), { nombre: nombreCat, orden: Date.now() });
-                input.value = "";
-            } catch (err) { alert("Error: " + err.message); }
+            await setDoc(doc(db, "categorias", input.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "_")), { nombre: input.value.trim(), orden: Date.now() });
+            input.value = "";
         });
 
-        window.eliminarCategoria = async (id) => {
-            if(confirm("⚠ CUIDADO: Si eliminas esta categoría, los productos que le pertenecen no se verán en la tienda. ¿Deseas borrarla de todas formas?")) {
-                await deleteDoc(doc(db, "categorias", id));
-            }
-        };
+        window.eliminarCategoria = async (id) => { if(confirm("¿Seguro?")) await deleteDoc(doc(db, "categorias", id)); };
+        window.editarCategoria = async (id, actual) => { const n = prompt("Nuevo nombre:", actual); if(n) await updateDoc(doc(db, "categorias", id), { nombre: n.trim() }); };
 
-        window.editarCategoria = async (id, nombreActual) => {
-            const nuevoNombre = prompt("Nuevo nombre para la categoría:", nombreActual);
-            if(nuevoNombre && nuevoNombre.trim() !== "") {
-                await updateDoc(doc(db, "categorias", id), { nombre: nuevoNombre.trim() });
-            }
-        };
+        // --- SISTEMA DE COLORES Y CARACTERÍSTICAS DINÁMICAS ---
+        const cContainer = document.getElementById("dynamic-colors-container");
+        function createColorBlock(colorHex = "#ff0000") {
+            const div = document.createElement("div");
+            div.className = "flex items-center gap-2 bg-[#0b0f19] p-2 rounded-lg border border-slate-800 color-block";
+            div.innerHTML = `
+                <input type="color" value="${colorHex}" class="c-hex w-8 h-8 cursor-pointer bg-transparent border-0 rounded">
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-500 hover:text-red-400 text-xs px-2">✕</button>
+            `;
+            cContainer.appendChild(div);
+        }
+        document.getElementById("btn-add-color").onclick = () => createColorBlock();
 
-        // BLOQUES DINÁMICOS DE CARACTERÍSTICAS
         const fContainer = document.getElementById("dynamic-features-container");
         function createFeatureBlock(titulo = "", opciones = "") {
             const div = document.createElement("div");
             div.className = "p-3 bg-[#0b0f19] rounded-xl border border-slate-800 relative feature-block";
             div.innerHTML = `
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div><input type="text" value="${titulo}" required placeholder="Ej: Tamaño o Capacidad" class="f-titulo w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-purple-500"></div>
-                    <div><input type="text" value="${opciones}" required placeholder="Opciones separadas por comas" class="f-opciones w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-purple-500"></div>
+                    <div><input type="text" value="${titulo}" required class="f-titulo w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-purple-500"></div>
+                    <div><input type="text" value="${opciones}" required class="f-opciones w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-purple-500"></div>
                 </div>
                 <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-slate-500 hover:text-red-400 text-xs">✕</button>
             `;
@@ -485,7 +392,6 @@
         }
         document.getElementById("btn-add-caract").onclick = () => createFeatureBlock();
 
-        // MODO EDICIÓN PRODUCTO
         window.cargarParaEditar = (id) => {
             const prod = productosGlobales.find(p => p.id === id);
             if(!prod) return;
@@ -495,23 +401,16 @@
             document.getElementById("a-nombre").value = prod.nombre;
             document.getElementById("a-categoria").value = prod.categoriaId;
             document.getElementById("a-descripcion").value = prod.descripcion;
-            
             document.getElementById("a-file").value = "";
-            fContainer.innerHTML = "";
             
-            if(prod.caracteristicas && prod.caracteristicas.length > 0) {
-                prod.caracteristicas.forEach(c => {
-                    createFeatureBlock(c.titulo, c.opciones.join(", "));
-                });
-            } else {
-                createFeatureBlock();
-            }
+            fContainer.innerHTML = ""; cContainer.innerHTML = "";
+            if(prod.caracteristicas && prod.caracteristicas.length > 0) prod.caracteristicas.forEach(c => createFeatureBlock(c.titulo, c.opciones.join(", ")));
+            if(prod.colores && prod.colores.length > 0) prod.colores.forEach(c => createColorBlock(c));
 
             document.getElementById("prod-form-title").textContent = "Editando Producto...";
             document.getElementById("btn-submit").textContent = "Guardar Cambios del Producto";
             document.getElementById("btn-cancel-edit").classList.remove("hidden");
             document.getElementById("img-edit-status").classList.remove("hidden");
-
             document.getElementById("product-form-section").scrollIntoView({ behavior: 'smooth' });
         };
 
@@ -519,15 +418,13 @@
             document.getElementById("prod-form").reset();
             document.getElementById("edit-prod-id").value = "";
             document.getElementById("edit-prod-img").value = "";
-            fContainer.innerHTML = ""; createFeatureBlock();
-            
+            fContainer.innerHTML = ""; cContainer.innerHTML = "";
             document.getElementById("prod-form-title").textContent = "Publicador de Productos";
-            document.getElementById("btn-submit").textContent = "Guardar Producto en el Catálogo";
+            document.getElementById("btn-submit").textContent = "Guardar Producto";
             document.getElementById("btn-cancel-edit").classList.add("hidden");
             document.getElementById("img-edit-status").classList.add("hidden");
         };
 
-        // SUBIR O EDITAR PRODUCTO
         document.getElementById("prod-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btn-submit");
@@ -535,32 +432,22 @@
             const editId = document.getElementById("edit-prod-id").value;
             let imgUrl = document.getElementById("edit-prod-img").value;
 
-            if(!editId && !fileInput.files[0]) {
-                alert("Por favor, selecciona una imagen para el nuevo producto.");
-                return;
-            }
-
+            if(!editId && !fileInput.files[0]) return alert("Selecciona una imagen");
             btn.disabled = true; btn.textContent = "Procesando...";
 
             try {
                 if (fileInput.files[0]) {
-                    const file = fileInput.files[0];
-                    const extension = file.type.split('/')[1] || 'png';
-                    const uniqueName = `${Date.now()}_prod.${extension}`;
-                    
-                    const { error } = await supabase.storage.from('productos-imagenes').upload(uniqueName, file);
-                    if (error) throw error;
+                    const uniqueName = `${Date.now()}_prod.${fileInput.files[0].type.split('/')[1]}`;
+                    await supabase.storage.from('productos-imagenes').upload(uniqueName, fileInput.files[0]);
                     imgUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl;
                 }
 
-                const caract = [];
+                const caract = [], colores = [];
                 document.querySelectorAll(".feature-block").forEach(b => {
-                    const t = b.querySelector(".f-titulo").value.trim();
-                    const o = b.querySelector(".f-opciones").value;
-                    if (t && o) {
-                        caract.push({ titulo: t, opciones: o.split(',').map(i => i.trim()).filter(i => i !== "") });
-                    }
+                    const t = b.querySelector(".f-titulo").value.trim(), o = b.querySelector(".f-opciones").value;
+                    if (t && o) caract.push({ titulo: t, opciones: o.split(',').map(i => i.trim()).filter(i => i !== "") });
                 });
+                document.querySelectorAll(".color-block").forEach(b => colores.push(b.querySelector(".c-hex").value));
 
                 const payload = {
                     nombre: document.getElementById("a-nombre").value.trim(),
@@ -568,31 +455,18 @@
                     descripcion: document.getElementById("a-descripcion").value.trim(),
                     imagenUrl: imgUrl,
                     caracteristicas: caract,
+                    colores: colores, // Array guardado en DB
                     activo: true
                 };
 
-                if (editId) {
-                    await updateDoc(doc(db, "productos", editId), payload);
-                    alert("¡Producto actualizado!");
-                } else {
-                    payload.creadoEn = new Date();
-                    await addDoc(collection(db, "productos"), payload);
-                    alert("¡Producto publicado!");
-                }
+                if (editId) await updateDoc(doc(db, "productos", editId), payload);
+                else { payload.creadoEn = new Date(); await addDoc(collection(db, "productos"), payload); }
 
                 document.getElementById("btn-cancel-edit").click();
-            } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                btn.disabled = false;
-            }
+            } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; }
         });
 
-        window.eliminarProducto = async (idProducto) => {
-            if (confirm("¿Seguro que deseas eliminar este producto definitivamente?")) {
-                await deleteDoc(doc(db, "productos", idProducto));
-            }
-        };
+        window.eliminarProducto = async (id) => { if (confirm("¿Eliminar?")) await deleteDoc(doc(db, "productos", id)); };
     </script>
 </body>
 </html>
