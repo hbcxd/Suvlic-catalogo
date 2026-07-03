@@ -235,6 +235,7 @@
 
         let productosGlobales = [];
 
+        // Funciones lógicas de colores compartidas expuestas globalmente
         window.hexToRgb = function(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
@@ -243,15 +244,15 @@
         window.obtenerNombreColor = function(hex) {
             const paleta = [
                 { nombre: "Negro", hex: "#000000" }, { nombre: "Blanco", hex: "#ffffff" },
-                { nombre: "Gris Oscuro", hex: "#333333" }, { nombre: "Gris", hex: "#808080" }, { nombre: "Gris Claro", hex: "#cccccc" },
-                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Vino", hex: "#800000" }, { nombre: "Carmesí", hex: "#dc143c" },
-                { nombre: "Rosado", hex: "#ffc0cb" }, { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Coral", hex: "#ff7f50" },
-                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Marrón", hex: "#8b4513" }, { nombre: "Beige", hex: "#f5f5dc" },
-                { nombre: "Amarillo", hex: "#ffff00" }, { nombre: "Dorado", hex: "#ffd700" },
-                { nombre: "Verde", hex: "#008000" }, { nombre: "Verde Claro", hex: "#00ff00" }, { nombre: "Oliva", hex: "#808000" }, { nombre: "Menta", hex: "#98ff98" },
-                { nombre: "Cian", hex: "#00ffff" }, { nombre: "Turquesa", hex: "#40e0d0" }, { nombre: "Azul", hex: "#0000ff" }, { nombre: "Azul Marino", hex: "#000080" }, { nombre: "Azul Cielo", hex: "#87ceeb" },
-                { nombre: "Morado", hex: "#800080" }, { nombre: "Lila", hex: "#dda0dd" }, { nombre: "Índigo", hex: "#4b0082" },
-                { nombre: "Plateado", hex: "#c0c0c0" }
+                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Verde", hex: "#00ff00" },
+                { nombre: "Azul", hex: "#0000ff" }, { nombre: "Amarillo", hex: "#ffff00" },
+                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Morado", hex: "#800080" },
+                { nombre: "Rosa", hex: "#ffc0cb" }, { nombre: "Gris", hex: "#808080" },
+                { nombre: "Marrón", hex: "#a52a2a" }, { nombre: "Cian", hex: "#00ffff" },
+                { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Beige", hex: "#f5f5dc" },
+                { nombre: "Dorado", hex: "#ffd700" }, { nombre: "Plateado", hex: "#c0c0c0" },
+                { nombre: "Vino", hex: "#800000" }, { nombre: "Menta", hex: "#98ff98" },
+                { nombre: "Turquesa", hex: "#40e0d0"}, { nombre: "Coral", hex: "#ff7f50" }
             ];
             const c1 = window.hexToRgb(hex);
             if(!c1) return hex;
