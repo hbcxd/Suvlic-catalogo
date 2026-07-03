@@ -56,8 +56,9 @@
     <div id="welcome-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
         <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
             
-            <div class="w-full flex justify-center mb-2">
-                <div id="modal-logo" class="hidden w-24 h-24 rounded-full p-1 border-4 shadow-md flex items-center justify-center overflow-hidden dyn-border bg-[var(--bg-body)] mx-auto">
+            <div class="w-full relative flex flex-col items-center">
+                <img id="modal-welcome-img" src="" class="hidden w-full h-[140px] object-cover rounded-2xl border shadow-md dyn-border">
+                <div id="modal-logo" class="hidden w-20 h-20 rounded-full p-1 border-4 shadow-md flex items-center justify-center overflow-hidden dyn-border bg-[var(--bg-body)]">
                     <div class="text-xs dyn-text-desc">...</div>
                 </div>
             </div>
@@ -74,6 +75,7 @@
         </div>
     </div>
 
+    <!-- Menú hamburguesa ahora flotante -->
     <button id="btn-open-menu" class="fixed top-4 left-4 md:left-[calc(50%-210px)] z-40 p-2.5 rounded-full shadow-lg border dyn-card dyn-border transition-transform active:scale-95 bg-[var(--bg-app)]/90 backdrop-blur-md flex items-center justify-center">
         <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
@@ -128,6 +130,7 @@
             </button>
         </div>
         
+        <!-- Buscador integrado en el menú lateral -->
         <div class="p-4 border-b dyn-border">
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -179,7 +182,7 @@
                 { nombre: "Amarillo", hex: "#ffff00" }, { nombre: "Dorado", hex: "#ffd700" },
                 { nombre: "Verde", hex: "#008000" }, { nombre: "Verde Claro", hex: "#00ff00" }, { nombre: "Oliva", hex: "#808000" }, { nombre: "Menta", hex: "#98ff98" },
                 { nombre: "Cian", hex: "#00ffff" }, { nombre: "Turquesa", hex: "#40e0d0" }, { nombre: "Azul", hex: "#0000ff" }, { nombre: "Azul Marino", hex: "#000080" }, { nombre: "Azul Cielo", hex: "#87ceeb" },
-                { nombre: "Morado", hex: "#800080" }, { nombre: "Lila", hex: "#dda0dd" }, { font: "#4b0082" },
+                { nombre: "Morado", hex: "#800080" }, { nombre: "Lila", hex: "#dda0dd" }, { nombre: "Índigo", hex: "#4b0082" },
                 { nombre: "Plateado", hex: "#c0c0c0" }
             ];
             const c1 = hexToRgb(hex);
@@ -275,26 +278,24 @@
                     root.removeAttribute('style'); 
                 }
 
-                // Mostrar el logo principal en el encabezado de la página de la tienda
+                // Controlar superposición de Logo vs Banner de bienvenida
+                if (data.welcomeUrl) {
+                    const wImg = document.getElementById("modal-welcome-img");
+                    wImg.src = data.welcomeUrl;
+                    wImg.classList.remove("hidden");
+                    // Ajustamos el logo para que flote encima de la foto grande
+                    document.getElementById("modal-logo").classList.add("-mt-10", "relative", "z-10");
+                    document.getElementById("modal-logo").classList.remove("mx-auto", "mb-4");
+                } else {
+                    document.getElementById("modal-logo").classList.remove("-mt-10", "relative", "z-10");
+                    document.getElementById("modal-logo").classList.add("mx-auto", "mb-4");
+                }
+
                 if (data.logoUrl) {
-                    const wrapperLogo = document.getElementById("wrapper-logo");
-                    if (wrapperLogo) {
-                        wrapperLogo.innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full shadow-sm">`;
-                    }
+                    document.getElementById("modal-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
+                    document.getElementById("modal-logo").classList.remove("hidden");
+                    document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
                 }
-
-                // Controlar la imagen del círculo flotante en el modal de bienvenida
-                // Usa la imagen de bienvenida si existe; si no, usa el logo principal
-                const imagenCirculoModal = data.welcomeUrl || data.logoUrl;
-                const modalLogoContainer = document.getElementById("modal-logo");
-
-                if (imagenCirculoModal && modalLogoContainer) {
-                    modalLogoContainer.innerHTML = `<img src="${imagenCirculoModal}" class="w-full h-full object-cover rounded-full">`;
-                    modalLogoContainer.classList.remove("hidden");
-                } else if (modalLogoContainer) {
-                    modalLogoContainer.classList.add("hidden");
-                }
-
                 render();
             }
         });
