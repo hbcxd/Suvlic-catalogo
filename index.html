@@ -55,7 +55,13 @@
 
     <div id="welcome-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
         <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
-            <div id="modal-logo" class="w-20 h-20 mx-auto rounded-full p-1 border shadow-md flex items-center justify-center overflow-hidden dyn-border" style="background-color: var(--bg-body)"><div class="text-xs dyn-text-desc">...</div></div>
+            
+            <div class="w-full flex justify-center mb-2">
+                <div id="modal-logo" class="hidden w-24 h-24 rounded-full p-1 border-4 shadow-md flex items-center justify-center overflow-hidden dyn-border bg-[var(--bg-body)] mx-auto">
+                    <div class="text-xs dyn-text-desc">...</div>
+                </div>
+            </div>
+            
             <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">¡Bienvenido al Catálogo de <span id="modal-nombre-header" class="text-slate-300">...</span>! 🚀</h2>
             
             <div class="bg-slate-500/10 border border-slate-500/20 rounded-xl p-3">
@@ -68,10 +74,11 @@
         </div>
     </div>
 
+    <button id="btn-open-menu" class="fixed top-4 left-4 md:left-[calc(50%-210px)] z-40 p-2.5 rounded-full shadow-lg border dyn-card dyn-border transition-transform active:scale-95 bg-[var(--bg-app)]/90 backdrop-blur-md flex items-center justify-center">
+        <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
+
     <div class="app-container pb-28 relative">
-        <button id="btn-open-menu" class="absolute top-4 left-4 z-40 p-2 rounded-xl shadow-lg border dyn-card dyn-border transition-transform active:scale-95">
-            <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
 
         <div id="dyn-banner" class="h-32 sm:h-40 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center bg-no-repeat transition-all duration-500"></div>
 
@@ -120,6 +127,16 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
+        
+        <div class="p-4 border-b dyn-border">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" id="side-search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus">
+            </div>
+        </div>
+
         <div class="flex-1 overflow-y-auto p-4 hide-scrollbar">
             <h3 class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc mb-3 px-2">Filtrar Productos</h3>
             <div id="side-categories" class="space-y-1"></div>
@@ -146,7 +163,7 @@
         let telefonoWhatsAppGlobal = "584244178356";
         let searchTerm = "";
 
-        // --- LÓGICA DE COLORES ---
+        // --- LÓGICA DE COLORES MEJORADA ---
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
@@ -155,15 +172,15 @@
         function obtenerNombreColor(hex) {
             const paleta = [
                 { nombre: "Negro", hex: "#000000" }, { nombre: "Blanco", hex: "#ffffff" },
-                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Verde", hex: "#00ff00" },
-                { nombre: "Azul", hex: "#0000ff" }, { nombre: "Amarillo", hex: "#ffff00" },
-                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Morado", hex: "#800080" },
-                { nombre: "Rosa", hex: "#ffc0cb" }, { nombre: "Gris", hex: "#808080" },
-                { nombre: "Marrón", hex: "#a52a2a" }, { nombre: "Cian", hex: "#00ffff" },
-                { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Beige", hex: "#f5f5dc" },
-                { nombre: "Dorado", hex: "#ffd700" }, { nombre: "Plateado", hex: "#c0c0c0" },
-                { nombre: "Vino", hex: "#800000" }, { nombre: "Menta", hex: "#98ff98" },
-                { nombre: "Turquesa", hex: "#40e0d0"}, { nombre: "Coral", hex: "#ff7f50" }
+                { nombre: "Gris Oscuro", hex: "#333333" }, { nombre: "Gris", hex: "#808080" }, { nombre: "Gris Claro", hex: "#cccccc" },
+                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Vino", hex: "#800000" }, { nombre: "Carmesí", hex: "#dc143c" },
+                { nombre: "Rosado", hex: "#ffc0cb" }, { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Coral", hex: "#ff7f50" },
+                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Marrón", hex: "#8b4513" }, { nombre: "Beige", hex: "#f5f5dc" },
+                { nombre: "Amarillo", hex: "#ffff00" }, { nombre: "Dorado", hex: "#ffd700" },
+                { nombre: "Verde", hex: "#008000" }, { nombre: "Verde Claro", hex: "#00ff00" }, { nombre: "Oliva", hex: "#808000" }, { nombre: "Menta", hex: "#98ff98" },
+                { nombre: "Cian", hex: "#00ffff" }, { nombre: "Turquesa", hex: "#40e0d0" }, { nombre: "Azul", hex: "#0000ff" }, { nombre: "Azul Marino", hex: "#000080" }, { nombre: "Azul Cielo", hex: "#87ceeb" },
+                { nombre: "Morado", hex: "#800080" }, { nombre: "Lila", hex: "#dda0dd" }, { font: "#4b0082" },
+                { nombre: "Plateado", hex: "#c0c0c0" }
             ];
             const c1 = hexToRgb(hex);
             if(!c1) return hex;
@@ -179,7 +196,18 @@
         // --- FIN LÓGICA DE COLORES ---
 
         document.getElementById("btn-close-modal").onclick = () => document.getElementById("welcome-modal").classList.add("hidden");
-        document.getElementById("search-input").addEventListener("input", (e) => { searchTerm = e.target.value.toLowerCase(); render(); });
+        
+        // Sincronización de buscadores
+        document.getElementById("search-input").addEventListener("input", (e) => { 
+            searchTerm = e.target.value.toLowerCase(); 
+            document.getElementById("side-search-input").value = e.target.value; 
+            render(); 
+        });
+        document.getElementById("side-search-input").addEventListener("input", (e) => { 
+            searchTerm = e.target.value.toLowerCase(); 
+            document.getElementById("search-input").value = e.target.value; 
+            render(); 
+        });
 
         const toggleMenu = (show) => {
             const b = document.getElementById("menu-backdrop"), m = document.getElementById("side-menu");
@@ -195,13 +223,14 @@
             const img = document.getElementById("modal-img-zoom");
             img.src = url;
             m.classList.remove("hidden");
+            m.classList.add("flex"); 
             setTimeout(() => { m.classList.remove("opacity-0"); img.classList.remove("scale-95"); img.classList.add("scale-100"); }, 10);
         };
         window.cerrarZoom = () => {
             const m = document.getElementById("image-modal");
             const img = document.getElementById("modal-img-zoom");
             m.classList.add("opacity-0"); img.classList.remove("scale-100"); img.classList.add("scale-95");
-            setTimeout(() => { m.classList.add("hidden"); img.src = ""; }, 300);
+            setTimeout(() => { m.classList.add("hidden"); m.classList.remove("flex"); img.src = ""; }, 300);
         };
 
         onSnapshot(doc(db, "configuracion", "perfil"), (docSnap) => {
@@ -216,7 +245,6 @@
                 const b = document.getElementById("dyn-banner");
                 if (data.bannerUrl) b.style.backgroundImage = `url('${data.bannerUrl}')`;
 
-                // --- NUEVA LÓGICA DE TEMAS ACTUALIZADA ---
                 const root = document.documentElement;
                 const temaSeleccionado = data.temaPublico || data.tema || "tornasol";
 
@@ -242,16 +270,31 @@
                     document.body.className = "theme-light"; 
                     root.removeAttribute('style'); 
                 } 
-                else { // "oscuro" o por defecto
+                else { 
                     document.body.className = "theme-dark"; 
                     root.removeAttribute('style'); 
                 }
-                // -----------------------------------------
 
+                // Mostrar el logo principal en el encabezado de la página de la tienda
                 if (data.logoUrl) {
-                    document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
-                    document.getElementById("modal-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
+                    const wrapperLogo = document.getElementById("wrapper-logo");
+                    if (wrapperLogo) {
+                        wrapperLogo.innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full shadow-sm">`;
+                    }
                 }
+
+                // Controlar la imagen del círculo flotante en el modal de bienvenida
+                // Usa la imagen de bienvenida si existe; si no, usa el logo principal
+                const imagenCirculoModal = data.welcomeUrl || data.logoUrl;
+                const modalLogoContainer = document.getElementById("modal-logo");
+
+                if (imagenCirculoModal && modalLogoContainer) {
+                    modalLogoContainer.innerHTML = `<img src="${imagenCirculoModal}" class="w-full h-full object-cover rounded-full">`;
+                    modalLogoContainer.classList.remove("hidden");
+                } else if (modalLogoContainer) {
+                    modalLogoContainer.classList.add("hidden");
+                }
+
                 render();
             }
         });
@@ -342,6 +385,23 @@
                     htmlSelects += `</div>`;
                 }
 
+                let htmlAccesorios = "";
+                if (p.accesorios && p.accesorios.length > 0) {
+                    htmlAccesorios = `
+                        <div class="mt-3 bg-[var(--bg-body)] p-3 rounded-xl border dyn-border transition-colors">
+                            <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc mb-2 block">🎁 Accesorios Opcionales</label>
+                            <div class="flex flex-col gap-2">
+                                ${p.accesorios.map((acc, index) => `
+                                    <label class="flex items-center gap-3 cursor-pointer group p-1">
+                                        <input type="checkbox" id="chk-${p.id}-${index}" value="${acc}" class="w-4 h-4 rounded border-slate-500 text-slate-800 bg-[var(--bg-input)] focus:ring-0 cursor-pointer">
+                                        <span class="text-xs font-medium dyn-text-title group-hover:text-slate-400 transition-colors">${acc}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 const esDirecto = !reqColor && (!p.caracteristicas || p.caracteristicas.length === 0);
 
                 card.innerHTML = `
@@ -364,6 +424,7 @@
                         <div class="w-full h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent opacity-50 mb-1"></div>
                         ${htmlColores}
                         ${htmlSelects}
+                        ${htmlAccesorios}
                         <div id="ctrl-${p.id}" class="${esDirecto ? 'flex' : 'hidden'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border">
                             <div class="flex items-center rounded-xl border dyn-input w-[120px] justify-between shadow-sm">
                                 <button onclick="cCant('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
@@ -408,27 +469,37 @@
         window.addCar = (id, n, max, hasColor) => {
             const c = parseInt(document.getElementById(`cant-${id}`).value);
             const opc = [];
+            
             if(hasColor) {
                 const colorSel = document.getElementById(`c-val-${id}`).value;
                 if(!colorSel) return alert("Por favor, selecciona un color.");
                 opc.push(`Color: ${obtenerNombreColor(colorSel)}`);
             }
+            
             for (let i = 0; i < max; i++) {
                 const s = document.getElementById(`s-${id}-${i}`);
                 if(!s.value) return alert("Completa las opciones requeridas.");
                 opc.push(`${s.getAttribute("data-titulo")}: ${s.value}`);
             }
+
+            const chks = document.querySelectorAll(`input[id^="chk-${id}-"]:checked`);
+            chks.forEach(chk => { opc.push(`🎁 ${chk.value}`); });
+
             const idx = carrito.findIndex(i => i.id === id && JSON.stringify(i.opc) === JSON.stringify(opc));
             if (idx > -1) carrito[idx].c += c; else carrito.push({ id: id, n: n, opc: opc, c: c });
+            
             alert("¡Añadido al pedido!");
             tOpc(id);
             document.getElementById(`cant-${id}`).value = 1;
+            
             if(hasColor) {
                 document.getElementById(`c-val-${id}`).value = "";
                 document.querySelectorAll(`.color-btn-${id}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; });
             }
             for (let i = 0; i < max; i++) { const s = document.getElementById(`s-${id}-${i}`); s.value = ""; s.disabled = true; }
+            document.querySelectorAll(`input[id^="chk-${id}-"]`).forEach(chk => chk.checked = false);
             if(max > 0 || hasColor) { document.getElementById(`ctrl-${id}`).classList.add("hidden"); document.getElementById(`ctrl-${id}`).classList.remove("flex"); }
+            
             const btnCounter = document.getElementById("counter");
             btnCounter.textContent = `${carrito.reduce((s, i) => s + i.c, 0)} ítems`;
             btnCounter.classList.add("animate-pulse"); setTimeout(() => btnCounter.classList.remove("animate-pulse"), 1000);
@@ -446,7 +517,7 @@
             let tot = 0;
             carrito.forEach((i, x) => {
                 txt += `*${x + 1}️⃣ ${i.n.toUpperCase()}*\n   🔹 *Cantidad:* ${i.c} ud.\n`;
-                if (i.opc.length > 0) { txt += `   🔹 *Variaciones:*\n`; i.opc.forEach(o => txt += `      • ${o}\n`); }
+                if (i.opc.length > 0) { txt += `   🔹 *Selección:*\n`; i.opc.forEach(o => txt += `      • ${o}\n`); }
                 txt += `-----------------------------------------------\n`; tot += i.c;
             });
             txt += `📊 *TOTAL PIEZAS:* ${tot}\n===============================\n👋 ¡Hola! Soy ${name}. Acabo de armar este pedido para revisar disponibilidad y coordinar pago.`;
