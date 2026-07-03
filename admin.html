@@ -102,14 +102,19 @@
                     <div class="flex flex-col items-center"><label class="text-[10px] text-slate-400 mb-1">Acentos</label><input type="color" id="col-accent" class="w-full h-8 cursor-pointer bg-transparent border-0 rounded metallic-focus"></div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Actualizar Logo</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">Actualizar Logo</label>
                         <input type="file" id="c-logo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-slate-500/10 file:text-slate-300 hover:file:bg-slate-500/20 file:transition-colors cursor-pointer metallic-focus">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Actualizar Banner</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">Actualizar Banner</label>
                         <input type="file" id="c-banner-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-slate-500/10 file:text-slate-300 hover:file:bg-slate-500/20 file:transition-colors cursor-pointer metallic-focus">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Logo Circular Bienvenida</label>
+                        <p class="text-[9px] text-slate-500 mb-1">Se verá en el círculo flotante al entrar.</p>
+                        <input type="file" id="c-welcome-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-slate-500/10 file:text-slate-300 hover:file:bg-slate-500/20 file:transition-colors cursor-pointer metallic-focus">
                     </div>
                 </div>
 
@@ -159,6 +164,12 @@
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Descripción del Artículo</label>
                     <textarea id="a-descripcion" rows="2" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white transition-colors metallic-focus"></textarea>
+                </div>
+
+                <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <label class="block text-sm font-bold text-slate-300 mb-1">🎁 Accesorios (Multi-elección opcional)</label>
+                    <p class="text-[10px] text-slate-400 mb-3">Escribe los accesorios separados por una coma. El cliente podrá marcar como casilla los que desee.</p>
+                    <input type="text" id="a-accesorios" placeholder="Ej: Funda, Vidrio Templado, Audífonos" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white transition-colors metallic-focus">
                 </div>
 
                 <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm">
@@ -225,6 +236,36 @@
 
         let productosGlobales = [];
 
+        window.hexToRgb = function(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+        };
+
+        window.obtenerNombreColor = function(hex) {
+            const paleta = [
+                { nombre: "Negro", hex: "#000000" }, { nombre: "Blanco", hex: "#ffffff" },
+                { nombre: "Gris Oscuro", hex: "#333333" }, { nombre: "Gris", hex: "#808080" }, { nombre: "Gris Claro", hex: "#cccccc" },
+                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Vino", hex: "#800000" }, { nombre: "Carmesí", hex: "#dc143c" },
+                { nombre: "Rosado", hex: "#ffc0cb" }, { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Coral", hex: "#ff7f50" },
+                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Marrón", hex: "#8b4513" }, { nombre: "Beige", hex: "#f5f5dc" },
+                { nombre: "Amarillo", hex: "#ffff00" }, { nombre: "Dorado", hex: "#ffd700" },
+                { nombre: "Verde", hex: "#008000" }, { nombre: "Verde Claro", hex: "#00ff00" }, { nombre: "Oliva", hex: "#808000" }, { nombre: "Menta", hex: "#98ff98" },
+                { nombre: "Cian", hex: "#00ffff" }, { nombre: "Turquesa", hex: "#40e0d0" }, { nombre: "Azul", hex: "#0000ff" }, { nombre: "Azul Marino", hex: "#000080" }, { nombre: "Azul Cielo", hex: "#87ceeb" },
+                { nombre: "Morado", hex: "#800080" }, { nombre: "Lila", hex: "#dda0dd" }, { nombre: "Índigo", hex: "#4b0082" },
+                { nombre: "Plateado", hex: "#c0c0c0" }
+            ];
+            const c1 = window.hexToRgb(hex);
+            if(!c1) return hex;
+            let menorDistancia = Infinity;
+            let colorCercano = hex;
+            paleta.forEach(c2 => {
+                const rgb2 = window.hexToRgb(c2.hex);
+                const distancia = Math.sqrt(Math.pow(c1.r - rgb2.r, 2) + Math.pow(c1.g - rgb2.g, 2) + Math.pow(c1.b - rgb2.b, 2));
+                if(distancia < menorDistancia) { menorDistancia = distancia; colorCercano = c2.nombre; }
+            });
+            return colorCercano;
+        };
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById("login-screen").classList.add("hidden");
@@ -252,7 +293,6 @@
 
         document.getElementById("btn-logout").addEventListener("click", () => signOut(auth));
 
-        // Listener para los nuevos selectores de tema
         const handleThemeChange = () => {
             const valPublico = document.getElementById("c-tema-publico").value;
             const valAdmin = document.getElementById("c-tema-admin").value;
@@ -278,11 +318,10 @@
                 document.getElementById("c-telefono").value = data.telefono || "";
                 document.getElementById("c-descripcion").value = data.descripcion || "";
                 
-                // Cargar temas por separado (con fallback si usabas 'tema' antes)
                 document.getElementById("c-tema-publico").value = data.temaPublico || data.tema || "tornasol";
                 document.getElementById("c-tema-admin").value = data.temaAdmin || "oscuro";
                 
-                handleThemeChange(); // Disparar revisión visual de la caja de colores
+                handleThemeChange(); 
 
                 if((data.temaPublico === "personalizado" || data.temaAdmin === "personalizado") && data.colores) {
                     document.getElementById("col-bg").value = data.colores.bg || "#0b0f19";
@@ -349,41 +388,49 @@
             const btn = document.getElementById("btn-save-config");
             btn.disabled = true; btn.textContent = "Guardando...";
             try {
-                let logoUrl = "", bannerUrl = "";
+                let logoUrl = "", bannerUrl = "", welcomeUrl = "";
                 const logoFile = document.getElementById("c-logo-file").files[0];
                 const bannerFile = document.getElementById("c-banner-file").files[0];
+                const welcomeFile = document.getElementById("c-welcome-file").files[0];
 
                 if (logoFile) {
                     const logoName = `logo_${Date.now()}.${logoFile.type.split('/')[1]}`;
-                    const { error } = await supabase.storage.from('productos-imagenes').upload(logoName, logoFile);
+                    await supabase.storage.from('productos-imagenes').upload(logoName, logoFile);
                     logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(logoName).data.publicUrl;
                 }
                 
                 if (bannerFile) {
                     const bannerName = `banner_${Date.now()}.${bannerFile.type.split('/')[1]}`;
-                    const { error } = await supabase.storage.from('productos-imagenes').upload(bannerName, bannerFile);
+                    await supabase.storage.from('productos-imagenes').upload(bannerName, bannerFile);
                     bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(bannerName).data.publicUrl;
+                }
+
+                if (welcomeFile) {
+                    const welcomeName = `welcome_${Date.now()}.${welcomeFile.type.split('/')[1]}`;
+                    await supabase.storage.from('productos-imagenes').upload(welcomeName, welcomeFile);
+                    welcomeUrl = supabase.storage.from('productos-imagenes').getPublicUrl(welcomeName).data.publicUrl;
                 }
 
                 const payload = {
                     nombre: document.getElementById("c-nombre").value.trim(),
                     telefono: document.getElementById("c-telefono").value.trim(),
                     descripcion: document.getElementById("c-descripcion").value.trim(),
-                    // Guardar ambas configuraciones
                     temaPublico: document.getElementById("c-tema-publico").value,
                     temaAdmin: document.getElementById("c-tema-admin").value
                 };
 
-                // Si alguno de los dos temas es personalizado, guardar los colores
                 if(payload.temaPublico === "personalizado" || payload.temaAdmin === "personalizado") {
                     payload.colores = { bg: document.getElementById("col-bg").value, card: document.getElementById("col-card").value, text: document.getElementById("col-text").value, accent: document.getElementById("col-accent").value };
                 }
 
                 if (logoUrl) payload.logoUrl = logoUrl;
                 if (bannerUrl) payload.bannerUrl = bannerUrl;
+                if (welcomeUrl) payload.welcomeUrl = welcomeUrl;
 
                 await setDoc(doc(db, "configuracion", "perfil"), payload, { merge: true });
-                document.getElementById("c-logo-file").value = ""; document.getElementById("c-banner-file").value = "";
+                document.getElementById("c-logo-file").value = ""; 
+                document.getElementById("c-banner-file").value = "";
+                document.getElementById("c-welcome-file").value = "";
                 alert("Configuración guardada exitosamente");
             } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; btn.textContent = "Guardar Cambios de Configuración"; }
         });
@@ -403,7 +450,8 @@
             const div = document.createElement("div");
             div.className = "flex items-center gap-2 bg-[#0b0f19] p-2 rounded-lg border border-slate-800 color-block";
             div.innerHTML = `
-                <input type="color" value="${colorHex}" class="c-hex w-8 h-8 cursor-pointer bg-transparent border-0 rounded metallic-focus">
+                <input type="color" value="${colorHex}" class="c-hex w-8 h-8 cursor-pointer bg-transparent border-0 rounded metallic-focus" oninput="this.nextElementSibling.textContent = window.obtenerNombreColor(this.value)">
+                <span class="text-[10px] text-slate-300 w-16 truncate font-medium text-center">${window.obtenerNombreColor(colorHex)}</span>
                 <button type="button" onclick="this.parentElement.remove()" class="text-slate-500 hover:text-red-400 text-xs px-2">✕</button>
             `;
             cContainer.appendChild(div);
@@ -434,6 +482,7 @@
             document.getElementById("a-nombre").value = prod.nombre;
             document.getElementById("a-categoria").value = prod.categoriaId;
             document.getElementById("a-descripcion").value = prod.descripcion;
+            document.getElementById("a-accesorios").value = prod.accesorios ? prod.accesorios.join(", ") : "";
             document.getElementById("a-file").value = "";
             
             fContainer.innerHTML = ""; cContainer.innerHTML = "";
@@ -451,6 +500,7 @@
             document.getElementById("prod-form").reset();
             document.getElementById("edit-prod-id").value = "";
             document.getElementById("edit-prod-img").value = "";
+            document.getElementById("a-accesorios").value = "";
             fContainer.innerHTML = ""; cContainer.innerHTML = "";
             document.getElementById("prod-form-title").textContent = "Publicador de Productos";
             document.getElementById("btn-submit").textContent = "Guardar Producto";
@@ -482,6 +532,9 @@
                 });
                 document.querySelectorAll(".color-block").forEach(b => colores.push(b.querySelector(".c-hex").value));
 
+                const accesoriosVal = document.getElementById("a-accesorios").value;
+                const accesoriosArray = accesoriosVal.split(',').map(i => i.trim()).filter(i => i !== "");
+
                 const payload = {
                     nombre: document.getElementById("a-nombre").value.trim(),
                     categoriaId: document.getElementById("a-categoria").value,
@@ -489,6 +542,7 @@
                     imagenUrl: imgUrl,
                     caracteristicas: caract,
                     colores: colores,
+                    accesorios: accesoriosArray,
                     activo: true
                 };
 
