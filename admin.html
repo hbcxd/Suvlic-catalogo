@@ -205,11 +205,11 @@
             </form>
         </div>
 
-        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl relative">
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
                 <span>🗑️</span> Inventario de Productos
             </h2>
-            <div id="admin-products-list" class="space-y-3 max-h-96 overflow-y-auto pr-2 hide-scrollbar"></div>
+            <div id="admin-products-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2 hide-scrollbar relative"></div>
         </div>
 
     </div>
@@ -234,8 +234,9 @@
         const supabase = createClient('https://wwgbgfkukyjxvxtsantv.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Z2JnZmt1a3lqeHZ4dHNhbnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTE2MTgsImV4cCI6MjA5Nzk4NzYxOH0.KvgqVOgB8WLdmGlFf1SG57Gl6IEwm2sdAIzlM5v_0Q0');
 
         let productosGlobales = [];
+        let categoriasGlobales = {}; // NUEVO: Para guardar mapeo de categorías
 
-        // Funciones lógicas de colores compartidas expuestas globalmente
+        // Funciones lógicas de colores
         window.hexToRgb = function(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
@@ -332,6 +333,65 @@
             }
         }
 
+        // NUEVO: Función para renderizar productos agrupados y ordenados
+        function renderizarProductosAdmin() {
+            const listContainer = document.getElementById("admin-products-list");
+            listContainer.innerHTML = "";
+
+            if (productosGlobales.length === 0) return;
+
+            // 1. Ordenar todos los productos alfabéticamente
+            const productosOrdenados = [...productosGlobales].sort((a, b) => 
+                a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+            );
+
+            // 2. Agrupar por nombre de categoría
+            const agrupados = {};
+            productosOrdenados.forEach(prod => {
+                const nombreCat = categoriasGlobales[prod.categoriaId] || "Sin Categoría";
+                if (!agrupados[nombreCat]) agrupados[nombreCat] = [];
+                agrupados[nombreCat].push(prod);
+            });
+
+            // 3. Ordenar las categorías alfabéticamente
+            const categoriasOrdenadas = Object.keys(agrupados).sort((a, b) => 
+                a.localeCompare(b, 'es', { sensitivity: 'base' })
+            );
+
+            // 4. Inyectar en el HTML
+            categoriasOrdenadas.forEach(cat => {
+                // Encabezado elegante para la categoría
+                const header = document.createElement("div");
+                header.className = "sticky top-0 bg-slate-900/95 backdrop-blur z-10 py-2 border-b border-slate-800/80 mt-4 mb-2 first:mt-0";
+                header.innerHTML = `<h3 class="text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-2"><span class="text-sm">🏷️</span> ${cat}</h3>`;
+                listContainer.appendChild(header);
+
+                // Imprimir cada producto dentro de su grupo
+                agrupados[cat].forEach(prod => {
+                    const itemDiv = document.createElement("div");
+                    itemDiv.className = "flex items-center justify-between p-3 bg-[#0b0f19] rounded-xl border border-slate-800 gap-3 hover:border-slate-700 transition-colors mb-2";
+                    itemDiv.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${prod.imagenUrl || 'https://via.placeholder.com/50'}" class="w-10 h-10 object-cover rounded-lg border border-slate-800 flex-shrink-0">
+                            <div class="overflow-hidden"><p class="text-sm font-bold text-white truncate">${prod.nombre}</p></div>
+                        </div>
+                        
+                        <div id="action-btns-${prod.id}" class="flex gap-2 flex-shrink-0">
+                            <button onclick="cargarParaEditar('${prod.id}')" class="bg-slate-500/10 text-slate-300 text-xs font-bold py-2 px-3 rounded-lg border border-slate-500/30 hover:bg-slate-500/20 transition-all">Editar</button>
+                            <button onclick="mostrarConfirmacion('${prod.id}')" class="bg-red-600/10 text-red-400 text-xs font-bold py-2 px-3 rounded-lg border border-red-500/30 hover:bg-red-500/20 transition-all">Eliminar</button>
+                        </div>
+
+                        <div id="confirm-btns-${prod.id}" class="hidden flex gap-2 flex-shrink-0 items-center bg-red-900/20 px-2 py-1.5 rounded-lg border border-red-900/50">
+                            <span class="text-[10px] text-red-300 font-bold px-1 hidden sm:block">¿Borrar producto?</span>
+                            <button onclick="cancelarConfirmacion('${prod.id}')" class="text-slate-400 hover:text-slate-200 text-xs px-2 py-1 transition-colors">Cancelar</button>
+                            <button onclick="ejecutarEliminacion('${prod.id}')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-1.5 px-3 rounded-md transition-all shadow-[0_0_10px_rgba(220,38,38,0.3)]">Sí, eliminar</button>
+                        </div>
+                    `;
+                    listContainer.appendChild(itemDiv);
+                });
+            });
+        }
+
         let listenCat = null, listenProd = null;
         function activarEscuchadoresEnTiempoReal() {
             if (listenCat) listenCat();
@@ -342,8 +402,11 @@
                 const catList = document.getElementById("admin-categories-list");
                 select.innerHTML = '<option value="" disabled selected>-- Selecciona Categoría --</option>';
                 catList.innerHTML = "";
+                categoriasGlobales = {}; // Reset
+
                 snapshot.docs.forEach(docSnap => {
                     const cat = docSnap.data();
+                    categoriasGlobales[docSnap.id] = cat.nombre; // Guardamos en memoria global
                     select.innerHTML += `<option value="${docSnap.id}">${cat.nombre}</option>`;
                     const catDiv = document.createElement("div");
                     catDiv.className = "flex justify-between items-center bg-[#0b0f19] border border-slate-800 p-2 rounded-lg";
@@ -356,30 +419,17 @@
                     `;
                     catList.appendChild(catDiv);
                 });
+                renderizarProductosAdmin(); // Actualizar productos si las categorías cambian
             });
 
             listenProd = onSnapshot(collection(db, "productos"), (snapshot) => {
-                const listContainer = document.getElementById("admin-products-list");
-                listContainer.innerHTML = "";
                 productosGlobales = [];
                 snapshot.docs.forEach(docSnap => {
                     const prod = docSnap.data();
                     prod.id = docSnap.id;
                     productosGlobales.push(prod);
-                    const itemDiv = document.createElement("div");
-                    itemDiv.className = "flex items-center justify-between p-3 bg-[#0b0f19] rounded-xl border border-slate-800 gap-3";
-                    itemDiv.innerHTML = `
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <img src="${prod.imagenUrl || 'https://via.placeholder.com/50'}" class="w-10 h-10 object-cover rounded-lg border border-slate-800 flex-shrink-0">
-                            <div class="overflow-hidden"><p class="text-sm font-bold text-white truncate">${prod.nombre}</p></div>
-                        </div>
-                        <div class="flex gap-2 flex-shrink-0">
-                            <button onclick="cargarParaEditar('${prod.id}')" class="bg-slate-500/10 text-slate-300 text-xs font-bold py-2 px-3 rounded-lg border border-slate-500/30 hover:bg-slate-500/20 transition-all">Editar</button>
-                            <button onclick="eliminarProducto('${prod.id}')" class="bg-red-600/10 text-red-400 text-xs font-bold py-2 px-3 rounded-lg border border-red-500/30 hover:bg-red-500/20 transition-all">Eliminar</button>
-                        </div>
-                    `;
-                    listContainer.appendChild(itemDiv);
                 });
+                renderizarProductosAdmin();
             });
         }
 
@@ -442,7 +492,7 @@
             input.value = "";
         });
 
-        window.eliminarCategoria = async (id) => { if(confirm("¿Seguro?")) await deleteDoc(doc(db, "categorias", id)); };
+        window.eliminarCategoria = async (id) => { if(confirm("¿Seguro que deseas eliminar esta categoría?")) await deleteDoc(doc(db, "categorias", id)); };
         window.editarCategoria = async (id, actual) => { const n = prompt("Nuevo nombre:", actual); if(n) await updateDoc(doc(db, "categorias", id), { nombre: n.trim() }); };
 
         const cContainer = document.getElementById("dynamic-colors-container");
@@ -553,7 +603,28 @@
             } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; }
         });
 
-        window.eliminarProducto = async (id) => { if (confirm("¿Eliminar?")) await deleteDoc(doc(db, "productos", id)); };
+        // NUEVAS FUNCIONES: Eliminación en dos pasos
+        window.mostrarConfirmacion = (id) => {
+            document.getElementById(`action-btns-${id}`).classList.add('hidden');
+            const confirmBox = document.getElementById(`confirm-btns-${id}`);
+            confirmBox.classList.remove('hidden');
+            confirmBox.classList.add('flex');
+        };
+
+        window.cancelarConfirmacion = (id) => {
+            const confirmBox = document.getElementById(`confirm-btns-${id}`);
+            confirmBox.classList.add('hidden');
+            confirmBox.classList.remove('flex');
+            document.getElementById(`action-btns-${id}`).classList.remove('hidden');
+        };
+
+        window.ejecutarEliminacion = async (id) => {
+            try {
+                await deleteDoc(doc(db, "productos", id));
+            } catch (error) {
+                alert("Hubo un error al eliminar el producto.");
+            }
+        };
     </script>
 </body>
 </html>
