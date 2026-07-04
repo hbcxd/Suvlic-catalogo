@@ -10,7 +10,7 @@
         .theme-light { --bg-body: #e2e8f0; --bg-app: #ffffff; --bg-card: #f4f4f5; --text-title: #0f172a; --text-desc: #52525b; --border: #e4e4e7; --bg-input: #ffffff; --text-input: #18181b; --bg-btn: #18181b; --text-btn: #ffffff; --hover-item: #e4e4e7; }
         .theme-tornasol { --bg-body: #0b0f19; --bg-app: #0b0f19; --bg-card: #0f172a; --text-title: #ffffff; --text-desc: #94a3b8; --border: #1e293b; --bg-input: #0b0f19; --text-input: #f8fafc; --bg-btn: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%); --text-btn: #ffffff; --hover-item: #1e293b; }
 
-        body { background-color: var(--bg-body); font-family: system-ui, -apple-system, sans-serif; transition: background 0.4s ease; }
+        body { background-color: var(--bg-body); font-family: system-ui, -apple-system, sans-serif; transition: background 0.4s ease; overflow-x: hidden; }
         .app-container { max-width: 450px; margin: 0 auto; background-color: var(--bg-app); min-height: 100vh; position: relative; transition: background 0.4s ease; overflow-x: hidden;}
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         
@@ -72,7 +72,8 @@
     </div>
 
     <div class="app-container pb-28 relative">
-        <button id="btn-open-menu" class="absolute top-4 left-4 z-40 p-2 rounded-xl shadow-lg border dyn-card dyn-border transition-transform active:scale-95">
+        <!-- BOTÓN HAMBURGUESA FIJO A LA PANTALLA -->
+        <button id="btn-open-menu" class="fixed top-4 left-4 z-50 p-2 rounded-xl shadow-lg border dyn-card dyn-border transition-transform active:scale-95">
             <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
 
@@ -94,7 +95,8 @@
         </div>
 
         <div id="catalog-scroll-anchor" class="mt-4 border-b sticky top-0 backdrop-blur z-20 dyn-border shadow-sm pb-2" style="background-color: var(--bg-app); opacity: 0.98;">
-            <div class="px-6 pt-3 pb-1">
+            <!-- AJUSTE: pl-16 para que la barra no quede detrás del botón flotante -->
+            <div class="pl-16 pr-6 pt-3 pb-1">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -102,7 +104,8 @@
                     <input type="text" id="search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus">
                 </div>
             </div>
-            <div id="tabs-container" class="flex overflow-x-auto px-6 gap-6 text-sm font-bold pt-2 hide-scrollbar"></div>
+            <!-- AJUSTE: pl-16 en las pestañas por el mismo motivo -->
+            <div id="tabs-container" class="flex overflow-x-auto pl-16 pr-6 gap-6 text-sm font-bold pt-2 hide-scrollbar"></div>
         </div>
 
         <div id="catalog-container" class="p-4 space-y-5"></div>
@@ -123,6 +126,17 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
+        
+        <!-- NUEVA BARRA DE BÚSQUEDA EN EL MENÚ -->
+        <div class="p-4 border-b dyn-border">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" id="side-search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus">
+            </div>
+        </div>
+
         <div class="flex-1 overflow-y-auto p-4 hide-scrollbar">
             <h3 class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc mb-3 px-2">Filtrar Productos</h3>
             <div id="side-categories" class="space-y-1"></div>
@@ -144,6 +158,7 @@
         const db = getFirestore(app);
 
         let catActiva = "";
+        let categoriasList = []; // Lista global de categorías para los swipes
         let listadoCompleto = [];
         let carrito = [];
         let telefonoWhatsAppGlobal = "584244178356";
@@ -182,7 +197,16 @@
         // --- FIN LÓGICA DE COLORES ---
 
         document.getElementById("btn-close-modal").onclick = () => document.getElementById("welcome-modal").classList.add("hidden");
-        document.getElementById("search-input").addEventListener("input", (e) => { searchTerm = e.target.value.toLowerCase(); render(); });
+        
+        // --- LÓGICA DE SINCRONIZACIÓN DE BÚSQUEDAS ---
+        const handleSearch = (e) => {
+            searchTerm = e.target.value.toLowerCase();
+            document.getElementById("search-input").value = e.target.value;
+            document.getElementById("side-search-input").value = e.target.value;
+            render();
+        };
+        document.getElementById("search-input").addEventListener("input", handleSearch);
+        document.getElementById("side-search-input").addEventListener("input", handleSearch);
 
         const toggleMenu = (show) => {
             const b = document.getElementById("menu-backdrop"), m = document.getElementById("side-menu");
@@ -193,7 +217,6 @@
         document.getElementById("btn-close-menu").onclick = () => toggleMenu(false);
         document.getElementById("menu-backdrop").onclick = () => toggleMenu(false);
 
-        // Se agregó m.classList.add("flex") al abrir para que los items se centren bien
         window.abrirZoom = (url) => {
             const m = document.getElementById("image-modal");
             const img = document.getElementById("modal-img-zoom");
@@ -251,7 +274,6 @@
                     root.removeAttribute('style'); 
                 }
 
-                // Controlar Imagen de Bienvenida vs Logo
                 if (data.welcomeUrl) {
                     const wImg = document.getElementById("modal-welcome-img");
                     wImg.src = data.welcomeUrl;
@@ -273,21 +295,21 @@
         onSnapshot(collection(db, "categorias"), (snapshot) => {
             const tC = document.getElementById("tabs-container"), sC = document.getElementById("side-categories");
             tC.innerHTML = ""; sC.innerHTML = "";
-            const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.orden - b.orden);
-            if(docs.length > 0 && !catActiva) catActiva = docs[0].id;
+            categoriasList = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.orden - b.orden);
+            if(categoriasList.length > 0 && !catActiva) catActiva = categoriasList[0].id;
 
-            docs.forEach(cat => {
+            categoriasList.forEach(cat => {
                 const bT = document.createElement("button");
                 bT.id = `t-${cat.id}`;
                 bT.className = catActiva === cat.id ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)]" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent";
                 bT.textContent = cat.nombre.toUpperCase();
-                bT.onclick = () => { catActiva = cat.id; render(); };
+                bT.onclick = () => { selectCategoryAndScroll(cat.id); };
                 tC.appendChild(bT);
 
                 const bS = document.createElement("button");
                 bS.className = `w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover ${catActiva === cat.id ? 'bg-[var(--hover-item)]' : ''}`;
                 bS.textContent = `• ${cat.nombre}`;
-                bS.onclick = () => { catActiva = cat.id; render(); toggleMenu(false); window.scrollTo({ top: document.getElementById("catalog-scroll-anchor").offsetTop - 20, behavior: "smooth" }); };
+                bS.onclick = () => { selectCategoryAndScroll(cat.id); toggleMenu(false); };
                 sC.appendChild(bS);
             });
             render();
@@ -298,9 +320,27 @@
             render();
         });
 
+        function selectCategoryAndScroll(id) {
+            catActiva = id;
+            render();
+            window.scrollTo({ top: document.getElementById("catalog-scroll-anchor").offsetTop - 20, behavior: "smooth" });
+            const activeTab = document.getElementById(`t-${catActiva}`);
+            if(activeTab) {
+                activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }
+
         function render() {
             document.querySelectorAll("#tabs-container button").forEach(btn => {
                 btn.className = btn.id === `t-${catActiva}` ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all";
+            });
+            
+            document.querySelectorAll("#side-categories button").forEach((btn, index) => {
+                if(categoriasList[index] && categoriasList[index].id === catActiva) {
+                    btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title bg-[var(--hover-item)]";
+                } else {
+                    btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover";
+                }
             });
 
             const container = document.getElementById("catalog-container");
@@ -413,6 +453,42 @@
             });
         }
 
+        // --- LÓGICA DE SWIPE (DESLIZAR) HORIZONTAL PARA CATEGORÍAS ---
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        const catalogContainer = document.getElementById("catalog-container");
+        
+        catalogContainer.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+        
+        catalogContainer.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchStartX - touchEndX > swipeThreshold) {
+                cambiarCategoriaPorSwipe(1); // Deslizar Izquierda -> Siguiente Categoría
+            } else if (touchEndX - touchStartX > swipeThreshold) {
+                cambiarCategoriaPorSwipe(-1); // Deslizar Derecha -> Categoría Anterior
+            }
+        }
+        
+        function cambiarCategoriaPorSwipe(direction) {
+            if (!categoriasList || categoriasList.length === 0) return;
+            const currentIndex = categoriasList.findIndex(c => c.id === catActiva);
+            if (currentIndex === -1) return;
+            
+            let newIndex = currentIndex + direction;
+            if (newIndex >= 0 && newIndex < categoriasList.length) {
+                selectCategoryAndScroll(categoriasList[newIndex].id);
+            }
+        }
+        // --- FIN LÓGICA DE SWIPE ---
+
         window.tOpc = (id) => {
             const p = document.getElementById(`opc-${id}`), i = document.getElementById(`icon-${id}`);
             if (p.classList.contains('hidden')) { p.classList.remove('hidden'); p.classList.add('flex'); i.classList.add('rotate-180'); } 
@@ -453,7 +529,6 @@
                 opc.push(`${s.getAttribute("data-titulo")}: ${s.value}`);
             }
 
-            // Capturar casillas de accesorios
             const chks = document.querySelectorAll(`input[id^="chk-${id}-"]:checked`);
             chks.forEach(chk => {
                 opc.push(`🎁 ${chk.value}`);
@@ -472,7 +547,6 @@
             }
             for (let i = 0; i < max; i++) { const s = document.getElementById(`s-${id}-${i}`); s.value = ""; s.disabled = true; }
             
-            // Limpiar accesorios
             document.querySelectorAll(`input[id^="chk-${id}-"]`).forEach(chk => chk.checked = false);
 
             if(max > 0 || hasColor) { document.getElementById(`ctrl-${id}`).classList.add("hidden"); document.getElementById(`ctrl-${id}`).classList.remove("flex"); }
