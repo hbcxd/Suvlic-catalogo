@@ -108,7 +108,8 @@
             <div id="tabs-container" class="flex overflow-x-auto pl-16 pr-6 gap-6 text-sm font-bold pt-2 hide-scrollbar"></div>
         </div>
 
-        <div id="catalog-container" class="p-4 space-y-5"></div>
+        <!-- Se añadió la clase para transiciones fluidas de opacidad -->
+        <div id="catalog-container" class="p-4 space-y-5 transition-opacity duration-300 ease-in-out"></div>
 
         <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
             <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95">
@@ -292,10 +293,14 @@
             }
         });
 
+        // ACTUALIZACIÓN: Ordenamiento alfabético para Categorías
         onSnapshot(collection(db, "categorias"), (snapshot) => {
             const tC = document.getElementById("tabs-container"), sC = document.getElementById("side-categories");
             tC.innerHTML = ""; sC.innerHTML = "";
-            categoriasList = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.orden - b.orden);
+            categoriasList = snapshot.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a,b) => a.nombre.localeCompare(b.nombre)); // De la A a la Z
+                
             if(categoriasList.length > 0 && !catActiva) catActiva = categoriasList[0].id;
 
             categoriasList.forEach(cat => {
@@ -315,8 +320,11 @@
             render();
         });
 
+        // ACTUALIZACIÓN: Ordenamiento alfabético para Productos
         onSnapshot(collection(db, "productos"), (snap) => {
-            listadoCompleto = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            listadoCompleto = snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a,b) => a.nombre.localeCompare(b.nombre)); // De la A a la Z
             render();
         });
 
@@ -453,27 +461,44 @@
             });
         }
 
-        // --- LÓGICA DE SWIPE (DESLIZAR) HORIZONTAL PARA CATEGORÍAS ---
+        // --- ACTUALIZACIÓN: LÓGICA DE SWIPE FLUIDA ---
         let touchStartX = 0;
         let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
         
         const catalogContainer = document.getElementById("catalog-container");
         
         catalogContainer.addEventListener('touchstart', e => {
             touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
         }, {passive: true});
         
         catalogContainer.addEventListener('touchend', e => {
             touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
             handleSwipe();
         }, {passive: true});
         
         function handleSwipe() {
-            const swipeThreshold = 50;
-            if (touchStartX - touchEndX > swipeThreshold) {
-                cambiarCategoriaPorSwipe(1); // Deslizar Izquierda -> Siguiente Categoría
-            } else if (touchEndX - touchStartX > swipeThreshold) {
-                cambiarCategoriaPorSwipe(-1); // Deslizar Derecha -> Categoría Anterior
+            const swipeThresholdX = 60; 
+            const diffX = touchStartX - touchEndX;
+            const diffY = Math.abs(touchStartY - touchEndY);
+            
+            // Validar que el movimiento sea principalmente horizontal y supere el umbral
+            if (Math.abs(diffX) > swipeThresholdX && diffY < Math.abs(diffX)) {
+                // Efecto Fade Out
+                catalogContainer.style.opacity = '0.4';
+                
+                setTimeout(() => {
+                    if (diffX > 0) {
+                        cambiarCategoriaPorSwipe(1); // Izquierda -> Siguiente Categoría
+                    } else {
+                        cambiarCategoriaPorSwipe(-1); // Derecha -> Categoría Anterior
+                    }
+                    // Efecto Fade In
+                    catalogContainer.style.opacity = '1';
+                }, 200); 
             }
         }
         
