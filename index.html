@@ -458,7 +458,7 @@
                         <div id="ctrl-${p.id}" class="${esDirecto ? 'flex' : 'hidden'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border transition-all duration-300">
                             <div class="flex items-center rounded-xl border dyn-input w-[120px] justify-between shadow-sm">
                                 <button onclick="cCant('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
-                                <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
+                                <input id="cant-${p.id}" type="number" value="1" min="1" onblur="if(this.value < 1 || this.value === '') this.value = 1;" class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
                                 <button onclick="cCant('${p.id}', 1)" class="font-bold px-4 py-3 hover:text-emerald-500 text-sm dyn-text-title transition-colors">+</button>
                             </div>
                             <button onclick="window.addCar('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0}, ${reqColor})" class="flex-1 text-sm font-bold py-3.5 px-3 rounded-xl shadow-md text-center dyn-btn active:scale-95 transition-transform flex items-center justify-center gap-2">
@@ -517,10 +517,17 @@
             }
         }
 
-        window.cCant = (id, c) => { const i = document.getElementById(`cant-${id}`); i.value = Math.max(1, parseInt(i.value) + c); }
+        window.cCant = (id, c) => { 
+            const i = document.getElementById(`cant-${id}`); 
+            let val = parseInt(i.value);
+            if(isNaN(val)) val = 1; // Seguridad si el campo está vacío temporalmente
+            i.value = Math.max(1, val + c); 
+        }
 
         window.addCar = (id, n, max, hasColor) => {
-            const c = parseInt(document.getElementById(`cant-${id}`).value);
+            let c = parseInt(document.getElementById(`cant-${id}`).value);
+            if (isNaN(c) || c < 1) c = 1; // Manejo de seguridad en caso de que esté vacío
+
             const opc = [];
             if(hasColor) {
                 const colorSel = document.getElementById(`c-val-${id}`).value;
