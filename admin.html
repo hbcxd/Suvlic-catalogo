@@ -11,15 +11,23 @@
         .hide-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
         .bg-tornasol-suvlic { background: linear-gradient(135deg, #d946ef 0%, #22d3ee 50%, #facc15 100%); }
         
-        /* Efectos Metálicos Profesionales para todos los inputs del admin */
         .metallic-focus:focus {
             border-color: #cbd5e1 !important;
             box-shadow: 0 0 15px rgba(148, 163, 184, 0.4), inset 0 0 5px rgba(255, 255, 255, 0.1) !important;
             outline: none;
         }
+
+        /* Animación suave para la entrada de elementos de lista */
+        @keyframes fadeInList {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-list-item {
+            animation: fadeInList 0.3s ease-out forwards;
+        }
     </style>
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-center items-center p-4">
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-center items-center p-4 transition-all duration-300">
 
     <div id="login-screen" class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-6">
         <div class="text-center">
@@ -36,20 +44,20 @@
                 <label class="block text-xs text-slate-400 mb-1">Contraseña</label>
                 <input type="password" id="l-password" required placeholder="••••••••" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-sm text-white transition-colors metallic-focus">
             </div>
-            <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-slate-500 via-slate-400 to-slate-500 hover:opacity-90 text-slate-900 font-extrabold text-sm py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(203,213,225,0.3)]">
+            <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-slate-500 via-slate-400 to-slate-500 hover:opacity-90 text-slate-900 font-extrabold text-sm py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(203,213,225,0.3)] hover:scale-[1.02]">
                 Iniciar Sesión
             </button>
         </form>
     </div>
 
-    <div id="admin-panel" class="hidden w-full max-w-2xl mx-auto space-y-6 my-4">
+    <div id="admin-panel" class="hidden w-full max-w-3xl mx-auto space-y-6 my-4 transition-all duration-500 opacity-0">
         
-        <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-xl flex justify-between items-center">
+        <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-slate-300 animate-pulse shadow-[0_0_8px_rgba(203,213,225,0.8)]"></span>
                 <p id="user-display" class="text-xs font-semibold text-slate-300">Sesión activa</p>
             </div>
-            <button id="btn-logout" class="bg-slate-800 hover:bg-red-500 hover:text-white text-slate-300 text-xs font-bold py-1.5 px-4 rounded-xl border border-slate-700 transition-all">
+            <button id="btn-logout" class="bg-slate-800 hover:bg-red-500 hover:text-white text-slate-300 text-xs font-bold py-2 px-5 rounded-xl border border-slate-700 transition-all hover:scale-105 shadow-md">
                 Cerrar Sesión ↩
             </button>
         </div>
@@ -117,7 +125,7 @@
                     </div>
                 </div>
 
-                <button type="submit" id="btn-save-config" class="w-full bg-gradient-to-r from-slate-500 via-slate-400 to-slate-500 hover:opacity-90 text-slate-900 font-extrabold text-xs py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(203,213,225,0.2)]">
+                <button type="submit" id="btn-save-config" class="w-full bg-gradient-to-r from-slate-500 via-slate-400 to-slate-500 hover:opacity-90 text-slate-900 font-extrabold text-xs py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(203,213,225,0.2)] hover:scale-[1.01]">
                     Guardar Cambios de Configuración
                 </button>
             </form>
@@ -127,14 +135,14 @@
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
                 <span>📁</span> Gestión de Categorías
             </h2>
-            <form id="category-form" class="flex gap-3 mb-4">
+            <form id="category-form" class="flex flex-col sm:flex-row gap-3 mb-4">
                 <div class="flex-1">
-                    <input type="text" id="cat-nombre" required placeholder="Nueva categoría..." class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-2.5 text-sm text-white transition-colors metallic-focus">
+                    <input type="text" id="cat-nombre" required placeholder="Nueva categoría..." class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-sm text-white transition-colors metallic-focus">
                 </div>
-                <button type="submit" class="bg-slate-300 hover:bg-slate-200 text-slate-900 font-bold text-xs px-6 rounded-xl transition-colors">+ Crear</button>
+                <button type="submit" class="bg-slate-300 hover:bg-slate-200 text-slate-900 font-bold text-xs py-3 px-6 rounded-xl transition-colors shadow-md whitespace-nowrap">+ Crear Categoría</button>
             </form>
             <div class="border-t border-slate-800 pt-3">
-                <div id="admin-categories-list" class="space-y-2 max-h-40 overflow-y-auto pr-2 hide-scrollbar"></div>
+                <div id="admin-categories-list" class="space-y-2 max-h-48 overflow-y-auto pr-2 hide-scrollbar"></div>
             </div>
         </div>
 
@@ -142,7 +150,7 @@
 
             <h2 class="text-xl font-bold text-white mb-4 flex items-center justify-between border-b border-slate-800 pb-3 relative z-10">
                 <div class="flex items-center gap-2"><span>📦</span> <span id="prod-form-title">Publicador de Productos</span></div>
-                <button type="button" id="btn-cancel-edit" class="hidden text-xs text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded-lg hover:bg-red-900/50 transition-colors">Cancelar ✖</button>
+                <button type="button" id="btn-cancel-edit" class="hidden text-xs text-red-400 font-bold bg-red-900/30 px-3 py-1.5 rounded-lg hover:bg-red-900/50 transition-colors border border-red-500/20 shadow-sm">Cancelar Edición ✖</button>
             </h2>
 
             <form id="prod-form" class="space-y-5 relative z-10">
@@ -165,26 +173,26 @@
                     <textarea id="a-descripcion" rows="2" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white transition-colors metallic-focus"></textarea>
                 </div>
 
-                <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm">
+                <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm shadow-inner">
                     <label class="block text-sm font-bold text-slate-300 mb-1">🎁 Accesorios (Multi-elección opcional)</label>
-                    <p class="text-[10px] text-slate-400 mb-3">Escribe los accesorios separados por una coma. El cliente podrá marcar como casilla los que desee.</p>
+                    <p class="text-[10px] text-slate-400 mb-3">Escribe los accesorios separados por una coma.</p>
                     <input type="text" id="a-accesorios" placeholder="Ej: Funda, Vidrio Templado, Audífonos" class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white transition-colors metallic-focus">
                 </div>
 
-                <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm">
+                <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm shadow-inner">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-sm font-bold text-slate-300">🎨 Colores Disponibles (Opcional)</span>
-                        <button type="button" id="btn-add-color" class="bg-slate-500/10 text-slate-300 hover:bg-slate-500/20 text-xs font-bold py-2 px-3 rounded-lg border border-slate-500/30 transition-all">
+                        <button type="button" id="btn-add-color" class="bg-slate-500/10 text-slate-300 hover:bg-slate-500/20 text-xs font-bold py-2 px-3 rounded-lg border border-slate-500/30 transition-all shadow-sm">
                             + Añadir Color
                         </button>
                     </div>
                     <div id="dynamic-colors-container" class="flex flex-wrap gap-4"></div>
                 </div>
 
-                <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm">
+                <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/50 backdrop-blur-sm shadow-inner">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-sm font-bold text-slate-300">⚙️ Pasos de Selección Adicionales</span>
-                        <button type="button" id="btn-add-caract" class="bg-slate-500/10 text-slate-300 hover:bg-slate-500/20 text-xs font-bold py-2 px-3 rounded-lg border border-slate-500/30 transition-all">
+                        <button type="button" id="btn-add-caract" class="bg-slate-500/10 text-slate-300 hover:bg-slate-500/20 text-xs font-bold py-2 px-3 rounded-lg border border-slate-500/30 transition-all shadow-sm">
                             + Añadir Paso
                         </button>
                     </div>
@@ -194,7 +202,7 @@
                 <div>
                     <label class="block text-sm text-slate-400 mb-1 flex justify-between">
                         <span>Imagen del Producto</span>
-                        <span id="img-edit-status" class="text-slate-300 text-xs hidden">Mantiene imagen actual</span>
+                        <span id="img-edit-status" class="text-slate-300 text-xs hidden bg-slate-800 px-2 py-1 rounded">Mantiene imagen actual</span>
                     </label>
                     <input type="file" id="a-file" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-slate-500/10 file:text-slate-300 hover:file:bg-slate-500/20 file:transition-colors cursor-pointer metallic-focus">
                 </div>
@@ -206,8 +214,9 @@
         </div>
 
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl relative">
-            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
-                <span>🗑️</span> Inventario de Productos
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2"><span>🗑️</span> Inventario de Productos</div>
+                <span id="product-count" class="text-xs font-bold bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">0 ítems</span>
             </h2>
             <div id="admin-products-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2 hide-scrollbar relative"></div>
         </div>
@@ -220,45 +229,26 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk",
-            authDomain: "suvlic-catalogo.firebaseapp.com",
-            projectId: "suvlic-catalogo",
-            storageBucket: "suvlic-catalogo.firebasestorage.app",
-            messagingSenderId: "944310483909",
-            appId: "1:944310483909:web:81852b2a7edb73e807e9ac"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk", authDomain: "suvlic-catalogo.firebaseapp.com", projectId: "suvlic-catalogo", storageBucket: "suvlic-catalogo.firebasestorage.app", messagingSenderId: "944310483909", appId: "1:944310483909:web:81852b2a7edb73e807e9ac" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const supabase = createClient('https://wwgbgfkukyjxvxtsantv.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Z2JnZmt1a3lqeHZ4dHNhbnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTE2MTgsImV4cCI6MjA5Nzk4NzYxOH0.KvgqVOgB8WLdmGlFf1SG57Gl6IEwm2sdAIzlM5v_0Q0');
 
         let productosGlobales = [];
-        let categoriasGlobales = {}; // NUEVO: Para guardar mapeo de categorías
+        let categoriasGlobales = {}; 
 
-        // Funciones lógicas de colores
-        window.hexToRgb = function(hex) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
-        };
-
+        window.hexToRgb = function(hex) { const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; };
         window.obtenerNombreColor = function(hex) {
             const paleta = [
-                { nombre: "Negro", hex: "#000000" }, { nombre: "Blanco", hex: "#ffffff" },
-                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Verde", hex: "#00ff00" },
-                { nombre: "Azul", hex: "#0000ff" }, { nombre: "Amarillo", hex: "#ffff00" },
-                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Morado", hex: "#800080" },
-                { nombre: "Rosa", hex: "#ffc0cb" }, { nombre: "Gris", hex: "#808080" },
-                { nombre: "Marrón", hex: "#a52a2a" }, { nombre: "Cian", hex: "#00ffff" },
-                { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Beige", hex: "#f5f5dc" },
-                { nombre: "Dorado", hex: "#ffd700" }, { nombre: "Plateado", hex: "#c0c0c0" },
-                { nombre: "Vino", hex: "#800000" }, { nombre: "Menta", hex: "#98ff98" },
-                { nombre: "Turquesa", hex: "#40e0d0"}, { nombre: "Coral", hex: "#ff7f50" }
+                { nombre: "Negro", hex: "#000000" }, { nombre: "Blanco", hex: "#ffffff" }, { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Verde", hex: "#00ff00" },
+                { nombre: "Azul", hex: "#0000ff" }, { nombre: "Amarillo", hex: "#ffff00" }, { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Morado", hex: "#800080" },
+                { nombre: "Rosa", hex: "#ffc0cb" }, { nombre: "Gris", hex: "#808080" }, { nombre: "Marrón", hex: "#a52a2a" }, { nombre: "Cian", hex: "#00ffff" },
+                { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Beige", hex: "#f5f5dc" }, { nombre: "Dorado", hex: "#ffd700" }, { nombre: "Plateado", hex: "#c0c0c0" }
             ];
             const c1 = window.hexToRgb(hex);
             if(!c1) return hex;
-            let menorDistancia = Infinity;
-            let colorCercano = hex;
+            let menorDistancia = Infinity; let colorCercano = hex;
             paleta.forEach(c2 => {
                 const rgb2 = window.hexToRgb(c2.hex);
                 const distancia = Math.sqrt(Math.pow(c1.r - rgb2.r, 2) + Math.pow(c1.g - rgb2.g, 2) + Math.pow(c1.b - rgb2.b, 2));
@@ -270,14 +260,16 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById("login-screen").classList.add("hidden");
-                document.getElementById("admin-panel").classList.remove("hidden");
+                const panel = document.getElementById("admin-panel");
+                panel.classList.remove("hidden");
+                setTimeout(() => panel.classList.remove("opacity-0"), 50);
                 document.body.className = "bg-[#0b0f19] text-slate-100 p-4 md:p-8 space-y-8 block";
                 document.getElementById("user-display").textContent = `Conectado como: ${user.email}`;
                 cargarConfiguracionActual();
                 activarEscuchadoresEnTiempoReal();
             } else {
                 document.getElementById("login-screen").classList.remove("hidden");
-                document.getElementById("admin-panel").classList.add("hidden");
+                document.getElementById("admin-panel").classList.add("hidden", "opacity-0");
                 document.body.className = "bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-center items-center p-4";
             }
         });
@@ -298,14 +290,8 @@
             const valPublico = document.getElementById("c-tema-publico").value;
             const valAdmin = document.getElementById("c-tema-admin").value;
             const customColorsBox = document.getElementById("custom-colors-container");
-            
-            if (valPublico === "personalizado" || valAdmin === "personalizado") {
-                customColorsBox.classList.remove("hidden");
-                customColorsBox.classList.add("grid");
-            } else {
-                customColorsBox.classList.add("hidden");
-                customColorsBox.classList.remove("grid");
-            }
+            if (valPublico === "personalizado" || valAdmin === "personalizado") { customColorsBox.classList.remove("hidden"); customColorsBox.classList.add("grid"); } 
+            else { customColorsBox.classList.add("hidden"); customColorsBox.classList.remove("grid"); }
         };
 
         document.getElementById("c-tema-publico").addEventListener("change", handleThemeChange);
@@ -318,34 +304,25 @@
                 document.getElementById("c-nombre").value = data.nombre || "";
                 document.getElementById("c-telefono").value = data.telefono || "";
                 document.getElementById("c-descripcion").value = data.descripcion || "";
-                
                 document.getElementById("c-tema-publico").value = data.temaPublico || data.tema || "tornasol";
                 document.getElementById("c-tema-admin").value = data.temaAdmin || "oscuro";
-                
                 handleThemeChange(); 
 
                 if((data.temaPublico === "personalizado" || data.temaAdmin === "personalizado") && data.colores) {
-                    document.getElementById("col-bg").value = data.colores.bg || "#0b0f19";
-                    document.getElementById("col-card").value = data.colores.card || "#0f172a";
-                    document.getElementById("col-text").value = data.colores.text || "#ffffff";
-                    document.getElementById("col-accent").value = data.colores.accent || "#d946ef";
+                    document.getElementById("col-bg").value = data.colores.bg || "#0b0f19"; document.getElementById("col-card").value = data.colores.card || "#0f172a";
+                    document.getElementById("col-text").value = data.colores.text || "#ffffff"; document.getElementById("col-accent").value = data.colores.accent || "#d946ef";
                 }
             }
         }
 
-        // NUEVO: Función para renderizar productos agrupados y ordenados
         function renderizarProductosAdmin() {
             const listContainer = document.getElementById("admin-products-list");
             listContainer.innerHTML = "";
+            document.getElementById("product-count").textContent = `${productosGlobales.length} ítems`;
 
             if (productosGlobales.length === 0) return;
 
-            // 1. Ordenar todos los productos alfabéticamente
-            const productosOrdenados = [...productosGlobales].sort((a, b) => 
-                a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
-            );
-
-            // 2. Agrupar por nombre de categoría
+            const productosOrdenados = [...productosGlobales].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
             const agrupados = {};
             productosOrdenados.forEach(prod => {
                 const nombreCat = categoriasGlobales[prod.categoriaId] || "Sin Categoría";
@@ -353,38 +330,38 @@
                 agrupados[nombreCat].push(prod);
             });
 
-            // 3. Ordenar las categorías alfabéticamente
-            const categoriasOrdenadas = Object.keys(agrupados).sort((a, b) => 
-                a.localeCompare(b, 'es', { sensitivity: 'base' })
-            );
+            const categoriasOrdenadas = Object.keys(agrupados).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
-            // 4. Inyectar en el HTML
             categoriasOrdenadas.forEach(cat => {
-                // Encabezado elegante para la categoría
                 const header = document.createElement("div");
-                header.className = "sticky top-0 bg-slate-900/95 backdrop-blur z-10 py-2 border-b border-slate-800/80 mt-4 mb-2 first:mt-0";
-                header.innerHTML = `<h3 class="text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-2"><span class="text-sm">🏷️</span> ${cat}</h3>`;
+                header.className = "sticky top-0 bg-slate-900/95 backdrop-blur z-10 py-2 border-b border-slate-800/80 mt-5 mb-3 first:mt-0 shadow-sm";
+                header.innerHTML = `<h3 class="text-[11px] font-extrabold text-slate-400 tracking-widest uppercase flex items-center gap-2"><span class="text-sm">🏷️</span> ${cat} <span class="bg-slate-800 px-2 py-0.5 rounded-full text-[9px] text-slate-500">${agrupados[cat].length}</span></h3>`;
                 listContainer.appendChild(header);
 
-                // Imprimir cada producto dentro de su grupo
+                // DISEÑO MEJORADO PARA LAS TARJETAS ADMINISTRATIVAS
                 agrupados[cat].forEach(prod => {
                     const itemDiv = document.createElement("div");
-                    itemDiv.className = "flex items-center justify-between p-3 bg-[#0b0f19] rounded-xl border border-slate-800 gap-3 hover:border-slate-700 transition-colors mb-2";
+                    itemDiv.className = "animate-list-item flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-900/40 rounded-2xl border border-slate-700/50 hover:border-slate-500 shadow-sm hover:shadow-md hover:bg-slate-800/50 transition-all mb-3 gap-4";
                     itemDiv.innerHTML = `
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <img src="${prod.imagenUrl || 'https://via.placeholder.com/50'}" class="w-10 h-10 object-cover rounded-lg border border-slate-800 flex-shrink-0">
-                            <div class="overflow-hidden"><p class="text-sm font-bold text-white truncate">${prod.nombre}</p></div>
+                        <div class="flex items-center gap-4 overflow-hidden">
+                            <img src="${prod.imagenUrl || 'https://via.placeholder.com/150'}" class="w-14 h-14 object-cover rounded-xl border border-slate-700 flex-shrink-0 shadow-sm bg-black/50">
+                            <div class="flex flex-col overflow-hidden">
+                                <p class="text-sm font-bold text-white truncate">${prod.nombre}</p>
+                                <span class="text-[10px] text-slate-400 font-medium tracking-wide mt-0.5">📦 ID: ${prod.id.substring(0,8)}...</span>
+                            </div>
                         </div>
                         
-                        <div id="action-btns-${prod.id}" class="flex gap-2 flex-shrink-0">
-                            <button onclick="cargarParaEditar('${prod.id}')" class="bg-slate-500/10 text-slate-300 text-xs font-bold py-2 px-3 rounded-lg border border-slate-500/30 hover:bg-slate-500/20 transition-all">Editar</button>
-                            <button onclick="mostrarConfirmacion('${prod.id}')" class="bg-red-600/10 text-red-400 text-xs font-bold py-2 px-3 rounded-lg border border-red-500/30 hover:bg-red-500/20 transition-all">Eliminar</button>
+                        <div id="action-btns-${prod.id}" class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
+                            <button onclick="cargarParaEditar('${prod.id}')" class="flex-1 sm:flex-none justify-center bg-slate-500/10 text-slate-300 text-xs font-bold py-2.5 px-4 rounded-xl border border-slate-500/30 hover:bg-slate-500/30 transition-all shadow-sm">Editar</button>
+                            <button onclick="mostrarConfirmacion('${prod.id}')" class="flex-1 sm:flex-none justify-center bg-red-600/10 text-red-400 text-xs font-bold py-2.5 px-4 rounded-xl border border-red-500/30 hover:bg-red-500/20 hover:text-red-300 transition-all shadow-sm">Borrar</button>
                         </div>
 
-                        <div id="confirm-btns-${prod.id}" class="hidden flex gap-2 flex-shrink-0 items-center bg-red-900/20 px-2 py-1.5 rounded-lg border border-red-900/50">
-                            <span class="text-[10px] text-red-300 font-bold px-1 hidden sm:block">¿Borrar producto?</span>
-                            <button onclick="cancelarConfirmacion('${prod.id}')" class="text-slate-400 hover:text-slate-200 text-xs px-2 py-1 transition-colors">Cancelar</button>
-                            <button onclick="ejecutarEliminacion('${prod.id}')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-1.5 px-3 rounded-md transition-all shadow-[0_0_10px_rgba(220,38,38,0.3)]">Sí, eliminar</button>
+                        <div id="confirm-btns-${prod.id}" class="hidden flex gap-2 flex-shrink-0 items-center bg-red-900/20 px-3 py-2 rounded-xl border border-red-900/50 w-full sm:w-auto justify-between sm:justify-start">
+                            <span class="text-[10px] text-red-300 font-bold px-1 uppercase tracking-wider hidden sm:block">¿Borrar?</span>
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <button onclick="cancelarConfirmacion('${prod.id}')" class="flex-1 sm:flex-none text-slate-400 hover:text-slate-200 text-xs font-medium px-3 py-2 bg-slate-800/50 rounded-lg transition-colors border border-slate-700">Cancelar</button>
+                                <button onclick="ejecutarEliminacion('${prod.id}')" class="flex-1 sm:flex-none bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-[0_0_10px_rgba(220,38,38,0.4)] border border-red-500">Sí, eliminar</button>
+                            </div>
                         </div>
                     `;
                     listContainer.appendChild(itemDiv);
@@ -394,100 +371,52 @@
 
         let listenCat = null, listenProd = null;
         function activarEscuchadoresEnTiempoReal() {
-            if (listenCat) listenCat();
-            if (listenProd) listenProd();
-
+            if (listenCat) listenCat(); if (listenProd) listenProd();
             listenCat = onSnapshot(collection(db, "categorias"), (snapshot) => {
-                const select = document.getElementById("a-categoria");
-                const catList = document.getElementById("admin-categories-list");
-                select.innerHTML = '<option value="" disabled selected>-- Selecciona Categoría --</option>';
-                catList.innerHTML = "";
-                categoriasGlobales = {}; // Reset
-
+                const select = document.getElementById("a-categoria"), catList = document.getElementById("admin-categories-list");
+                select.innerHTML = '<option value="" disabled selected>-- Selecciona Categoría --</option>'; catList.innerHTML = ""; categoriasGlobales = {};
                 snapshot.docs.forEach(docSnap => {
-                    const cat = docSnap.data();
-                    categoriasGlobales[docSnap.id] = cat.nombre; // Guardamos en memoria global
-                    select.innerHTML += `<option value="${docSnap.id}">${cat.nombre}</option>`;
+                    const cat = docSnap.data(); categoriasGlobales[docSnap.id] = cat.nombre; select.innerHTML += `<option value="${docSnap.id}">${cat.nombre}</option>`;
                     const catDiv = document.createElement("div");
-                    catDiv.className = "flex justify-between items-center bg-[#0b0f19] border border-slate-800 p-2 rounded-lg";
+                    catDiv.className = "flex justify-between items-center bg-[#0b0f19] border border-slate-700/50 hover:border-slate-600 p-3 rounded-xl transition-colors shadow-sm";
                     catDiv.innerHTML = `
                         <span class="text-xs font-bold text-white">${cat.nombre}</span>
                         <div class="flex gap-2">
-                            <button onclick="editarCategoria('${docSnap.id}', '${cat.nombre}')" class="text-slate-400 hover:text-slate-300 text-[10px] font-bold px-2 py-1 bg-slate-900/20 rounded border border-slate-500/20">Editar</button>
-                            <button onclick="eliminarCategoria('${docSnap.id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-2 py-1 bg-red-900/20 rounded border border-red-500/20">Borrar</button>
+                            <button onclick="editarCategoria('${docSnap.id}', '${cat.nombre}')" class="text-slate-300 hover:text-white text-[10px] font-bold px-3 py-1.5 bg-slate-800 rounded-lg border border-slate-600 transition-colors">Editar</button>
+                            <button onclick="eliminarCategoria('${docSnap.id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-3 py-1.5 bg-red-900/30 rounded-lg border border-red-800 transition-colors">Borrar</button>
                         </div>
                     `;
                     catList.appendChild(catDiv);
                 });
-                renderizarProductosAdmin(); // Actualizar productos si las categorías cambian
+                renderizarProductosAdmin();
             });
-
             listenProd = onSnapshot(collection(db, "productos"), (snapshot) => {
                 productosGlobales = [];
-                snapshot.docs.forEach(docSnap => {
-                    const prod = docSnap.data();
-                    prod.id = docSnap.id;
-                    productosGlobales.push(prod);
-                });
+                snapshot.docs.forEach(docSnap => { const prod = docSnap.data(); prod.id = docSnap.id; productosGlobales.push(prod); });
                 renderizarProductosAdmin();
             });
         }
 
         document.getElementById("config-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const btn = document.getElementById("btn-save-config");
-            btn.disabled = true; btn.textContent = "Guardando...";
+            const btn = document.getElementById("btn-save-config"); btn.disabled = true; btn.textContent = "Guardando...";
             try {
                 let logoUrl = "", bannerUrl = "", welcomeUrl = "";
-                const logoFile = document.getElementById("c-logo-file").files[0];
-                const bannerFile = document.getElementById("c-banner-file").files[0];
-                const welcomeFile = document.getElementById("c-welcome-file").files[0];
-
-                if (logoFile) {
-                    const logoName = `logo_${Date.now()}.${logoFile.type.split('/')[1]}`;
-                    await supabase.storage.from('productos-imagenes').upload(logoName, logoFile);
-                    logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(logoName).data.publicUrl;
-                }
-                
-                if (bannerFile) {
-                    const bannerName = `banner_${Date.now()}.${bannerFile.type.split('/')[1]}`;
-                    await supabase.storage.from('productos-imagenes').upload(bannerName, bannerFile);
-                    bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(bannerName).data.publicUrl;
-                }
-
-                if (welcomeFile) {
-                    const welcomeName = `welcome_${Date.now()}.${welcomeFile.type.split('/')[1]}`;
-                    await supabase.storage.from('productos-imagenes').upload(welcomeName, welcomeFile);
-                    welcomeUrl = supabase.storage.from('productos-imagenes').getPublicUrl(welcomeName).data.publicUrl;
-                }
-
-                const payload = {
-                    nombre: document.getElementById("c-nombre").value.trim(),
-                    telefono: document.getElementById("c-telefono").value.trim(),
-                    descripcion: document.getElementById("c-descripcion").value.trim(),
-                    temaPublico: document.getElementById("c-tema-publico").value,
-                    temaAdmin: document.getElementById("c-tema-admin").value
-                };
-
-                if(payload.temaPublico === "personalizado" || payload.temaAdmin === "personalizado") {
-                    payload.colores = { bg: document.getElementById("col-bg").value, card: document.getElementById("col-card").value, text: document.getElementById("col-text").value, accent: document.getElementById("col-accent").value };
-                }
-
-                if (logoUrl) payload.logoUrl = logoUrl;
-                if (bannerUrl) payload.bannerUrl = bannerUrl;
-                if (welcomeUrl) payload.welcomeUrl = welcomeUrl;
-
+                const logoFile = document.getElementById("c-logo-file").files[0], bannerFile = document.getElementById("c-banner-file").files[0], welcomeFile = document.getElementById("c-welcome-file").files[0];
+                if (logoFile) { const logoName = `logo_${Date.now()}.${logoFile.type.split('/')[1]}`; await supabase.storage.from('productos-imagenes').upload(logoName, logoFile); logoUrl = supabase.storage.from('productos-imagenes').getPublicUrl(logoName).data.publicUrl; }
+                if (bannerFile) { const bannerName = `banner_${Date.now()}.${bannerFile.type.split('/')[1]}`; await supabase.storage.from('productos-imagenes').upload(bannerName, bannerFile); bannerUrl = supabase.storage.from('productos-imagenes').getPublicUrl(bannerName).data.publicUrl; }
+                if (welcomeFile) { const welcomeName = `welcome_${Date.now()}.${welcomeFile.type.split('/')[1]}`; await supabase.storage.from('productos-imagenes').upload(welcomeName, welcomeFile); welcomeUrl = supabase.storage.from('productos-imagenes').getPublicUrl(welcomeName).data.publicUrl; }
+                const payload = { nombre: document.getElementById("c-nombre").value.trim(), telefono: document.getElementById("c-telefono").value.trim(), descripcion: document.getElementById("c-descripcion").value.trim(), temaPublico: document.getElementById("c-tema-publico").value, temaAdmin: document.getElementById("c-tema-admin").value };
+                if(payload.temaPublico === "personalizado" || payload.temaAdmin === "personalizado") payload.colores = { bg: document.getElementById("col-bg").value, card: document.getElementById("col-card").value, text: document.getElementById("col-text").value, accent: document.getElementById("col-accent").value };
+                if (logoUrl) payload.logoUrl = logoUrl; if (bannerUrl) payload.bannerUrl = bannerUrl; if (welcomeUrl) payload.welcomeUrl = welcomeUrl;
                 await setDoc(doc(db, "configuracion", "perfil"), payload, { merge: true });
-                document.getElementById("c-logo-file").value = ""; 
-                document.getElementById("c-banner-file").value = "";
-                document.getElementById("c-welcome-file").value = "";
+                document.getElementById("c-logo-file").value = ""; document.getElementById("c-banner-file").value = ""; document.getElementById("c-welcome-file").value = "";
                 alert("Configuración guardada exitosamente");
             } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; btn.textContent = "Guardar Cambios de Configuración"; }
         });
 
         document.getElementById("category-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const input = document.getElementById("cat-nombre");
+            e.preventDefault(); const input = document.getElementById("cat-nombre");
             await setDoc(doc(db, "categorias", input.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "_")), { nombre: input.value.trim(), orden: Date.now() });
             input.value = "";
         });
@@ -497,134 +426,58 @@
 
         const cContainer = document.getElementById("dynamic-colors-container");
         function createColorBlock(colorHex = "#94a3b8") {
-            const div = document.createElement("div");
-            div.className = "flex items-center gap-2 bg-[#0b0f19] p-2 rounded-lg border border-slate-800 color-block";
-            div.innerHTML = `
-                <input type="color" value="${colorHex}" class="c-hex w-8 h-8 cursor-pointer bg-transparent border-0 rounded metallic-focus" oninput="this.nextElementSibling.textContent = window.obtenerNombreColor(this.value)">
-                <span class="text-[10px] text-slate-300 w-16 truncate font-medium text-center">${window.obtenerNombreColor(colorHex)}</span>
-                <button type="button" onclick="this.parentElement.remove()" class="text-slate-500 hover:text-red-400 text-xs px-2">✕</button>
-            `;
+            const div = document.createElement("div"); div.className = "flex items-center gap-2 bg-[#0b0f19] p-2 rounded-lg border border-slate-700 shadow-sm color-block";
+            div.innerHTML = `<input type="color" value="${colorHex}" class="c-hex w-8 h-8 cursor-pointer bg-transparent border-0 rounded metallic-focus" oninput="this.nextElementSibling.textContent = window.obtenerNombreColor(this.value)"><span class="text-[10px] text-slate-300 w-16 truncate font-medium text-center">${window.obtenerNombreColor(colorHex)}</span><button type="button" onclick="this.parentElement.remove()" class="text-slate-500 hover:text-red-400 text-xs px-2 font-bold transition-colors">✕</button>`;
             cContainer.appendChild(div);
         }
         document.getElementById("btn-add-color").onclick = () => createColorBlock();
 
         const fContainer = document.getElementById("dynamic-features-container");
         function createFeatureBlock(titulo = "", opciones = "") {
-            const div = document.createElement("div");
-            div.className = "p-3 bg-[#0b0f19] rounded-xl border border-slate-800 relative feature-block";
-            div.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div><input type="text" value="${titulo}" required placeholder="Ej: Talla" class="f-titulo w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white transition-colors metallic-focus"></div>
-                    <div><input type="text" value="${opciones}" required placeholder="Ej: S, M, L, XL" class="f-opciones w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white transition-colors metallic-focus"></div>
-                </div>
-                <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-slate-500 hover:text-red-400 text-xs">✕</button>
-            `;
+            const div = document.createElement("div"); div.className = "p-3 bg-[#0b0f19] rounded-xl border border-slate-700 shadow-sm relative feature-block";
+            div.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><input type="text" value="${titulo}" required placeholder="Ej: Talla" class="f-titulo w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-white transition-colors metallic-focus"></div><div><input type="text" value="${opciones}" required placeholder="Ej: S, M, L, XL" class="f-opciones w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm text-white transition-colors metallic-focus"></div></div><button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 bg-slate-800 text-slate-400 hover:text-red-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors shadow-sm">✕</button>`;
             fContainer.appendChild(div);
         }
         document.getElementById("btn-add-caract").onclick = () => createFeatureBlock();
 
         window.cargarParaEditar = (id) => {
-            const prod = productosGlobales.find(p => p.id === id);
-            if(!prod) return;
-
-            document.getElementById("edit-prod-id").value = id;
-            document.getElementById("edit-prod-img").value = prod.imagenUrl || "";
-            document.getElementById("a-nombre").value = prod.nombre;
-            document.getElementById("a-categoria").value = prod.categoriaId;
-            document.getElementById("a-descripcion").value = prod.descripcion;
-            document.getElementById("a-accesorios").value = prod.accesorios ? prod.accesorios.join(", ") : "";
-            document.getElementById("a-file").value = "";
-            
-            fContainer.innerHTML = ""; cContainer.innerHTML = "";
+            const prod = productosGlobales.find(p => p.id === id); if(!prod) return;
+            document.getElementById("edit-prod-id").value = id; document.getElementById("edit-prod-img").value = prod.imagenUrl || "";
+            document.getElementById("a-nombre").value = prod.nombre; document.getElementById("a-categoria").value = prod.categoriaId;
+            document.getElementById("a-descripcion").value = prod.descripcion; document.getElementById("a-accesorios").value = prod.accesorios ? prod.accesorios.join(", ") : "";
+            document.getElementById("a-file").value = ""; fContainer.innerHTML = ""; cContainer.innerHTML = "";
             if(prod.caracteristicas && prod.caracteristicas.length > 0) prod.caracteristicas.forEach(c => createFeatureBlock(c.titulo, c.opciones.join(", ")));
             if(prod.colores && prod.colores.length > 0) prod.colores.forEach(c => createColorBlock(c));
-
-            document.getElementById("prod-form-title").textContent = "Editando Producto...";
-            document.getElementById("btn-submit").textContent = "Guardar Cambios del Producto";
-            document.getElementById("btn-cancel-edit").classList.remove("hidden");
-            document.getElementById("img-edit-status").classList.remove("hidden");
+            document.getElementById("prod-form-title").textContent = "Editando Producto..."; document.getElementById("btn-submit").textContent = "Guardar Cambios del Producto";
+            document.getElementById("btn-cancel-edit").classList.remove("hidden"); document.getElementById("img-edit-status").classList.remove("hidden");
             document.getElementById("product-form-section").scrollIntoView({ behavior: 'smooth' });
         };
 
         document.getElementById("btn-cancel-edit").onclick = () => {
-            document.getElementById("prod-form").reset();
-            document.getElementById("edit-prod-id").value = "";
-            document.getElementById("edit-prod-img").value = "";
-            document.getElementById("a-accesorios").value = "";
-            fContainer.innerHTML = ""; cContainer.innerHTML = "";
-            document.getElementById("prod-form-title").textContent = "Publicador de Productos";
-            document.getElementById("btn-submit").textContent = "Guardar Producto";
-            document.getElementById("btn-cancel-edit").classList.add("hidden");
-            document.getElementById("img-edit-status").classList.add("hidden");
+            document.getElementById("prod-form").reset(); document.getElementById("edit-prod-id").value = ""; document.getElementById("edit-prod-img").value = ""; document.getElementById("a-accesorios").value = ""; fContainer.innerHTML = ""; cContainer.innerHTML = "";
+            document.getElementById("prod-form-title").textContent = "Publicador de Productos"; document.getElementById("btn-submit").textContent = "Guardar Producto";
+            document.getElementById("btn-cancel-edit").classList.add("hidden"); document.getElementById("img-edit-status").classList.add("hidden");
         };
 
         document.getElementById("prod-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById("btn-submit");
-            const fileInput = document.getElementById("a-file");
-            const editId = document.getElementById("edit-prod-id").value;
-            let imgUrl = document.getElementById("edit-prod-img").value;
-
+            e.preventDefault(); const btn = document.getElementById("btn-submit"), fileInput = document.getElementById("a-file"), editId = document.getElementById("edit-prod-id").value; let imgUrl = document.getElementById("edit-prod-img").value;
             if(!editId && !fileInput.files[0]) return alert("Selecciona una imagen");
             btn.disabled = true; btn.textContent = "Procesando...";
-
             try {
-                if (fileInput.files[0]) {
-                    const uniqueName = `${Date.now()}_prod.${fileInput.files[0].type.split('/')[1]}`;
-                    await supabase.storage.from('productos-imagenes').upload(uniqueName, fileInput.files[0]);
-                    imgUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl;
-                }
-
+                if (fileInput.files[0]) { const uniqueName = `${Date.now()}_prod.${fileInput.files[0].type.split('/')[1]}`; await supabase.storage.from('productos-imagenes').upload(uniqueName, fileInput.files[0]); imgUrl = supabase.storage.from('productos-imagenes').getPublicUrl(uniqueName).data.publicUrl; }
                 const caract = [], colores = [];
-                document.querySelectorAll(".feature-block").forEach(b => {
-                    const t = b.querySelector(".f-titulo").value.trim(), o = b.querySelector(".f-opciones").value;
-                    if (t && o) caract.push({ titulo: t, opciones: o.split(',').map(i => i.trim()).filter(i => i !== "") });
-                });
+                document.querySelectorAll(".feature-block").forEach(b => { const t = b.querySelector(".f-titulo").value.trim(), o = b.querySelector(".f-opciones").value; if (t && o) caract.push({ titulo: t, opciones: o.split(',').map(i => i.trim()).filter(i => i !== "") }); });
                 document.querySelectorAll(".color-block").forEach(b => colores.push(b.querySelector(".c-hex").value));
-
-                const accesoriosVal = document.getElementById("a-accesorios").value;
-                const accesoriosArray = accesoriosVal.split(',').map(i => i.trim()).filter(i => i !== "");
-
-                const payload = {
-                    nombre: document.getElementById("a-nombre").value.trim(),
-                    categoriaId: document.getElementById("a-categoria").value,
-                    descripcion: document.getElementById("a-descripcion").value.trim(),
-                    imagenUrl: imgUrl,
-                    caracteristicas: caract,
-                    colores: colores,
-                    accesorios: accesoriosArray,
-                    activo: true
-                };
-
-                if (editId) await updateDoc(doc(db, "productos", editId), payload);
-                else { payload.creadoEn = new Date(); await addDoc(collection(db, "productos"), payload); }
-
+                const accesoriosVal = document.getElementById("a-accesorios").value, accesoriosArray = accesoriosVal.split(',').map(i => i.trim()).filter(i => i !== "");
+                const payload = { nombre: document.getElementById("a-nombre").value.trim(), categoriaId: document.getElementById("a-categoria").value, descripcion: document.getElementById("a-descripcion").value.trim(), imagenUrl: imgUrl, caracteristicas: caract, colores: colores, accesorios: accesoriosArray, activo: true };
+                if (editId) await updateDoc(doc(db, "productos", editId), payload); else { payload.creadoEn = new Date(); await addDoc(collection(db, "productos"), payload); }
                 document.getElementById("btn-cancel-edit").click();
             } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; }
         });
 
-        // NUEVAS FUNCIONES: Eliminación en dos pasos
-        window.mostrarConfirmacion = (id) => {
-            document.getElementById(`action-btns-${id}`).classList.add('hidden');
-            const confirmBox = document.getElementById(`confirm-btns-${id}`);
-            confirmBox.classList.remove('hidden');
-            confirmBox.classList.add('flex');
-        };
-
-        window.cancelarConfirmacion = (id) => {
-            const confirmBox = document.getElementById(`confirm-btns-${id}`);
-            confirmBox.classList.add('hidden');
-            confirmBox.classList.remove('flex');
-            document.getElementById(`action-btns-${id}`).classList.remove('hidden');
-        };
-
-        window.ejecutarEliminacion = async (id) => {
-            try {
-                await deleteDoc(doc(db, "productos", id));
-            } catch (error) {
-                alert("Hubo un error al eliminar el producto.");
-            }
-        };
+        window.mostrarConfirmacion = (id) => { document.getElementById(`action-btns-${id}`).classList.add('hidden'); const confirmBox = document.getElementById(`confirm-btns-${id}`); confirmBox.classList.remove('hidden'); confirmBox.classList.add('flex'); };
+        window.cancelarConfirmacion = (id) => { const confirmBox = document.getElementById(`confirm-btns-${id}`); confirmBox.classList.add('hidden'); confirmBox.classList.remove('flex'); document.getElementById(`action-btns-${id}`).classList.remove('hidden'); };
+        window.ejecutarEliminacion = async (id) => { try { await deleteDoc(doc(db, "productos", id)); } catch (error) { alert("Hubo un error al eliminar el producto."); } };
     </script>
 </body>
 </html>
