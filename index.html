@@ -35,10 +35,9 @@
         }
         .animate-fade-in-up {
             animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0; /* Asegura que no se vea antes de animar */
+            opacity: 0;
         }
 
-        /* Efectos Metálicos Profesionales */
         .metallic-focus:focus {
             border-color: #94a3b8 !important;
             box-shadow: 0 0 12px rgba(148, 163, 184, 0.5), inset 0 0 4px rgba(255, 255, 255, 0.1) !important;
@@ -65,17 +64,12 @@
 
     <div id="welcome-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
         <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
-            
             <img id="modal-welcome-img" src="" class="hidden w-32 h-32 object-cover rounded-full border-4 shadow-lg dyn-border mb-4 mx-auto transition-transform hover:scale-105 duration-300">
-            
             <div id="modal-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-lg flex items-center justify-center overflow-hidden dyn-border transition-transform hover:scale-105 duration-300" style="background-color: var(--bg-body)"><div class="text-xs dyn-text-desc">...</div></div>
-            
             <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">¡Bienvenido al Catálogo de <span id="modal-nombre-header" class="text-slate-300">...</span>! 🚀</h2>
-            
             <div class="bg-slate-500/10 border border-slate-500/20 rounded-xl p-3">
                 <p class="text-xs font-bold text-slate-300">✨ Todos nuestros productos son 100% personalizables.</p>
             </div>
-            
             <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Aquí puedes armar tu pedido. <span class="font-bold text-slate-300">No tienes que hacer ningún pago aquí</span>.</p>
             <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Agrega productos a tu carrito y te conectaremos con nuestro WhatsApp.</p>
             <button id="btn-close-modal" class="w-full font-bold text-sm py-3.5 px-4 rounded-xl shadow-lg transition-all transform active:scale-95 dyn-btn">Ver el Catálogo</button>
@@ -116,7 +110,7 @@
             <div id="tabs-container" class="flex overflow-x-auto pl-16 pr-6 gap-6 text-sm font-bold pt-2 hide-scrollbar transition-opacity duration-300"></div>
         </div>
 
-        <div id="catalog-container" class="p-4 space-y-5 transition-all duration-500 ease-out min-h-[300px]"></div>
+        <div id="catalog-container" class="p-4 space-y-5 min-h-[300px]"></div>
 
         <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
             <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95 hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
@@ -170,6 +164,7 @@
         let carrito = [];
         let telefonoWhatsAppGlobal = "584244178356";
         let searchTerm = "";
+        let isAnimating = false; // Bloqueo durante transiciones
 
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -212,7 +207,6 @@
             document.getElementById("search-input").value = e.target.value;
             document.getElementById("side-search-input").value = e.target.value;
             
-            // Si el menú lateral está abierto y el usuario busca, lo cerramos para que vea los resultados globales
             if (document.getElementById("side-menu").classList.contains("translate-x-0") || 
                !document.getElementById("side-menu").classList.contains("-translate-x-full")) {
                 toggleMenu(false);
@@ -306,7 +300,7 @@
             categoriasList.forEach(cat => {
                 const bT = document.createElement("button");
                 bT.id = `t-${cat.id}`;
-                bT.className = catActiva === cat.id ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all";
+                bT.className = catActiva === cat.id ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all hover:text-[var(--text-title)]";
                 bT.textContent = cat.nombre.toUpperCase();
                 bT.onclick = () => { document.getElementById("search-input").value = ""; document.getElementById("side-search-input").value = ""; searchTerm = ""; selectCategoryAndScroll(cat.id); };
                 tC.appendChild(bT);
@@ -325,21 +319,52 @@
             render();
         });
 
+        // NUEVA LOGICA DE NAVEGACION DINÁMICA TIPO PESTAÑA NATIVA
         function selectCategoryAndScroll(id) {
+            if (isAnimating || catActiva === id) return;
+            isAnimating = true;
+
+            const currentIndex = categoriasList.findIndex(c => c.id === catActiva);
+            const newIndex = categoriasList.findIndex(c => c.id === id);
+            let direction = newIndex > currentIndex ? 1 : -1;
+            if (currentIndex === -1) direction = 1; 
+
             catActiva = id;
-            render();
-            window.scrollTo({ top: document.getElementById("catalog-scroll-anchor").offsetTop - 20, behavior: "smooth" });
-            const activeTab = document.getElementById(`t-${catActiva}`);
-            if(activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            const container = document.getElementById("catalog-container");
+
+            // Animación de salida (Deslizar fuera)
+            container.style.transition = "transform 0.2s ease-in, opacity 0.2s ease-in";
+            container.style.opacity = "0";
+            container.style.transform = direction > 0 ? "translateX(-30px)" : "translateX(30px)";
+
+            setTimeout(() => {
+                render();
+                window.scrollTo({ top: document.getElementById("catalog-scroll-anchor").offsetTop - 20, behavior: "smooth" });
+                const activeTab = document.getElementById(`t-${catActiva}`);
+                if(activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                
+                // Preparar posición para entrada (Mover al lado opuesto invisiblemente)
+                container.style.transition = "none";
+                container.style.transform = direction > 0 ? "translateX(30px)" : "translateX(-30px)";
+                
+                // Forzar reflow del DOM
+                void container.offsetWidth;
+                
+                // Animación de entrada (Deslizar hacia el centro)
+                container.style.transition = "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease-out";
+                container.style.opacity = "1";
+                container.style.transform = "translateX(0)";
+                
+                setTimeout(() => { isAnimating = false; container.style.transition = ""; }, 400);
+            }, 200);
         }
 
         function render() {
-            // Estilos para pestañas según si hay búsqueda global activa
             const isSearching = searchTerm.length > 0;
             const tabsContainer = document.getElementById("tabs-container");
             
             if (isSearching) {
-                tabsContainer.classList.add("opacity-30", "pointer-events-none"); // Oscurecer pestañas para indicar que el filtro es global
+                tabsContainer.classList.add("opacity-30", "pointer-events-none");
             } else {
                 tabsContainer.classList.remove("opacity-30", "pointer-events-none");
                 document.querySelectorAll("#tabs-container button").forEach(btn => {
@@ -354,7 +379,7 @@
             const container = document.getElementById("catalog-container");
             container.innerHTML = "";
             
-            // BÚSQUEDA GLOBAL: Si hay texto, filtra todo ignorando catActiva
+            // SOPORTE PARA MULTIPLES CATEGORÍAS (Arrays o Strings por compatibilidad)
             const filtrados = listadoCompleto.filter(p => {
                 if (!p.activo) return false;
                 if (isSearching) {
@@ -363,7 +388,8 @@
                     const descMatch = p.descripcion ? p.descripcion.toLowerCase().includes(searchLower) : false;
                     return nameMatch || descMatch;
                 }
-                return p.categoriaId === catActiva;
+                const prodCats = Array.isArray(p.categoriaId) ? p.categoriaId : [p.categoriaId];
+                return prodCats.includes(catActiva);
             });
 
             if (filtrados.length === 0) {
@@ -376,7 +402,6 @@
 
             filtrados.forEach((p, index) => {
                 const card = document.createElement("div");
-                // ANIMACIÓN PROGRESIVA: Clase animate-fade-in-up y retraso
                 card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl animate-fade-in-up";
                 card.style.animationDelay = `${index * 0.05}s`; 
                 
@@ -478,14 +503,11 @@
         catalogContainer.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; touchEndY = e.changedTouches[0].screenY; handleSwipe(); }, {passive: true});
         
         function handleSwipe() {
-            if (searchTerm.length > 0) return; // Deshabilitar swipe si estamos buscando globalmente
+            // Deshabilitar swipe si estamos buscando o en medio de una animación
+            if (searchTerm.length > 0 || isAnimating) return; 
             const diffX = touchStartX - touchEndX, diffY = Math.abs(touchStartY - touchEndY);
             if (Math.abs(diffX) > 60 && diffY < Math.abs(diffX)) {
-                catalogContainer.style.opacity = '0.3';
-                setTimeout(() => {
-                    if (diffX > 0) cambiarCategoriaPorSwipe(1); else cambiarCategoriaPorSwipe(-1);
-                    catalogContainer.style.opacity = '1';
-                }, 200); 
+                if (diffX > 0) cambiarCategoriaPorSwipe(1); else cambiarCategoriaPorSwipe(-1);
             }
         }
         function cambiarCategoriaPorSwipe(direction) {
@@ -520,13 +542,13 @@
         window.cCant = (id, c) => { 
             const i = document.getElementById(`cant-${id}`); 
             let val = parseInt(i.value);
-            if(isNaN(val)) val = 1; // Seguridad si el campo está vacío temporalmente
+            if(isNaN(val)) val = 1; 
             i.value = Math.max(1, val + c); 
         }
 
         window.addCar = (id, n, max, hasColor) => {
             let c = parseInt(document.getElementById(`cant-${id}`).value);
-            if (isNaN(c) || c < 1) c = 1; // Manejo de seguridad en caso de que esté vacío
+            if (isNaN(c) || c < 1) c = 1;
 
             const opc = [];
             if(hasColor) {
