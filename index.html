@@ -28,6 +28,16 @@
         .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
+        /* Animación Progresiva para Productos */
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; /* Asegura que no se vea antes de animar */
+        }
+
         /* Efectos Metálicos Profesionales */
         .metallic-focus:focus {
             border-color: #94a3b8 !important;
@@ -56,8 +66,9 @@
     <div id="welcome-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
         <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
             
-            <img id="modal-welcome-img" src="" class="hidden w-full max-h-[160px] object-cover rounded-2xl border shadow-md dyn-border mb-4 mx-auto">
-            <div id="modal-logo" class="w-20 h-20 mx-auto rounded-full p-1 border shadow-md flex items-center justify-center overflow-hidden dyn-border" style="background-color: var(--bg-body)"><div class="text-xs dyn-text-desc">...</div></div>
+            <img id="modal-welcome-img" src="" class="hidden w-32 h-32 object-cover rounded-full border-4 shadow-lg dyn-border mb-4 mx-auto transition-transform hover:scale-105 duration-300">
+            
+            <div id="modal-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-lg flex items-center justify-center overflow-hidden dyn-border transition-transform hover:scale-105 duration-300" style="background-color: var(--bg-body)"><div class="text-xs dyn-text-desc">...</div></div>
             
             <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">¡Bienvenido al Catálogo de <span id="modal-nombre-header" class="text-slate-300">...</span>! 🚀</h2>
             
@@ -72,7 +83,6 @@
     </div>
 
     <div class="app-container pb-28 relative">
-        <!-- BOTÓN HAMBURGUESA FIJO A LA PANTALLA -->
         <button id="btn-open-menu" class="fixed top-4 left-4 z-50 p-2 rounded-xl shadow-lg border dyn-card dyn-border transition-transform active:scale-95">
             <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
@@ -80,13 +90,13 @@
         <div id="dyn-banner" class="h-32 sm:h-40 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center bg-no-repeat transition-all duration-500"></div>
 
         <div class="px-6 text-center -mt-4 relative z-10">
-            <div id="wrapper-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-xl flex items-center justify-center overflow-hidden dyn-card dyn-border"><div id="logo-loader" class="text-xs dyn-text-desc">...</div></div>
-            <h1 id="dyn-nombre" class="mt-3 text-xl font-bold tracking-tight dyn-text-title">Cargando...</h1>
-            <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc">Espera un momento</p>
+            <div id="wrapper-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-xl flex items-center justify-center overflow-hidden dyn-card dyn-border transition-transform duration-500 hover:scale-105"><div id="logo-loader" class="text-xs dyn-text-desc">...</div></div>
+            <h1 id="dyn-nombre" class="mt-3 text-xl font-bold tracking-tight dyn-text-title transition-colors">Cargando...</h1>
+            <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc transition-colors">Espera un momento</p>
         </div>
 
         <div id="client-section" class="px-6 mt-6">
-            <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border transition-all duration-300" id="client-box">
+            <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border transition-all duration-300 hover:shadow-md" id="client-box">
                 <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1 text-slate-400">
                     👤 Tu Nombre (Requerido para comprar)
                 </label>
@@ -94,33 +104,30 @@
             </div>
         </div>
 
-        <div id="catalog-scroll-anchor" class="mt-4 border-b sticky top-0 backdrop-blur z-20 dyn-border shadow-sm pb-2" style="background-color: var(--bg-app); opacity: 0.98;">
-            <!-- AJUSTE: pl-16 para que la barra no quede detrás del botón flotante -->
+        <div id="catalog-scroll-anchor" class="mt-4 border-b sticky top-0 backdrop-blur z-20 dyn-border shadow-sm pb-2 transition-all duration-300" style="background-color: var(--bg-app); opacity: 0.98;">
             <div class="pl-16 pr-6 pt-3 pb-1">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
-                    <input type="text" id="search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus">
+                    <input type="text" id="search-input" placeholder="Buscar en todo el catálogo..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus transition-all duration-300">
                 </div>
             </div>
-            <!-- AJUSTE: pl-16 en las pestañas por el mismo motivo -->
-            <div id="tabs-container" class="flex overflow-x-auto pl-16 pr-6 gap-6 text-sm font-bold pt-2 hide-scrollbar"></div>
+            <div id="tabs-container" class="flex overflow-x-auto pl-16 pr-6 gap-6 text-sm font-bold pt-2 hide-scrollbar transition-opacity duration-300"></div>
         </div>
 
-        <!-- Se añadió la clase para transiciones fluidas de opacidad -->
-        <div id="catalog-container" class="p-4 space-y-5 transition-opacity duration-300 ease-in-out"></div>
+        <div id="catalog-container" class="p-4 space-y-5 transition-all duration-500 ease-out min-h-[300px]"></div>
 
         <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
-            <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95">
+            <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95 hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                 <span>Enviar pedido a WhatsApp</span>
-                <span id="counter" class="bg-slate-700 text-white px-2.5 py-0.5 rounded text-xs font-bold">0 ítems</span>
+                <span id="counter" class="bg-slate-700/80 backdrop-blur text-white px-2.5 py-0.5 rounded text-xs font-bold transition-all">0 ítems</span>
             </button>
         </div>
     </div>
 
     <div id="menu-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[50] hidden opacity-0 transition-opacity duration-300"></div>
-    <div id="side-menu" class="fixed top-0 left-0 bottom-0 w-[280px] z-[55] transform -translate-x-full transition-transform duration-300 flex flex-col dyn-card dyn-border border-r">
+    <div id="side-menu" class="fixed top-0 left-0 bottom-0 w-[280px] z-[55] transform -translate-x-full transition-transform duration-300 ease-out flex flex-col dyn-card dyn-border border-r shadow-2xl">
         <div class="p-5 flex justify-between items-center border-b dyn-border">
             <h2 class="font-bold text-lg dyn-text-title flex items-center gap-2"><span>📚</span> Secciones</h2>
             <button id="btn-close-menu" class="p-2 rounded-lg dyn-hover dyn-text-desc hover:text-red-500 transition-colors">
@@ -128,13 +135,12 @@
             </button>
         </div>
         
-        <!-- NUEVA BARRA DE BÚSQUEDA EN EL MENÚ -->
         <div class="p-4 border-b dyn-border">
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </span>
-                <input type="text" id="side-search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus">
+                <input type="text" id="side-search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus transition-all">
             </div>
         </div>
 
@@ -159,13 +165,12 @@
         const db = getFirestore(app);
 
         let catActiva = "";
-        let categoriasList = []; // Lista global de categorías para los swipes
+        let categoriasList = [];
         let listadoCompleto = [];
         let carrito = [];
         let telefonoWhatsAppGlobal = "584244178356";
         let searchTerm = "";
 
-        // --- LÓGICA DE COLORES ---
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
@@ -195,17 +200,26 @@
             });
             return colorCercano;
         }
-        // --- FIN LÓGICA DE COLORES ---
 
-        document.getElementById("btn-close-modal").onclick = () => document.getElementById("welcome-modal").classList.add("hidden");
+        document.getElementById("btn-close-modal").onclick = () => {
+            const modal = document.getElementById("welcome-modal");
+            modal.style.opacity = '0';
+            setTimeout(() => modal.classList.add("hidden"), 300);
+        };
         
-        // --- LÓGICA DE SINCRONIZACIÓN DE BÚSQUEDAS ---
         const handleSearch = (e) => {
-            searchTerm = e.target.value.toLowerCase();
+            searchTerm = e.target.value.toLowerCase().trim();
             document.getElementById("search-input").value = e.target.value;
             document.getElementById("side-search-input").value = e.target.value;
+            
+            // Si el menú lateral está abierto y el usuario busca, lo cerramos para que vea los resultados globales
+            if (document.getElementById("side-menu").classList.contains("translate-x-0") || 
+               !document.getElementById("side-menu").classList.contains("-translate-x-full")) {
+                toggleMenu(false);
+            }
             render();
         };
+        
         document.getElementById("search-input").addEventListener("input", handleSearch);
         document.getElementById("side-search-input").addEventListener("input", handleSearch);
 
@@ -248,10 +262,7 @@
                 const root = document.documentElement;
                 const temaSeleccionado = data.temaPublico || data.tema || "tornasol";
 
-                if (temaSeleccionado === "tornasol") { 
-                    document.body.className = "theme-tornasol"; 
-                    root.removeAttribute('style'); 
-                } 
+                if (temaSeleccionado === "tornasol") { document.body.className = "theme-tornasol"; root.removeAttribute('style'); } 
                 else if (temaSeleccionado === "personalizado" && data.colores) {
                     document.body.className = "";
                     root.style.setProperty('--bg-body', data.colores.bg); 
@@ -266,14 +277,8 @@
                     root.style.setProperty('--text-btn', '#ffffff'); 
                     root.style.setProperty('--hover-item', data.colores.card);
                 } 
-                else if (temaSeleccionado === "claro") { 
-                    document.body.className = "theme-light"; 
-                    root.removeAttribute('style'); 
-                } 
-                else { 
-                    document.body.className = "theme-dark"; 
-                    root.removeAttribute('style'); 
-                }
+                else if (temaSeleccionado === "claro") { document.body.className = "theme-light"; root.removeAttribute('style'); } 
+                else { document.body.className = "theme-dark"; root.removeAttribute('style'); }
 
                 if (data.welcomeUrl) {
                     const wImg = document.getElementById("modal-welcome-img");
@@ -286,45 +291,37 @@
                     document.getElementById("modal-welcome-img").classList.add("hidden");
                 }
 
-                if (data.logoUrl) {
-                    document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
-                }
+                if (data.logoUrl) document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
                 render();
             }
         });
 
-        // ACTUALIZACIÓN: Ordenamiento alfabético para Categorías
         onSnapshot(collection(db, "categorias"), (snapshot) => {
             const tC = document.getElementById("tabs-container"), sC = document.getElementById("side-categories");
             tC.innerHTML = ""; sC.innerHTML = "";
-            categoriasList = snapshot.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .sort((a,b) => a.nombre.localeCompare(b.nombre)); // De la A a la Z
+            categoriasList = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
                 
             if(categoriasList.length > 0 && !catActiva) catActiva = categoriasList[0].id;
 
             categoriasList.forEach(cat => {
                 const bT = document.createElement("button");
                 bT.id = `t-${cat.id}`;
-                bT.className = catActiva === cat.id ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)]" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent";
+                bT.className = catActiva === cat.id ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all";
                 bT.textContent = cat.nombre.toUpperCase();
-                bT.onclick = () => { selectCategoryAndScroll(cat.id); };
+                bT.onclick = () => { document.getElementById("search-input").value = ""; document.getElementById("side-search-input").value = ""; searchTerm = ""; selectCategoryAndScroll(cat.id); };
                 tC.appendChild(bT);
 
                 const bS = document.createElement("button");
                 bS.className = `w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover ${catActiva === cat.id ? 'bg-[var(--hover-item)]' : ''}`;
                 bS.textContent = `• ${cat.nombre}`;
-                bS.onclick = () => { selectCategoryAndScroll(cat.id); toggleMenu(false); };
+                bS.onclick = () => { document.getElementById("search-input").value = ""; document.getElementById("side-search-input").value = ""; searchTerm = ""; selectCategoryAndScroll(cat.id); toggleMenu(false); };
                 sC.appendChild(bS);
             });
             render();
         });
 
-        // ACTUALIZACIÓN: Ordenamiento alfabético para Productos
         onSnapshot(collection(db, "productos"), (snap) => {
-            listadoCompleto = snap.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .sort((a,b) => a.nombre.localeCompare(b.nombre)); // De la A a la Z
+            listadoCompleto = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
             render();
         });
 
@@ -333,39 +330,57 @@
             render();
             window.scrollTo({ top: document.getElementById("catalog-scroll-anchor").offsetTop - 20, behavior: "smooth" });
             const activeTab = document.getElementById(`t-${catActiva}`);
-            if(activeTab) {
-                activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
+            if(activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
 
         function render() {
-            document.querySelectorAll("#tabs-container button").forEach(btn => {
-                btn.className = btn.id === `t-${catActiva}` ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all";
-            });
+            // Estilos para pestañas según si hay búsqueda global activa
+            const isSearching = searchTerm.length > 0;
+            const tabsContainer = document.getElementById("tabs-container");
             
-            document.querySelectorAll("#side-categories button").forEach((btn, index) => {
-                if(categoriasList[index] && categoriasList[index].id === catActiva) {
-                    btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title bg-[var(--hover-item)]";
-                } else {
-                    btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover";
-                }
-            });
+            if (isSearching) {
+                tabsContainer.classList.add("opacity-30", "pointer-events-none"); // Oscurecer pestañas para indicar que el filtro es global
+            } else {
+                tabsContainer.classList.remove("opacity-30", "pointer-events-none");
+                document.querySelectorAll("#tabs-container button").forEach(btn => {
+                    btn.className = btn.id === `t-${catActiva}` ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all hover:text-[var(--text-title)]";
+                });
+                document.querySelectorAll("#side-categories button").forEach((btn, index) => {
+                    if(categoriasList[index] && categoriasList[index].id === catActiva) btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title bg-[var(--hover-item)]";
+                    else btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover";
+                });
+            }
 
             const container = document.getElementById("catalog-container");
             container.innerHTML = "";
-            const filtrados = listadoCompleto.filter(p => p.categoriaId === catActiva && p.activo && p.nombre.toLowerCase().includes(searchTerm));
+            
+            // BÚSQUEDA GLOBAL: Si hay texto, filtra todo ignorando catActiva
+            const filtrados = listadoCompleto.filter(p => {
+                if (!p.activo) return false;
+                if (isSearching) {
+                    const searchLower = searchTerm.toLowerCase();
+                    const nameMatch = p.nombre.toLowerCase().includes(searchLower);
+                    const descMatch = p.descripcion ? p.descripcion.toLowerCase().includes(searchLower) : false;
+                    return nameMatch || descMatch;
+                }
+                return p.categoriaId === catActiva;
+            });
 
             if (filtrados.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm py-8 dyn-text-desc">No se encontraron productos aquí.</p>`;
+                container.innerHTML = `<div class="text-center py-10 animate-fade-in-up">
+                    <span class="text-3xl mb-3 block opacity-50">🔍</span>
+                    <p class="text-sm dyn-text-desc">No encontramos productos con esa descripción.</p>
+                </div>`;
                 return;
             }
 
-            filtrados.forEach(p => {
+            filtrados.forEach((p, index) => {
                 const card = document.createElement("div");
-                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl";
+                // ANIMACIÓN PROGRESIVA: Clase animate-fade-in-up y retraso
+                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl animate-fade-in-up";
+                card.style.animationDelay = `${index * 0.05}s`; 
                 
-                let htmlColores = "";
-                let reqColor = false;
+                let htmlColores = ""; let reqColor = false;
                 if (p.colores && p.colores.length > 0) {
                     reqColor = true;
                     htmlColores = `
@@ -374,32 +389,29 @@
                             <div class="flex flex-wrap gap-3">
                                 ${p.colores.map(c => `
                                     <button type="button" onclick="selecColor('${p.id}', '${c}', this, ${p.caracteristicas ? p.caracteristicas.length : 0})" 
-                                            class="color-btn-${p.id} w-9 h-9 rounded-full border-2 border-transparent shadow-md hover:scale-110 transition-transform flex items-center justify-center" 
-                                            style="background-color: ${c};" title="Seleccionar color">
-                                    </button>
+                                            class="color-btn-${p.id} w-9 h-9 rounded-full border-2 border-transparent shadow-md hover:scale-110 transition-all flex items-center justify-center" 
+                                            style="background-color: ${c};" title="Seleccionar color"></button>
                                 `).join('')}
                             </div>
                             <input type="hidden" id="c-val-${p.id}" value="">
-                        </div>
-                    `;
+                        </div>`;
                 }
 
                 let htmlSelects = "";
                 if (p.caracteristicas && p.caracteristicas.length > 0) {
                     htmlSelects = `<div class="mt-2 space-y-4">`;
-                    p.caracteristicas.forEach((feat, index) => {
-                        const isDisabled = (index > 0 || reqColor) ? "disabled" : "";
+                    p.caracteristicas.forEach((feat, i) => {
+                        const isDisabled = (i > 0 || reqColor) ? "disabled" : "";
                         htmlSelects += `
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">👉 ${feat.titulo}</label>
-                                <select id="s-${p.id}-${index}" data-prod="${p.id}" data-titulo="${feat.titulo}"
-                                    onchange="evalPaso('${p.id}', ${index}, ${p.caracteristicas.length})"
+                                <select id="s-${p.id}-${i}" data-prod="${p.id}" data-titulo="${feat.titulo}"
+                                    onchange="evalPaso('${p.id}', ${i}, ${p.caracteristicas.length})"
                                     class="text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-colors metallic-focus" ${isDisabled}>
                                     <option value="" disabled selected>-- Elige una opción --</option>
                                     ${feat.opciones.map(o => `<option value="${o}">${o}</option>`).join('')}
                                 </select>
-                            </div>
-                        `;
+                            </div>`;
                     });
                     htmlSelects += `</div>`;
                 }
@@ -410,15 +422,14 @@
                         <div class="mt-3 bg-[var(--bg-body)] p-3 rounded-xl border dyn-border transition-colors">
                             <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc mb-2 block">🎁 Accesorios Opcionales</label>
                             <div class="flex flex-col gap-2">
-                                ${p.accesorios.map((acc, index) => `
+                                ${p.accesorios.map((acc, i) => `
                                     <label class="flex items-center gap-3 cursor-pointer group p-1">
-                                        <input type="checkbox" id="chk-${p.id}-${index}" value="${acc}" class="w-4 h-4 rounded border-slate-500 text-slate-800 bg-[var(--bg-input)] focus:ring-0 cursor-pointer">
+                                        <input type="checkbox" id="chk-${p.id}-${i}" value="${acc}" class="w-4 h-4 rounded border-slate-500 text-slate-800 bg-[var(--bg-input)] focus:ring-0 cursor-pointer transition-all">
                                         <span class="text-xs font-medium dyn-text-title group-hover:text-slate-400 transition-colors">${acc}</span>
                                     </label>
                                 `).join('')}
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 }
 
                 const esDirecto = !reqColor && (!p.caracteristicas || p.caracteristicas.length === 0);
@@ -426,25 +437,25 @@
                 card.innerHTML = `
                     <div class="group flex flex-col h-full relative">
                         <div class="w-full h-[280px] sm:h-[320px] relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 cursor-zoom-in" onclick="abrirZoom('${p.imagenUrl || 'https://via.placeholder.com/400'}')">
-                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-105 filter drop-shadow-md" alt="${p.nombre}">
-                            <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[9px] uppercase font-bold px-2 py-1 rounded-md">✨ Personalizable</div>
+                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" class="w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-110 filter drop-shadow-md" alt="${p.nombre}">
+                            <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[9px] uppercase font-bold px-2 py-1 rounded-md transition-opacity duration-300">✨ Personalizable</div>
                         </div>
                         <div class="p-5 pb-4 flex flex-col gap-2 z-10 bg-[var(--bg-card)] cursor-pointer" onclick="tOpc('${p.id}')">
                             <div class="flex justify-between items-start gap-3">
                                 <h3 class="font-bold text-lg leading-tight dyn-text-title text-metallic-hover transition-colors">${p.nombre}</h3>
-                                <div class="p-1.5 rounded-full bg-[var(--bg-input)] dyn-border border shadow-sm group-hover:scale-110 transition-transform">
-                                    <svg class="w-5 h-5 flex-shrink-0 dyn-text-desc transform transition-transform duration-300" id="icon-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="p-1.5 rounded-full bg-[var(--bg-input)] dyn-border border shadow-sm group-hover:bg-slate-500/20 transition-all duration-300">
+                                    <svg class="w-5 h-5 flex-shrink-0 dyn-text-desc transform transition-transform duration-500" id="icon-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
                             ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line mt-1 opacity-90">${p.descripcion}</p>` : ''}
                         </div>
                     </div>
-                    <div id="opc-${p.id}" class="hidden flex-col gap-4 px-5 pb-5 bg-[var(--bg-card)]">
+                    <div id="opc-${p.id}" class="hidden flex-col gap-4 px-5 pb-5 bg-[var(--bg-card)] animate-fade-in-up" style="animation-duration: 0.3s; opacity: 1;">
                         <div class="w-full h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent opacity-50 mb-1"></div>
                         ${htmlColores}
                         ${htmlSelects}
                         ${htmlAccesorios}
-                        <div id="ctrl-${p.id}" class="${esDirecto ? 'flex' : 'hidden'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border">
+                        <div id="ctrl-${p.id}" class="${esDirecto ? 'flex' : 'hidden'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border transition-all duration-300">
                             <div class="flex items-center rounded-xl border dyn-input w-[120px] justify-between shadow-sm">
                                 <button onclick="cCant('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
                                 <input id="cant-${p.id}" type="number" value="1" min="1" readonly class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
@@ -461,58 +472,28 @@
             });
         }
 
-        // --- ACTUALIZACIÓN: LÓGICA DE SWIPE FLUIDA ---
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let touchStartY = 0;
-        let touchEndY = 0;
-        
+        let touchStartX = 0; let touchEndX = 0; let touchStartY = 0; let touchEndY = 0;
         const catalogContainer = document.getElementById("catalog-container");
-        
-        catalogContainer.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, {passive: true});
-        
-        catalogContainer.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
-        }, {passive: true});
+        catalogContainer.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
+        catalogContainer.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; touchEndY = e.changedTouches[0].screenY; handleSwipe(); }, {passive: true});
         
         function handleSwipe() {
-            const swipeThresholdX = 60; 
-            const diffX = touchStartX - touchEndX;
-            const diffY = Math.abs(touchStartY - touchEndY);
-            
-            // Validar que el movimiento sea principalmente horizontal y supere el umbral
-            if (Math.abs(diffX) > swipeThresholdX && diffY < Math.abs(diffX)) {
-                // Efecto Fade Out
-                catalogContainer.style.opacity = '0.4';
-                
+            if (searchTerm.length > 0) return; // Deshabilitar swipe si estamos buscando globalmente
+            const diffX = touchStartX - touchEndX, diffY = Math.abs(touchStartY - touchEndY);
+            if (Math.abs(diffX) > 60 && diffY < Math.abs(diffX)) {
+                catalogContainer.style.opacity = '0.3';
                 setTimeout(() => {
-                    if (diffX > 0) {
-                        cambiarCategoriaPorSwipe(1); // Izquierda -> Siguiente Categoría
-                    } else {
-                        cambiarCategoriaPorSwipe(-1); // Derecha -> Categoría Anterior
-                    }
-                    // Efecto Fade In
+                    if (diffX > 0) cambiarCategoriaPorSwipe(1); else cambiarCategoriaPorSwipe(-1);
                     catalogContainer.style.opacity = '1';
                 }, 200); 
             }
         }
-        
         function cambiarCategoriaPorSwipe(direction) {
             if (!categoriasList || categoriasList.length === 0) return;
             const currentIndex = categoriasList.findIndex(c => c.id === catActiva);
-            if (currentIndex === -1) return;
-            
             let newIndex = currentIndex + direction;
-            if (newIndex >= 0 && newIndex < categoriasList.length) {
-                selectCategoryAndScroll(categoriasList[newIndex].id);
-            }
+            if (newIndex >= 0 && newIndex < categoriasList.length) selectCategoryAndScroll(categoriasList[newIndex].id);
         }
-        // --- FIN LÓGICA DE SWIPE ---
 
         window.tOpc = (id) => {
             const p = document.getElementById(`opc-${id}`), i = document.getElementById(`icon-${id}`);
@@ -523,7 +504,7 @@
         window.selecColor = (prodId, colorHex, btnObj, totalSteps) => {
             document.querySelectorAll(`.color-btn-${prodId}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; });
             btnObj.classList.add('metallic-active', 'scale-110');
-            btnObj.innerHTML = `<svg class="w-5 h-5 text-white/90 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+            btnObj.innerHTML = `<svg class="w-5 h-5 text-white/90 drop-shadow-md transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
             document.getElementById(`c-val-${prodId}`).value = colorHex;
             if (totalSteps > 0) { document.getElementById(`s-${prodId}-0`).disabled = false; } 
             else { document.getElementById(`ctrl-${prodId}`).classList.remove("hidden"); document.getElementById(`ctrl-${prodId}`).classList.add("flex"); }
@@ -541,44 +522,34 @@
         window.addCar = (id, n, max, hasColor) => {
             const c = parseInt(document.getElementById(`cant-${id}`).value);
             const opc = [];
-            
             if(hasColor) {
                 const colorSel = document.getElementById(`c-val-${id}`).value;
                 if(!colorSel) return alert("Por favor, selecciona un color.");
                 opc.push(`Color: ${obtenerNombreColor(colorSel)}`);
             }
-            
             for (let i = 0; i < max; i++) {
                 const s = document.getElementById(`s-${id}-${i}`);
                 if(!s.value) return alert("Completa las opciones requeridas.");
                 opc.push(`${s.getAttribute("data-titulo")}: ${s.value}`);
             }
-
             const chks = document.querySelectorAll(`input[id^="chk-${id}-"]:checked`);
-            chks.forEach(chk => {
-                opc.push(`🎁 ${chk.value}`);
-            });
+            chks.forEach(chk => opc.push(`🎁 ${chk.value}`));
 
             const idx = carrito.findIndex(i => i.id === id && JSON.stringify(i.opc) === JSON.stringify(opc));
             if (idx > -1) carrito[idx].c += c; else carrito.push({ id: id, n: n, opc: opc, c: c });
             
-            alert("¡Añadido al pedido!");
             tOpc(id);
             document.getElementById(`cant-${id}`).value = 1;
             
-            if(hasColor) {
-                document.getElementById(`c-val-${id}`).value = "";
-                document.querySelectorAll(`.color-btn-${id}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; });
-            }
+            if(hasColor) { document.getElementById(`c-val-${id}`).value = ""; document.querySelectorAll(`.color-btn-${id}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; }); }
             for (let i = 0; i < max; i++) { const s = document.getElementById(`s-${id}-${i}`); s.value = ""; s.disabled = true; }
-            
             document.querySelectorAll(`input[id^="chk-${id}-"]`).forEach(chk => chk.checked = false);
-
             if(max > 0 || hasColor) { document.getElementById(`ctrl-${id}`).classList.add("hidden"); document.getElementById(`ctrl-${id}`).classList.remove("flex"); }
             
             const btnCounter = document.getElementById("counter");
             btnCounter.textContent = `${carrito.reduce((s, i) => s + i.c, 0)} ítems`;
-            btnCounter.classList.add("animate-pulse"); setTimeout(() => btnCounter.classList.remove("animate-pulse"), 1000);
+            btnCounter.classList.add("animate-pulse", "scale-110", "bg-emerald-500"); 
+            setTimeout(() => btnCounter.classList.remove("animate-pulse", "scale-110", "bg-emerald-500"), 500);
         }
 
         document.getElementById("btn-whatsapp-consulta").onclick = () => window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(`¡Hola! Vengo desde su catálogo web y quisiera hacer una consulta rápida:`)}`, "_blank");
