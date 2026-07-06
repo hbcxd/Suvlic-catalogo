@@ -163,8 +163,9 @@
                         <input type="text" id="a-nombre" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white transition-colors metallic-focus">
                     </div>
                     <div>
-                        <label class="block text-sm text-slate-400 mb-1">Categoría Asignada</label>
-                        <select id="a-categoria" required class="w-full bg-[#0b0f19] border border-slate-800 rounded-xl p-3 text-white transition-colors metallic-focus"></select>
+                        <label class="block text-sm text-slate-400 mb-1">Categorías Asignadas (Multi-selección)</label>
+                        <div id="a-categoria-container" class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto hide-scrollbar p-2 bg-[#0b0f19] border border-slate-800 rounded-xl">
+                            </div>
                     </div>
                 </div>
 
@@ -324,10 +325,20 @@
 
             const productosOrdenados = [...productosGlobales].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
             const agrupados = {};
+            
+            // SOPORTE PARA MULTIPLES CATEGORÍAS (Visualización duplicada en caso de aplicar)
             productosOrdenados.forEach(prod => {
-                const nombreCat = categoriasGlobales[prod.categoriaId] || "Sin Categoría";
-                if (!agrupados[nombreCat]) agrupados[nombreCat] = [];
-                agrupados[nombreCat].push(prod);
+                const prodCats = Array.isArray(prod.categoriaId) ? prod.categoriaId : [prod.categoriaId];
+                if (!prodCats || prodCats.length === 0 || (prodCats.length === 1 && !prodCats[0])) {
+                    if (!agrupados["Sin Categoría"]) agrupados["Sin Categoría"] = [];
+                    agrupados["Sin Categoría"].push(prod);
+                } else {
+                    prodCats.forEach(cId => {
+                        const nombreCat = categoriasGlobales[cId] || "Sin Categoría";
+                        if (!agrupados[nombreCat]) agrupados[nombreCat] = [];
+                        agrupados[nombreCat].push(prod);
+                    });
+                }
             });
 
             const categoriasOrdenadas = Object.keys(agrupados).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
@@ -338,7 +349,8 @@
                 header.innerHTML = `<h3 class="text-[11px] font-extrabold text-slate-400 tracking-widest uppercase flex items-center gap-2"><span class="text-sm">🏷️</span> ${cat} <span class="bg-slate-800 px-2 py-0.5 rounded-full text-[9px] text-slate-500">${agrupados[cat].length}</span></h3>`;
                 listContainer.appendChild(header);
 
-                // DISEÑO MEJORADO PARA LAS TARJETAS ADMINISTRATIVAS
+                const safeCatId = cat.replace(/[^a-zA-Z0-9]/g, '-'); // Para generar IDs seguros por categoría
+
                 agrupados[cat].forEach(prod => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "animate-list-item flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-900/40 rounded-2xl border border-slate-700/50 hover:border-slate-500 shadow-sm hover:shadow-md hover:bg-slate-800/50 transition-all mb-3 gap-4";
@@ -351,15 +363,15 @@
                             </div>
                         </div>
                         
-                        <div id="action-btns-${prod.id}" class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
+                        <div id="action-btns-${prod.id}-${safeCatId}" class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
                             <button onclick="cargarParaEditar('${prod.id}')" class="flex-1 sm:flex-none justify-center bg-slate-500/10 text-slate-300 text-xs font-bold py-2.5 px-4 rounded-xl border border-slate-500/30 hover:bg-slate-500/30 transition-all shadow-sm">Editar</button>
-                            <button onclick="mostrarConfirmacion('${prod.id}')" class="flex-1 sm:flex-none justify-center bg-red-600/10 text-red-400 text-xs font-bold py-2.5 px-4 rounded-xl border border-red-500/30 hover:bg-red-500/20 hover:text-red-300 transition-all shadow-sm">Borrar</button>
+                            <button onclick="mostrarConfirmacion('${prod.id}', '${safeCatId}')" class="flex-1 sm:flex-none justify-center bg-red-600/10 text-red-400 text-xs font-bold py-2.5 px-4 rounded-xl border border-red-500/30 hover:bg-red-500/20 hover:text-red-300 transition-all shadow-sm">Borrar</button>
                         </div>
 
-                        <div id="confirm-btns-${prod.id}" class="hidden flex gap-2 flex-shrink-0 items-center bg-red-900/20 px-3 py-2 rounded-xl border border-red-900/50 w-full sm:w-auto justify-between sm:justify-start">
+                        <div id="confirm-btns-${prod.id}-${safeCatId}" class="hidden flex gap-2 flex-shrink-0 items-center bg-red-900/20 px-3 py-2 rounded-xl border border-red-900/50 w-full sm:w-auto justify-between sm:justify-start">
                             <span class="text-[10px] text-red-300 font-bold px-1 uppercase tracking-wider hidden sm:block">¿Borrar?</span>
                             <div class="flex gap-2 w-full sm:w-auto">
-                                <button onclick="cancelarConfirmacion('${prod.id}')" class="flex-1 sm:flex-none text-slate-400 hover:text-slate-200 text-xs font-medium px-3 py-2 bg-slate-800/50 rounded-lg transition-colors border border-slate-700">Cancelar</button>
+                                <button onclick="cancelarConfirmacion('${prod.id}', '${safeCatId}')" class="flex-1 sm:flex-none text-slate-400 hover:text-slate-200 text-xs font-medium px-3 py-2 bg-slate-800/50 rounded-lg transition-colors border border-slate-700">Cancelar</button>
                                 <button onclick="ejecutarEliminacion('${prod.id}')" class="flex-1 sm:flex-none bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-[0_0_10px_rgba(220,38,38,0.4)] border border-red-500">Sí, eliminar</button>
                             </div>
                         </div>
@@ -373,10 +385,19 @@
         function activarEscuchadoresEnTiempoReal() {
             if (listenCat) listenCat(); if (listenProd) listenProd();
             listenCat = onSnapshot(collection(db, "categorias"), (snapshot) => {
-                const select = document.getElementById("a-categoria"), catList = document.getElementById("admin-categories-list");
-                select.innerHTML = '<option value="" disabled selected>-- Selecciona Categoría --</option>'; catList.innerHTML = ""; categoriasGlobales = {};
+                const checkContainer = document.getElementById("a-categoria-container"), catList = document.getElementById("admin-categories-list");
+                checkContainer.innerHTML = ""; catList.innerHTML = ""; categoriasGlobales = {};
                 snapshot.docs.forEach(docSnap => {
-                    const cat = docSnap.data(); categoriasGlobales[docSnap.id] = cat.nombre; select.innerHTML += `<option value="${docSnap.id}">${cat.nombre}</option>`;
+                    const cat = docSnap.data(); categoriasGlobales[docSnap.id] = cat.nombre; 
+                    
+                    // Inyección de checkboxes
+                    checkContainer.innerHTML += `
+                        <label class="flex items-center gap-2 p-2 bg-slate-900 border border-slate-800 rounded-lg cursor-pointer hover:border-slate-500 transition-colors">
+                            <input type="checkbox" value="${docSnap.id}" class="cat-checkbox w-4 h-4 rounded bg-slate-800 border-slate-700 text-slate-500 focus:ring-0">
+                            <span class="text-xs text-slate-300 font-medium truncate">${cat.nombre}</span>
+                        </label>
+                    `;
+
                     const catDiv = document.createElement("div");
                     catDiv.className = "flex justify-between items-center bg-[#0b0f19] border border-slate-700/50 hover:border-slate-600 p-3 rounded-xl transition-colors shadow-sm";
                     catDiv.innerHTML = `
@@ -443,11 +464,18 @@
         window.cargarParaEditar = (id) => {
             const prod = productosGlobales.find(p => p.id === id); if(!prod) return;
             document.getElementById("edit-prod-id").value = id; document.getElementById("edit-prod-img").value = prod.imagenUrl || "";
-            document.getElementById("a-nombre").value = prod.nombre; document.getElementById("a-categoria").value = prod.categoriaId;
+            document.getElementById("a-nombre").value = prod.nombre; 
             document.getElementById("a-descripcion").value = prod.descripcion; document.getElementById("a-accesorios").value = prod.accesorios ? prod.accesorios.join(", ") : "";
             document.getElementById("a-file").value = ""; fContainer.innerHTML = ""; cContainer.innerHTML = "";
+            
+            // Asignación Visual Multi-categoría
+            document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
+            const prodCats = Array.isArray(prod.categoriaId) ? prod.categoriaId : [prod.categoriaId];
+            prodCats.forEach(cId => { const cb = document.querySelector(`.cat-checkbox[value="${cId}"]`); if (cb) cb.checked = true; });
+
             if(prod.caracteristicas && prod.caracteristicas.length > 0) prod.caracteristicas.forEach(c => createFeatureBlock(c.titulo, c.opciones.join(", ")));
             if(prod.colores && prod.colores.length > 0) prod.colores.forEach(c => createColorBlock(c));
+            
             document.getElementById("prod-form-title").textContent = "Editando Producto..."; document.getElementById("btn-submit").textContent = "Guardar Cambios del Producto";
             document.getElementById("btn-cancel-edit").classList.remove("hidden"); document.getElementById("img-edit-status").classList.remove("hidden");
             document.getElementById("product-form-section").scrollIntoView({ behavior: 'smooth' });
@@ -455,12 +483,18 @@
 
         document.getElementById("btn-cancel-edit").onclick = () => {
             document.getElementById("prod-form").reset(); document.getElementById("edit-prod-id").value = ""; document.getElementById("edit-prod-img").value = ""; document.getElementById("a-accesorios").value = ""; fContainer.innerHTML = ""; cContainer.innerHTML = "";
+            document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
             document.getElementById("prod-form-title").textContent = "Publicador de Productos"; document.getElementById("btn-submit").textContent = "Guardar Producto";
             document.getElementById("btn-cancel-edit").classList.add("hidden"); document.getElementById("img-edit-status").classList.add("hidden");
         };
 
         document.getElementById("prod-form").addEventListener("submit", async (e) => {
-            e.preventDefault(); const btn = document.getElementById("btn-submit"), fileInput = document.getElementById("a-file"), editId = document.getElementById("edit-prod-id").value; let imgUrl = document.getElementById("edit-prod-img").value;
+            e.preventDefault(); 
+            const btn = document.getElementById("btn-submit"), fileInput = document.getElementById("a-file"), editId = document.getElementById("edit-prod-id").value; let imgUrl = document.getElementById("edit-prod-img").value;
+            
+            const catSeleccionadas = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+            if (catSeleccionadas.length === 0) return alert("Debes seleccionar al menos una categoría para el producto.");
+
             if(!editId && !fileInput.files[0]) return alert("Selecciona una imagen");
             btn.disabled = true; btn.textContent = "Procesando...";
             try {
@@ -469,14 +503,17 @@
                 document.querySelectorAll(".feature-block").forEach(b => { const t = b.querySelector(".f-titulo").value.trim(), o = b.querySelector(".f-opciones").value; if (t && o) caract.push({ titulo: t, opciones: o.split(',').map(i => i.trim()).filter(i => i !== "") }); });
                 document.querySelectorAll(".color-block").forEach(b => colores.push(b.querySelector(".c-hex").value));
                 const accesoriosVal = document.getElementById("a-accesorios").value, accesoriosArray = accesoriosVal.split(',').map(i => i.trim()).filter(i => i !== "");
-                const payload = { nombre: document.getElementById("a-nombre").value.trim(), categoriaId: document.getElementById("a-categoria").value, descripcion: document.getElementById("a-descripcion").value.trim(), imagenUrl: imgUrl, caracteristicas: caract, colores: colores, accesorios: accesoriosArray, activo: true };
+                
+                // Guardado de la propiedad como Array
+                const payload = { nombre: document.getElementById("a-nombre").value.trim(), categoriaId: catSeleccionadas, descripcion: document.getElementById("a-descripcion").value.trim(), imagenUrl: imgUrl, caracteristicas: caract, colores: colores, accesorios: accesoriosArray, activo: true };
+                
                 if (editId) await updateDoc(doc(db, "productos", editId), payload); else { payload.creadoEn = new Date(); await addDoc(collection(db, "productos"), payload); }
                 document.getElementById("btn-cancel-edit").click();
             } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; }
         });
 
-        window.mostrarConfirmacion = (id) => { document.getElementById(`action-btns-${id}`).classList.add('hidden'); const confirmBox = document.getElementById(`confirm-btns-${id}`); confirmBox.classList.remove('hidden'); confirmBox.classList.add('flex'); };
-        window.cancelarConfirmacion = (id) => { const confirmBox = document.getElementById(`confirm-btns-${id}`); confirmBox.classList.add('hidden'); confirmBox.classList.remove('flex'); document.getElementById(`action-btns-${id}`).classList.remove('hidden'); };
+        window.mostrarConfirmacion = (id, suffix) => { document.getElementById(`action-btns-${id}-${suffix}`).classList.add('hidden'); const confirmBox = document.getElementById(`confirm-btns-${id}-${suffix}`); confirmBox.classList.remove('hidden'); confirmBox.classList.add('flex'); };
+        window.cancelarConfirmacion = (id, suffix) => { const confirmBox = document.getElementById(`confirm-btns-${id}-${suffix}`); confirmBox.classList.add('hidden'); confirmBox.classList.remove('flex'); document.getElementById(`action-btns-${id}-${suffix}`).classList.remove('hidden'); };
         window.ejecutarEliminacion = async (id) => { try { await deleteDoc(doc(db, "productos", id)); } catch (error) { alert("Hubo un error al eliminar el producto."); } };
     </script>
 </body>
