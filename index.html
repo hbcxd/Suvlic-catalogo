@@ -28,7 +28,6 @@
         .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
-        /* Animación Progresiva para Productos */
         @keyframes fadeInUp {
             0% { opacity: 0; transform: translateY(15px); }
             100% { opacity: 1; transform: translateY(0); }
@@ -164,7 +163,8 @@
         let carrito = [];
         let telefonoWhatsAppGlobal = "584244178356";
         let searchTerm = "";
-        let isAnimating = false; // Bloqueo durante transiciones
+        let isAnimating = false; 
+        let cantidades = {}; 
 
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -195,6 +195,9 @@
             });
             return colorCercano;
         }
+
+        window.hexToRgb = hexToRgb;
+        window.obtenerNombreColor = obtenerNombreColor;
 
         document.getElementById("btn-close-modal").onclick = () => {
             const modal = document.getElementById("welcome-modal");
@@ -240,6 +243,131 @@
             m.classList.add("opacity-0"); img.classList.remove("scale-100"); img.classList.add("scale-95");
             setTimeout(() => { m.classList.add("hidden"); m.classList.remove("flex"); img.src = ""; }, 300);
         };
+
+        // GESTIÓN DE CARRUSELES GLOBALES
+        window.moverCarrusel = (id, direccion) => {
+            const contenedor = document.getElementById(`carousel-${id}`);
+            if (contenedor) {
+                const anchoItem = contenedor.offsetWidth;
+                contenedor.scrollBy({ left: direccion * anchoItem, behavior: 'smooth' });
+            }
+        };
+
+        window.actualizarPuntosCarrusel = (id, el) => {
+            const anchoItem = el.offsetWidth;
+            const index = Math.round(el.scrollLeft / anchoItem);
+            const puntos = document.querySelectorAll(`.dot-${id}`);
+            puntos.forEach((punto, i) => {
+                if (i === index) {
+                    punto.classList.remove('bg-white/40', 'w-1.5');
+                    punto.classList.add('bg-white', 'w-3');
+                } else {
+                    punto.classList.remove('bg-white', 'w-3');
+                    punto.classList.add('bg-white/40', 'w-1.5');
+                }
+            });
+        };
+
+        // CONTROLADORES DE INTERFAZ DE PRODUCTO
+        window.cambiarCantidad = (id, cambio) => {
+            if (!cantidades[id]) cantidades[id] = 1;
+            cantidades[id] = Math.max(1, cantidades[id] + cambio);
+            const cantEl = document.getElementById(`cant-${id}`);
+            if (cantEl) cantEl.textContent = cantidades[id];
+        };
+
+        window.selecColor = (id, colorHex, btn, totalPasos) => {
+            const input = document.getElementById(`c-val-${id}`);
+            if (input) input.value = obtenerNombreColor(colorHex);
+            
+            document.querySelectorAll(`.color-btn-${id}`).forEach(b => {
+                b.classList.remove('border-white', 'scale-110', 'metallic-active');
+                b.classList.add('border-transparent');
+            });
+            btn.classList.remove('border-transparent');
+            btn.classList.add('border-white', 'scale-110', 'metallic-active');
+            
+            const primerSelect = document.getElementById(`s-${id}-0`);
+            if (primerSelect) primerSelect.removeAttribute('disabled');
+        };
+
+        window.evalPaso = (id, pasoActual, totalPasos) => {
+            const actualSelect = document.getElementById(`s-${id}-${pasoActual}`);
+            if (actualSelect && actualSelect.value !== "") {
+                const siguienteSelect = document.getElementById(`s-${id}-${pasoActual + 1}`);
+                if (siguienteSelect) siguienteSelect.removeAttribute('disabled');
+            }
+        };
+
+        window.agregarAlCarrito = (id) => {
+            const prod = listadoCompleto.find(p => p.id === id);
+            if (!prod) return;
+            
+            const colorInput = document.getElementById(`c-val-${id}`);
+            if (colorInput && !colorInput.value && prod.colores && prod.colores.length > 0) {
+                alert("Por favor, selecciona un color para el producto.");
+                return;
+            }
+            
+            let caractSeleccionadas = [];
+            if (prod.caracteristicas && prod.caracteristicas.length > 0) {
+                for (let i = 0; i < prod.caracteristicas.length; i++) {
+                    const sel = document.getElementById(`s-${id}-${i}`);
+                    if (sel && !sel.value) {
+                        alert(`Por favor, elige una opción para: ${prod.caracteristicas[i].titulo}`);
+                        return;
+                    }
+                    if (sel) {
+                        caractSeleccionadas.push({ titulo: prod.caracteristicas[i].titulo, valor: sel.value });
+                    }
+                }
+            }
+            
+            let accSeleccionados = [];
+            document.querySelectorAll(`.acc-checkbox-${id}:checked`).forEach(cb => {
+                accSeleccionados.push(cb.value);
+            });
+            
+            const cantidad = cantidades[id] || 1;
+            
+            carrito.push({
+                id: id,
+                nombre: prod.nombre,
+                color: colorInput ? colorInput.value : null,
+                caracteristicas: caractSeleccionadas,
+                accesorios: accSeleccionados,
+                cantidad: cantidad
+            });
+            
+            cantidades[id] = 1;
+            const cantEl = document.getElementById(`cant-${id}`);
+            if (cantEl) cantEl.textContent = "1";
+            if (colorInput) colorInput.value = "";
+            document.querySelectorAll(`.color-btn-${id}`).forEach(b => b.classList.remove('border-white', 'scale-110', 'metallic-active'));
+            
+            if (prod.caracteristicas && prod.caracteristicas.length > 0) {
+                prod.caracteristicas.forEach((_, i) => {
+                    const sel = document.getElementById(`s-${id}-${i}`);
+                    if (sel) {
+                        sel.value = "";
+                        if (i > 0 || (prod.colores && prod.colores.length > 0)) sel.setAttribute('disabled', 'true');
+                    }
+                });
+            }
+            document.querySelectorAll(`.acc-checkbox-${id}`).forEach(cb => cb.checked = false);
+            
+            actualizarBotonCarrito();
+            
+            const btnAdd = document.getElementById(`btn-add-${id}`);
+            const textOriginal = btnAdd.textContent;
+            btnAdd.textContent = "¡Agregado! ✓";
+            setTimeout(() => { btnAdd.textContent = textOriginal; }, 1200);
+        };
+
+        function actualizarBotonCarrito() {
+            const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+            document.getElementById("counter").textContent = `${totalItems} ítem${totalItems !== 1 ? 's' : ''}`;
+        }
 
         onSnapshot(doc(db, "configuracion", "perfil"), (docSnap) => {
             if (docSnap.exists()) {
@@ -319,7 +447,6 @@
             render();
         });
 
-        // NUEVA LOGICA DE NAVEGACION DINÁMICA TIPO PESTAÑA NATIVA
         function selectCategoryAndScroll(id) {
             if (isAnimating || catActiva === id) return;
             isAnimating = true;
@@ -332,7 +459,6 @@
             catActiva = id;
             const container = document.getElementById("catalog-container");
 
-            // Animación de salida (Deslizar fuera)
             container.style.transition = "transform 0.2s ease-in, opacity 0.2s ease-in";
             container.style.opacity = "0";
             container.style.transform = direction > 0 ? "translateX(-30px)" : "translateX(30px)";
@@ -343,14 +469,11 @@
                 const activeTab = document.getElementById(`t-${catActiva}`);
                 if(activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 
-                // Preparar posición para entrada (Mover al lado opuesto invisiblemente)
                 container.style.transition = "none";
                 container.style.transform = direction > 0 ? "translateX(30px)" : "translateX(-30px)";
                 
-                // Forzar reflow del DOM
                 void container.offsetWidth;
                 
-                // Animación de entrada (Deslizar hacia el centro)
                 container.style.transition = "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease-out";
                 container.style.opacity = "1";
                 container.style.transform = "translateX(0)";
@@ -371,7 +494,7 @@
                     btn.className = btn.id === `t-${catActiva}` ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all hover:text-[var(--text-title)]";
                 });
                 document.querySelectorAll("#side-categories button").forEach((btn, index) => {
-                    if(categoriasList[index] && categoriasList[index].id === catActiva) btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title bg-[var(--hover-item)]";
+                    if(categoriasList[index] && categoriasList[index].id && categoriasList[index].id === catActiva) btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title bg-[var(--hover-item)]";
                     else btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover";
                 });
             }
@@ -379,7 +502,6 @@
             const container = document.getElementById("catalog-container");
             container.innerHTML = "";
             
-            // SOPORTE PARA MULTIPLES CATEGORÍAS (Arrays o Strings por compatibilidad)
             const filtrados = listadoCompleto.filter(p => {
                 if (!p.activo) return false;
                 if (isSearching) {
@@ -405,6 +527,31 @@
                 card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl animate-fade-in-up";
                 card.style.animationDelay = `${index * 0.05}s`; 
                 
+                // DETECTAR LISTADO DE IMÁGENES
+                let imagenes = p.imagenesUrl && p.imagenesUrl.length > 0 ? p.imagenesUrl : (p.imagenUrl ? [p.imagenUrl] : ['https://via.placeholder.com/400']);
+
+                // ESTRUCTURA DEL CARRUSEL DE IMÁGENES NATIVO
+                let htmlCarrusel = `
+                    <div class="relative w-full aspect-square bg-black/10 overflow-hidden border-b dyn-border">
+                        <div id="carousel-${p.id}" class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-full w-full" onscroll="window.actualizarPuntosCarrusel('${p.id}', this)">
+                            ${imagenes.map(url => `
+                                <div class="w-full h-full flex-shrink-0 snap-start relative">
+                                    <img src="${url}" onclick="window.abrirZoom('${url}')" class="w-full h-full object-cover cursor-zoom-in" alt="${p.nombre}">
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        ${imagenes.length > 1 ? `
+                            <button type="button" onclick="window.moverCarrusel('${p.id}', -1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center text-base font-bold z-10 active:scale-90 transition-transform">‹</button>
+                            <button type="button" onclick="window.moverCarrusel('${p.id}', 1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center text-base font-bold z-10 active:scale-90 transition-transform">›</button>
+                            
+                            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                                ${imagenes.map((_, i) => `<span class="dot-${p.id} w-1.5 h-1.5 rounded-full transition-all ${i === 0 ? 'bg-white w-3' : 'bg-white/40'}"></span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
                 let htmlColores = ""; let reqColor = false;
                 if (p.colores && p.colores.length > 0) {
                     reqColor = true;
@@ -413,7 +560,7 @@
                             <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">🎨 Color Disponible (Requerido)</label>
                             <div class="flex flex-wrap gap-3">
                                 ${p.colores.map(c => `
-                                    <button type="button" onclick="selecColor('${p.id}', '${c}', this, ${p.caracteristicas ? p.caracteristicas.length : 0})" 
+                                    <button type="button" onclick="window.selecColor('${p.id}', '${c}', this, ${p.caracteristicas ? p.caracteristicas.length : 0})" 
                                             class="color-btn-${p.id} w-9 h-9 rounded-full border-2 border-transparent shadow-md hover:scale-110 transition-all flex items-center justify-center" 
                                             style="background-color: ${c};" title="Seleccionar color"></button>
                                 `).join('')}
@@ -431,7 +578,7 @@
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">👉 ${feat.titulo}</label>
                                 <select id="s-${p.id}-${i}" data-prod="${p.id}" data-titulo="${feat.titulo}"
-                                    onchange="evalPaso('${p.id}', ${i}, ${p.caracteristicas.length})"
+                                    onchange="window.evalPaso('${p.id}', ${i}, ${p.caracteristicas.length})"
                                     class="text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-colors metallic-focus" ${isDisabled}>
                                     <option value="" disabled selected>-- Elige una opción --</option>
                                     ${feat.opciones.map(o => `<option value="${o}">${o}</option>`).join('')}
@@ -444,51 +591,41 @@
                 let htmlAccesorios = "";
                 if (p.accesorios && p.accesorios.length > 0) {
                     htmlAccesorios = `
-                        <div class="mt-3 bg-[var(--bg-body)] p-3 rounded-xl border dyn-border transition-colors">
-                            <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc mb-2 block">🎁 Accesorios Opcionales</label>
-                            <div class="flex flex-col gap-2">
-                                ${p.accesorios.map((acc, i) => `
-                                    <label class="flex items-center gap-3 cursor-pointer group p-1">
-                                        <input type="checkbox" id="chk-${p.id}-${i}" value="${acc}" class="w-4 h-4 rounded border-slate-500 text-slate-800 bg-[var(--bg-input)] focus:ring-0 cursor-pointer transition-all">
-                                        <span class="text-xs font-medium dyn-text-title group-hover:text-slate-400 transition-colors">${acc}</span>
+                        <div class="mt-3 flex flex-col gap-2">
+                            <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">🎁 Accesorios Opcionales</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                ${p.accesorios.map(acc => `
+                                    <label class="flex items-center gap-2 p-2.5 rounded-xl border dyn-input cursor-pointer hover:bg-[var(--hover-item)] transition-colors select-none">
+                                        <input type="checkbox" value="${acc}" class="acc-checkbox-${p.id} w-4 h-4 rounded bg-slate-800 border-slate-700 text-slate-500 focus:ring-0">
+                                        <span class="text-xs truncate font-medium">${acc}</span>
                                     </label>
                                 `).join('')}
                             </div>
                         </div>`;
                 }
 
-                const esDirecto = !reqColor && (!p.caracteristicas || p.caracteristicas.length === 0);
-
+                // UNIFICACIÓN DE LA TARJETA DEL PRODUCTO
                 card.innerHTML = `
-                    <div class="group flex flex-col h-full relative">
-                        <div class="w-full h-[280px] sm:h-[320px] relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 cursor-zoom-in" onclick="abrirZoom('${p.imagenUrl || 'https://via.placeholder.com/400'}')">
-                            <img src="${p.imagenUrl || 'https://via.placeholder.com/400'}" class="w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-110 filter drop-shadow-md" alt="${p.nombre}">
-                            <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[9px] uppercase font-bold px-2 py-1 rounded-md transition-opacity duration-300">✨ Personalizable</div>
+                    ${htmlCarrusel}
+                    <div class="p-5 flex flex-col gap-3">
+                        <div>
+                            <h3 class="text-base font-bold dyn-text-title">${p.nombre}</h3>
+                            ${p.descripcion ? `<p class="text-xs mt-1 leading-relaxed dyn-text-desc">${p.descripcion}</p>` : ''}
                         </div>
-                        <div class="p-5 pb-4 flex flex-col gap-2 z-10 bg-[var(--bg-card)] cursor-pointer" onclick="tOpc('${p.id}')">
-                            <div class="flex justify-between items-start gap-3">
-                                <h3 class="font-bold text-lg leading-tight dyn-text-title text-metallic-hover transition-colors">${p.nombre}</h3>
-                                <div class="p-1.5 rounded-full bg-[var(--bg-input)] dyn-border border shadow-sm group-hover:bg-slate-500/20 transition-all duration-300">
-                                    <svg class="w-5 h-5 flex-shrink-0 dyn-text-desc transform transition-transform duration-500" id="icon-${p.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-                            ${p.descripcion ? `<p class="text-xs leading-relaxed dyn-text-desc whitespace-pre-line mt-1 opacity-90">${p.descripcion}</p>` : ''}
-                        </div>
-                    </div>
-                    <div id="opc-${p.id}" class="hidden flex-col gap-4 px-5 pb-5 bg-[var(--bg-card)] animate-fade-in-up" style="animation-duration: 0.3s; opacity: 1;">
-                        <div class="w-full h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent opacity-50 mb-1"></div>
+                        
                         ${htmlColores}
                         ${htmlSelects}
                         ${htmlAccesorios}
-                        <div id="ctrl-${p.id}" class="${esDirecto ? 'flex' : 'hidden'} mt-3 pt-4 border-t items-center justify-between gap-3 dyn-border transition-all duration-300">
-                            <div class="flex items-center rounded-xl border dyn-input w-[120px] justify-between shadow-sm">
-                                <button onclick="cCant('${p.id}', -1)" class="font-bold px-4 py-3 hover:text-red-500 text-sm dyn-text-title transition-colors">-</button>
-                                <input id="cant-${p.id}" type="number" value="1" min="1" onblur="if(this.value < 1 || this.value === '') this.value = 1;" class="w-full bg-transparent text-center text-sm font-bold focus:outline-none dyn-text-title">
-                                <button onclick="cCant('${p.id}', 1)" class="font-bold px-4 py-3 hover:text-emerald-500 text-sm dyn-text-title transition-colors">+</button>
+                        
+                        <div class="mt-4 pt-4 border-t dyn-border flex items-center justify-between gap-4">
+                            <div class="flex items-center border dyn-border rounded-xl overflow-hidden bg-[var(--bg-input)]">
+                                <button type="button" onclick="window.cambiarCantidad('${p.id}', -1)" class="px-3.5 py-2 text-sm font-bold dyn-text-title hover:bg-[var(--hover-item)] active:scale-95 transition-all">-</button>
+                                <span id="cant-${p.id}" class="px-2 text-xs font-bold dyn-text-title min-w-[20px] text-center">1</span>
+                                <button type="button" onclick="window.cambiarCantidad('${p.id}', 1)" class="px-3.5 py-2 text-sm font-bold dyn-text-title hover:bg-[var(--hover-item)] active:scale-95 transition-all">+</button>
                             </div>
-                            <button onclick="window.addCar('${p.id}', '${p.nombre}', ${p.caracteristicas ? p.caracteristicas.length : 0}, ${reqColor})" class="flex-1 text-sm font-bold py-3.5 px-3 rounded-xl shadow-md text-center dyn-btn active:scale-95 transition-transform flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                Añadir
+                            
+                            <button type="button" id="btn-add-${p.id}" onclick="window.agregarAlCarrito('${p.id}')" class="flex-1 font-bold text-xs py-3.5 px-4 rounded-xl shadow-md transform active:scale-95 transition-all dyn-btn">
+                                Agregar al Pedido
                             </button>
                         </div>
                     </div>
@@ -497,108 +634,49 @@
             });
         }
 
-        let touchStartX = 0; let touchEndX = 0; let touchStartY = 0; let touchEndY = 0;
-        const catalogContainer = document.getElementById("catalog-container");
-        catalogContainer.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
-        catalogContainer.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; touchEndY = e.changedTouches[0].screenY; handleSwipe(); }, {passive: true});
-        
-        function handleSwipe() {
-            // Deshabilitar swipe si estamos buscando o en medio de una animación
-            if (searchTerm.length > 0 || isAnimating) return; 
-            const diffX = touchStartX - touchEndX, diffY = Math.abs(touchStartY - touchEndY);
-            if (Math.abs(diffX) > 60 && diffY < Math.abs(diffX)) {
-                if (diffX > 0) cambiarCategoriaPorSwipe(1); else cambiarCategoriaPorSwipe(-1);
+        // CONTROL DE SALIDA HACIA WHATSAPP
+        document.getElementById("btn-whatsapp").onclick = () => {
+            const inputNombre = document.getElementById("client-name");
+            const nombreCliente = inputNombre.value.trim();
+            
+            if (!nombreCliente) {
+                inputNombre.classList.add("shake-error");
+                inputNombre.focus();
+                setTimeout(() => inputNombre.classList.remove("shake-error"), 500);
+                return;
             }
-        }
-        function cambiarCategoriaPorSwipe(direction) {
-            if (!categoriasList || categoriasList.length === 0) return;
-            const currentIndex = categoriasList.findIndex(c => c.id === catActiva);
-            let newIndex = currentIndex + direction;
-            if (newIndex >= 0 && newIndex < categoriasList.length) selectCategoryAndScroll(categoriasList[newIndex].id);
-        }
-
-        window.tOpc = (id) => {
-            const p = document.getElementById(`opc-${id}`), i = document.getElementById(`icon-${id}`);
-            if (p.classList.contains('hidden')) { p.classList.remove('hidden'); p.classList.add('flex'); i.classList.add('rotate-180'); } 
-            else { p.classList.add('hidden'); p.classList.remove('flex'); i.classList.remove('rotate-180'); }
+            
+            if (carrito.length === 0) {
+                alert("Tu carrito está vacío. Agrega algún artículo primero.");
+                return;
+            }
+            
+            let mensaje = `Hola, mi nombre es *${nombreCliente}* y me gustaría realizar el siguiente pedido:\n\n`;
+            
+            carrito.forEach((item) => {
+                mensaje += `📦 *${item.cantidad}x ${item.nombre}*\n`;
+                if (item.color) mensaje += `   • *Color:* ${item.color}\n`;
+                if (item.caracteristicas && item.caracteristicas.length > 0) {
+                    item.caracteristicas.forEach(c => {
+                        mensaje += `   • *${c.titulo}:* ${c.valor}\n`;
+                    });
+                }
+                if (item.accesorios && item.accesorios.length > 0) {
+                    mensaje += `   • *Accesorios:* ${item.accesorios.join(", ")}\n`;
+                }
+                mensaje += `\n`;
+            });
+            
+            mensaje += `Quedo atento para coordinar los detalles. ¡Muchas gracias!`;
+            
+            const url = `https://wa.me/${telefonoWhatsAppGlobal}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
         };
 
-        window.selecColor = (prodId, colorHex, btnObj, totalSteps) => {
-            document.querySelectorAll(`.color-btn-${prodId}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; });
-            btnObj.classList.add('metallic-active', 'scale-110');
-            btnObj.innerHTML = `<svg class="w-5 h-5 text-white/90 drop-shadow-md transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
-            document.getElementById(`c-val-${prodId}`).value = colorHex;
-            if (totalSteps > 0) { document.getElementById(`s-${prodId}-0`).disabled = false; } 
-            else { document.getElementById(`ctrl-${prodId}`).classList.remove("hidden"); document.getElementById(`ctrl-${prodId}`).classList.add("flex"); }
-        }
-
-        window.evalPaso = (id, idx, max) => {
-            if (document.getElementById(`s-${id}-${idx}`).value !== "") {
-                if (idx + 1 < max) document.getElementById(`s-${id}-${idx+1}`).disabled = false;
-                else { document.getElementById(`ctrl-${id}`).classList.remove("hidden"); document.getElementById(`ctrl-${id}`).classList.add("flex"); }
-            }
-        }
-
-        window.cCant = (id, c) => { 
-            const i = document.getElementById(`cant-${id}`); 
-            let val = parseInt(i.value);
-            if(isNaN(val)) val = 1; 
-            i.value = Math.max(1, val + c); 
-        }
-
-        window.addCar = (id, n, max, hasColor) => {
-            let c = parseInt(document.getElementById(`cant-${id}`).value);
-            if (isNaN(c) || c < 1) c = 1;
-
-            const opc = [];
-            if(hasColor) {
-                const colorSel = document.getElementById(`c-val-${id}`).value;
-                if(!colorSel) return alert("Por favor, selecciona un color.");
-                opc.push(`Color: ${obtenerNombreColor(colorSel)}`);
-            }
-            for (let i = 0; i < max; i++) {
-                const s = document.getElementById(`s-${id}-${i}`);
-                if(!s.value) return alert("Completa las opciones requeridas.");
-                opc.push(`${s.getAttribute("data-titulo")}: ${s.value}`);
-            }
-            const chks = document.querySelectorAll(`input[id^="chk-${id}-"]:checked`);
-            chks.forEach(chk => opc.push(`🎁 ${chk.value}`));
-
-            const idx = carrito.findIndex(i => i.id === id && JSON.stringify(i.opc) === JSON.stringify(opc));
-            if (idx > -1) carrito[idx].c += c; else carrito.push({ id: id, n: n, opc: opc, c: c });
-            
-            tOpc(id);
-            document.getElementById(`cant-${id}`).value = 1;
-            
-            if(hasColor) { document.getElementById(`c-val-${id}`).value = ""; document.querySelectorAll(`.color-btn-${id}`).forEach(b => { b.classList.remove('metallic-active', 'scale-110'); b.innerHTML = ''; }); }
-            for (let i = 0; i < max; i++) { const s = document.getElementById(`s-${id}-${i}`); s.value = ""; s.disabled = true; }
-            document.querySelectorAll(`input[id^="chk-${id}-"]`).forEach(chk => chk.checked = false);
-            if(max > 0 || hasColor) { document.getElementById(`ctrl-${id}`).classList.add("hidden"); document.getElementById(`ctrl-${id}`).classList.remove("flex"); }
-            
-            const btnCounter = document.getElementById("counter");
-            btnCounter.textContent = `${carrito.reduce((s, i) => s + i.c, 0)} ítems`;
-            btnCounter.classList.add("animate-pulse", "scale-110", "bg-emerald-500"); 
-            setTimeout(() => btnCounter.classList.remove("animate-pulse", "scale-110", "bg-emerald-500"), 500);
-        }
-
-        document.getElementById("btn-whatsapp-consulta").onclick = () => window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(`¡Hola! Vengo desde su catálogo web y quisiera hacer una consulta rápida:`)}`, "_blank");
-
-        document.getElementById("btn-whatsapp").onclick = () => {
-            if (carrito.length === 0) return alert("Por favor, añade al menos un artículo a tu carrito antes de enviar.");
-            const nInput = document.getElementById("client-name");
-            const name = nInput.value.trim();
-            if (!name) { window.scrollTo({ top: 0, behavior: "smooth" }); nInput.focus(); const box = document.getElementById("client-box"); box.classList.add("shake-error"); setTimeout(() => box.classList.remove("shake-error"), 1000); return; }
-            const h = new Date();
-            let txt = `🧾 *NOTA DE PEDIDO / DIGITAL* 🧾\n🏢 *EMPRESA:* ${document.getElementById("dyn-nombre").textContent.toUpperCase()}\n👤 *CLIENTE:* ${name.toUpperCase()}\n📅 *FECHA:* ${h.toLocaleDateString('es-ES')} - ${h.toLocaleTimeString('es-ES')}\n===============================\n🛍️ *DETALLES:*\n\n`;
-            let tot = 0;
-            carrito.forEach((i, x) => {
-                txt += `*${x + 1}️⃣ ${i.n.toUpperCase()}*\n   🔹 *Cantidad:* ${i.c} ud.\n`;
-                if (i.opc.length > 0) { txt += `   🔹 *Selección:*\n`; i.opc.forEach(o => txt += `      • ${o}\n`); }
-                txt += `-----------------------------------------------\n`; tot += i.c;
-            });
-            txt += `📊 *TOTAL PIEZAS:* ${tot}\n===============================\n👋 ¡Hola! Soy ${name}. Acabo de armar este pedido para revisar disponibilidad y coordinar pago.`;
-            window.open(`https://api.whatsapp.com/send?phone=${telefonoWhatsAppGlobal}&text=${encodeURIComponent(txt)}`, "_blank");
-        }
+        document.getElementById("btn-whatsapp-consulta").onclick = () => {
+            const msg = encodeURIComponent("Hola, me gustaría hacer una consulta sobre los productos del catálogo.");
+            window.open(`https://wa.me/${telefonoWhatsAppGlobal}?text=${msg}`, '_blank');
+        };
     </script>
 </body>
 </html>
