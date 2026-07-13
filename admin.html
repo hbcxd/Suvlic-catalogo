@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administrativo Seguro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librería para generar el PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .hide-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -19,7 +18,6 @@
             outline: none;
         }
 
-        /* Animación suave para la entrada de elementos de lista */
         @keyframes fadeInList {
             from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
@@ -166,8 +164,7 @@
                     </div>
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Categorías Asignadas (Multi-selección)</label>
-                        <div id="a-categoria-container" class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto hide-scrollbar p-2 bg-[#0b0f19] border border-slate-800 rounded-xl">
-                            </div>
+                        <div id="a-categoria-container" class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto hide-scrollbar p-2 bg-[#0b0f19] border border-slate-800 rounded-xl"></div>
                     </div>
                 </div>
 
@@ -208,8 +205,6 @@
                         <span id="img-edit-status" class="text-slate-300 text-xs hidden bg-slate-800 px-2 py-1 rounded">Gestión de imágenes activa</span>
                     </label>
                     <input type="file" id="a-file" accept="image/*" multiple class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-slate-500/10 file:text-slate-300 hover:file:bg-slate-500/20 file:transition-colors cursor-pointer metallic-focus">
-                    
-                    <!-- Contenedor de miniaturas con botón de eliminación -->
                     <div id="edit-images-preview" class="flex flex-wrap gap-3 mt-3"></div>
                 </div>
 
@@ -223,7 +218,6 @@
             <h2 class="text-xl font-bold text-white mb-4 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-3">
                 <div class="flex items-center gap-2"><span>📁</span> Inventario de Productos</div>
                 <div class="flex items-center gap-3">
-                    <!-- Botón para descargar PDF agregado aquí -->
                     <button id="btn-download-pdf" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white text-xs font-bold py-2 px-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex items-center gap-2">
                         <span>📄</span> Descargar Catálogo
                     </button>
@@ -249,7 +243,8 @@
 
         let productosGlobales = [];
         let categoriasGlobales = {}; 
-        let imagenesEditar = []; // Variable global para rastrear las fotos activas en la edición
+        let imagenesEditar = []; 
+        let configGlobal = {}; // Variable global para guardar logo, banner y eslogan
 
         window.hexToRgb = function(hex) { const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; };
         window.obtenerNombreColor = function(hex) {
@@ -314,6 +309,7 @@
             const docSnap = await getDoc(doc(db, "configuracion", "perfil"));
             if (docSnap.exists()) {
                 const data = docSnap.data();
+                configGlobal = data; // Almacenamos la info para el PDF
                 document.getElementById("c-nombre").value = data.nombre || "";
                 document.getElementById("c-telefono").value = data.telefono || "";
                 document.getElementById("c-descripcion").value = data.descripcion || "";
@@ -445,6 +441,7 @@
                 await setDoc(doc(db, "configuracion", "perfil"), payload, { merge: true });
                 document.getElementById("c-logo-file").value = ""; document.getElementById("c-banner-file").value = ""; document.getElementById("c-welcome-file").value = "";
                 alert("Configuración guardada exitosamente");
+                cargarConfiguracionActual(); // Refrescar configuración en memoria
             } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; btn.textContent = "Guardar Cambios de Configuración"; }
         });
 
@@ -473,7 +470,6 @@
         }
         document.getElementById("btn-add-caract").onclick = () => createFeatureBlock();
 
-        // Renderizador interactivo de miniaturas en el formulario
         window.renderizarImagenesEdicion = () => {
             const prevContainer = document.getElementById("edit-images-preview");
             prevContainer.innerHTML = "";
@@ -490,7 +486,6 @@
             });
         };
 
-        // Quita la foto de la vista previa temporal
         window.eliminarFotoDeEdicion = (index) => {
             imagenesEditar.splice(index, 1);
             window.renderizarImagenesEdicion();
@@ -498,8 +493,6 @@
 
         window.cargarParaEditar = (id) => {
             const prod = productosGlobales.find(p => p.id === id); if(!prod) return;
-            
-            // Llenamos la memoria temporal con el arreglo existente
             imagenesEditar = prod.imagenesUrl ? [...prod.imagenesUrl] : (prod.imagenUrl ? [prod.imagenUrl] : []);
             
             document.getElementById("edit-prod-id").value = id; 
@@ -516,7 +509,6 @@
             if(prod.caracteristicas && prod.caracteristicas.length > 0) prod.caracteristicas.forEach(c => createFeatureBlock(c.titulo, c.opciones.join(", ")));
             if(prod.colores && prod.colores.length > 0) prod.colores.forEach(c => createColorBlock(c));
             
-            // Llamamos al renderizador interactivo
             window.renderizarImagenesEdicion();
 
             document.getElementById("prod-form-title").textContent = "Editando Producto..."; document.getElementById("btn-submit").textContent = "Guardar Cambios del Producto";
@@ -527,7 +519,7 @@
         document.getElementById("btn-cancel-edit").onclick = () => {
             document.getElementById("prod-form").reset(); document.getElementById("edit-prod-id").value = ""; document.getElementById("edit-prod-img").value = ""; document.getElementById("a-accesorios").value = ""; fContainer.innerHTML = ""; cContainer.innerHTML = "";
             document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
-            imagenesEditar = []; // Limpiamos la memoria temporal
+            imagenesEditar = []; 
             document.getElementById("edit-images-preview").innerHTML = "";
             document.getElementById("prod-form-title").textContent = "Publicador de Productos"; document.getElementById("btn-submit").textContent = "Guardar Producto";
             document.getElementById("btn-cancel-edit").classList.add("hidden"); document.getElementById("img-edit-status").classList.add("hidden");
@@ -541,16 +533,13 @@
             if (catSeleccionadas.length === 0) return alert("Debes seleccionar al menos una categoría para el producto.");
 
             const files = fileInput.files;
-            // Evaluamos contra lo que queda en memoria por si el usuario borró todas las fotos
             if(!editId && files.length === 0) return alert("Selecciona al menos una imagen");
             if(editId && imagenesEditar.length === 0 && files.length === 0) return alert("El producto debe conservar al menos una imagen activa.");
             
             btn.disabled = true; btn.textContent = "Procesando...";
             try {
-                // Empezamos con las imágenes sobrevivientes de la edición
                 let imagenesFinales = editId ? [...imagenesEditar] : [];
 
-                // Si se suben nuevas fotos, se anexan al carrusel actual
                 if (files.length > 0) {
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
@@ -587,7 +576,7 @@
         window.cancelarConfirmacion = (id, suffix) => { const confirmBox = document.getElementById(`confirm-btns-${id}-${suffix}`); confirmBox.classList.add('hidden'); confirmBox.classList.remove('flex'); document.getElementById(`action-btns-${id}-${suffix}`).classList.remove('hidden'); };
         window.ejecutarEliminacion = async (id) => { try { await deleteDoc(doc(db, "productos", id)); } catch (error) { alert("Hubo un error al eliminar el producto."); } };
 
-        // --- GENERADOR DE CATÁLOGO PDF ---
+        // --- NUEVO GENERADOR DE CATÁLOGO PDF A ESTÉTICO ---
         document.getElementById("btn-download-pdf").addEventListener("click", async () => {
             if (productosGlobales.length === 0) {
                 alert("No hay productos disponibles para generar el catálogo.");
@@ -599,30 +588,41 @@
             btn.innerHTML = "<span>⏳</span> Generando...";
             btn.disabled = true;
 
-            // 1. Crear un contenedor temporal para diseñar el PDF
             const container = document.createElement("div");
-            // Estilo general del documento impreso
+            // Usamos colores neutros y limpios para la impresión
             container.style.width = "800px";
-            container.style.padding = "40px";
-            container.style.backgroundColor = "#ffffff"; 
+            container.style.backgroundColor = "#f8fafc"; 
             container.style.color = "#1e293b"; 
-            container.style.fontFamily = "Arial, sans-serif";
+            container.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
             
-            // 2. Extraer datos de la tienda para el encabezado
-            const nombreTienda = document.getElementById("c-nombre").value || "Catálogo de Productos";
-            const descTienda = document.getElementById("c-descripcion").value || "";
-            const tlfTienda = document.getElementById("c-telefono").value || "";
-            
-            // 3. Construir el Encabezado
-            container.innerHTML = `
-                <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px;">
-                    <h1 style="font-size: 36px; font-weight: bold; margin: 0; color: #0f172a;">${nombreTienda}</h1>
-                    <p style="font-size: 18px; color: #64748b; margin-top: 10px;">${descTienda}</p>
-                    ${tlfTienda ? `<p style="font-size: 16px; color: #10b981; margin-top: 8px; font-weight: bold;">WhatsApp: +${tlfTienda}</p>` : ''}
-                </div>
-            `;
+            const nombreTienda = configGlobal.nombre || document.getElementById("c-nombre").value || "Catálogo de Productos";
+            const descTienda = configGlobal.descripcion || document.getElementById("c-descripcion").value || "";
+            const tlfTienda = configGlobal.telefono || document.getElementById("c-telefono").value || "";
+            const logoUrl = configGlobal.logoUrl || "";
+            const bannerUrl = configGlobal.bannerUrl || "";
 
-            // 4. Agrupar los productos por categoría (reutilizando tu lógica)
+            // 1. Portada del documento
+            let headerHTML = `
+                <div style="position: relative; width: 100%; background-color: #0f172a; padding: 60px 20px; text-align: center; color: white; border-bottom: 4px solid #3b82f6; box-sizing: border-box;">
+            `;
+            
+            if (bannerUrl) {
+                headerHTML += `<img src="${bannerUrl}" crossorigin="anonymous" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; z-index: 1;">`;
+            }
+
+            headerHTML += `
+                    <div style="position: relative; z-index: 2;">
+                        ${logoUrl ? `<img src="${logoUrl}" crossorigin="anonymous" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); background-color: white;">` : '<div style="font-size: 60px; margin-bottom: 10px;">🛍️</div>'}
+                        <h1 style="font-size: 38px; font-weight: 900; margin: 0; letter-spacing: -1px; text-transform: uppercase;">${nombreTienda}</h1>
+                        <p style="font-size: 18px; margin: 10px 0 0 0; font-weight: 300; opacity: 0.9;">${descTienda}</p>
+                    </div>
+                </div>
+                <div style="padding: 40px; box-sizing: border-box;">
+            `;
+            
+            container.innerHTML = headerHTML;
+
+            // 2. Agrupación por categorías
             const agrupados = {};
             productosGlobales.forEach(prod => {
                 const prodCats = Array.isArray(prod.categoriaId) ? prod.categoriaId : [prod.categoriaId];
@@ -638,54 +638,62 @@
                 }
             });
 
-            // Ordenar categorías alfabéticamente
             const categoriesOrdenadas = Object.keys(agrupados).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
-            // 5. Construir el cuerpo del catálogo (Grilla de productos)
+            // 3. Grid de productos
             categoriesOrdenadas.forEach(cat => {
-                container.innerHTML += `<h2 style="font-size: 22px; font-weight: bold; margin-top: 30px; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e1; color: #334155;">🏷️ ${cat}</h2>`;
+                container.innerHTML += `
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+                            <span style="background-color: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">Categoría</span> ${cat}
+                        </h2>
+                        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                `;
                 
-                const grid = document.createElement("div");
-                grid.style.display = "flex";
-                grid.style.flexWrap = "wrap";
-                grid.style.gap = "20px";
-                
+                let gridHTML = '';
                 agrupados[cat].forEach(prod => {
                     const thumbnail = (prod.imagenesUrl && prod.imagenesUrl.length > 0) ? prod.imagenesUrl[0] : (prod.imagenUrl || 'https://via.placeholder.com/150');
                     
-                    // Tarjeta individual del producto adaptada para impresión
-                    const prodCard = `
-                        <div style="width: calc(33.333% - 14px); border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; background-color: #f8fafc; page-break-inside: avoid;">
-                            <div style="width: 100%; height: 200px; overflow: hidden; border-radius: 8px; margin-bottom: 12px; background-color: #ffffff; display: flex; align-items: center; justify-content: center;">
-                                <img src="${thumbnail}" style="max-width: 100%; max-height: 100%; object-fit: contain;" crossorigin="anonymous">
+                    gridHTML += `
+                        <div style="width: calc(33.333% - 14px); background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; box-sizing: border-box; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); page-break-inside: avoid;">
+                            <div style="width: 100%; height: 180px; background-color: #f1f5f9; border-radius: 10px; margin-bottom: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                <img src="${thumbnail}" crossorigin="anonymous" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                             </div>
-                            <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0; color: #0f172a;">${prod.nombre}</h3>
-                            <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.4; max-height: 55px; overflow: hidden;">${prod.descripcion.length > 90 ? prod.descripcion.substring(0, 90) + '...' : prod.descripcion}</p>
+                            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 8px 0; line-height: 1.3;">${prod.nombre}</h3>
+                            <p style="font-size: 12px; color: #64748b; margin: 0; line-height: 1.5; max-height: 54px; overflow: hidden; text-overflow: ellipsis;">
+                                ${prod.descripcion.length > 85 ? prod.descripcion.substring(0, 85) + '...' : prod.descripcion}
+                            </p>
                         </div>
                     `;
-                    grid.innerHTML += prodCard;
                 });
                 
-                container.appendChild(grid);
+                container.innerHTML += gridHTML + `</div></div>`;
             });
 
-            // 6. Configuración de la exportación a PDF
+            // 4. Pie de página del documento
+            container.innerHTML += `
+                </div>
+                <div style="background-color: #f1f5f9; padding: 25px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 20px;">
+                    <p style="font-size: 16px; color: #475569; margin: 0; font-weight: 600;">¿Te interesa algún producto?</p>
+                    ${tlfTienda ? `<p style="font-size: 18px; color: #0f172a; margin: 8px 0 0 0; font-weight: 800;">Contáctanos al WhatsApp: <span style="color: #10b981;">+${tlfTienda}</span></p>` : ''}
+                </div>
+            `;
+
+            // Configuración ajustada para que el encabezado pegue a los bordes
             const opcionesPDF = {
-                margin:       15,
+                margin:       [0, 0, 0, 0], 
                 filename:     `Catalogo_${nombreTienda.replace(/\s+/g, '_')}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true }, // useCORS es obligatorio para que se vean las fotos de Supabase
+                html2canvas:  { scale: 2, useCORS: true }, 
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // 7. Ejecutar la descarga
             try {
                 await html2pdf().set(opcionesPDF).from(container).save();
             } catch (error) {
                 console.error("Detalle del error al exportar PDF:", error);
                 alert("Hubo un error al generar el PDF. Asegúrate de tener conexión estable.");
             } finally {
-                // Restaurar el botón
                 btn.innerHTML = textoOriginal;
                 btn.disabled = false;
             }
