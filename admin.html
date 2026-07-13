@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrativo Seguro</title>
+    <title>Panel Administrativo Seguro - SUVLIC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/libs/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
     <style>
         .hide-scrollbar::-webkit-scrollbar { width: 6px; }
         .hide-scrollbar::-webkit-scrollbar-track { background: #0b0f19; border-radius: 8px; }
@@ -217,11 +219,14 @@
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl relative">
             <h2 class="text-xl font-bold text-white mb-4 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-3">
                 <div class="flex items-center gap-2"><span>📁</span> Inventario de Productos</div>
-                <div class="flex items-center gap-3">
-                    <button id="btn-download-pdf" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white text-xs font-bold py-2 px-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex items-center gap-2">
-                        <span>📄</span> Descargar Catálogo
+                <div class="flex items-center gap-2">
+                    <button id="btn-download-pdf" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white text-xs font-bold py-2 px-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex items-center gap-1">
+                        📄 PDF
                     </button>
-                    <span id="product-count" class="text-xs font-bold bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">0 ítems</span>
+                    <button id="btn-download-pptx" class="bg-gradient-to-r from-orange-500 to-red-600 hover:opacity-90 text-white text-xs font-bold py-2 px-4 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.2)] transition-all flex items-center gap-1">
+                        📊 PPTX
+                    </button>
+                    <span id="product-count" class="text-xs font-bold bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 ml-2">0 ítems</span>
                 </div>
             </h2>
             <div id="admin-products-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2 hide-scrollbar relative"></div>
@@ -244,7 +249,26 @@
         let productosGlobales = [];
         let categoriasGlobales = {}; 
         let imagenesEditar = []; 
-        let configGlobal = {}; // Variable global para guardar logo, banner y eslogan
+        let configGlobal = {};
+
+        // Función Helper para obtener los colores del tema dinámico (PDF y PPTX)
+        function obtenerColoresTema() {
+            let colores = { bg: "#ffffff", texto: "#1e293b", textoSecundario: "#64748b", acento: "#3b82f6", tarjeta: "#ffffff" };
+            const tema = configGlobal.temaPublico || "tornasol";
+            
+            if (tema === "tornasol" || tema === "oscuro") {
+                colores = { bg: "#0f172a", texto: "#f8fafc", textoSecundario: "#94a3b8", acento: tema === "tornasol" ? "#d946ef" : "#3b82f6", tarjeta: "#1e293b" };
+            } else if (tema === "personalizado" && configGlobal.colores) {
+                colores = {
+                    bg: configGlobal.colores.bg,
+                    texto: configGlobal.colores.text,
+                    textoSecundario: configGlobal.colores.text, 
+                    acento: configGlobal.colores.accent,
+                    tarjeta: configGlobal.colores.card
+                };
+            }
+            return colores;
+        }
 
         window.hexToRgb = function(hex) { const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; };
         window.obtenerNombreColor = function(hex) {
@@ -309,7 +333,7 @@
             const docSnap = await getDoc(doc(db, "configuracion", "perfil"));
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                configGlobal = data; // Almacenamos la info para el PDF
+                configGlobal = data; 
                 document.getElementById("c-nombre").value = data.nombre || "";
                 document.getElementById("c-telefono").value = data.telefono || "";
                 document.getElementById("c-descripcion").value = data.descripcion || "";
@@ -441,7 +465,7 @@
                 await setDoc(doc(db, "configuracion", "perfil"), payload, { merge: true });
                 document.getElementById("c-logo-file").value = ""; document.getElementById("c-banner-file").value = ""; document.getElementById("c-welcome-file").value = "";
                 alert("Configuración guardada exitosamente");
-                cargarConfiguracionActual(); // Refrescar configuración en memoria
+                cargarConfiguracionActual();
             } catch (err) { alert("Error: " + err.message); } finally { btn.disabled = false; btn.textContent = "Guardar Cambios de Configuración"; }
         });
 
@@ -576,23 +600,19 @@
         window.cancelarConfirmacion = (id, suffix) => { const confirmBox = document.getElementById(`confirm-btns-${id}-${suffix}`); confirmBox.classList.add('hidden'); confirmBox.classList.remove('flex'); document.getElementById(`action-btns-${id}-${suffix}`).classList.remove('hidden'); };
         window.ejecutarEliminacion = async (id) => { try { await deleteDoc(doc(db, "productos", id)); } catch (error) { alert("Hubo un error al eliminar el producto."); } };
 
-        // --- NUEVO GENERADOR DE CATÁLOGO PDF A ESTÉTICO ---
+        // --- EXPORTAR A PDF (AHORA RESPETA EL TEMA Y COLORES ELEGIDOS) ---
         document.getElementById("btn-download-pdf").addEventListener("click", async () => {
-            if (productosGlobales.length === 0) {
-                alert("No hay productos disponibles para generar el catálogo.");
-                return;
-            }
+            if (productosGlobales.length === 0) return alert("No hay productos disponibles para generar el catálogo.");
             
             const btn = document.getElementById("btn-download-pdf");
             const textoOriginal = btn.innerHTML;
-            btn.innerHTML = "<span>⏳</span> Generando...";
-            btn.disabled = true;
+            btn.innerHTML = "<span>⏳</span> Generando PDF..."; btn.disabled = true;
 
+            const tema = obtenerColoresTema();
             const container = document.createElement("div");
-            // Usamos colores neutros y limpios para la impresión
             container.style.width = "800px";
-            container.style.backgroundColor = "#f8fafc"; 
-            container.style.color = "#1e293b"; 
+            container.style.backgroundColor = tema.bg; 
+            container.style.color = tema.texto; 
             container.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
             
             const nombreTienda = configGlobal.nombre || document.getElementById("c-nombre").value || "Catálogo de Productos";
@@ -601,32 +621,25 @@
             const logoUrl = configGlobal.logoUrl || "";
             const bannerUrl = configGlobal.bannerUrl || "";
 
-            // 1. Portada del documento
             let headerHTML = `
-                <div style="position: relative; width: 100%; background-color: #0f172a; padding: 60px 20px; text-align: center; color: white; border-bottom: 4px solid #3b82f6; box-sizing: border-box;">
+                <div style="position: relative; width: 100%; background-color: ${tema.tarjeta}; padding: 60px 20px; text-align: center; border-bottom: 4px solid ${tema.acento}; box-sizing: border-box;">
             `;
-            
-            if (bannerUrl) {
-                headerHTML += `<img src="${bannerUrl}" crossorigin="anonymous" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; z-index: 1;">`;
-            }
-
+            if (bannerUrl) headerHTML += `<img src="${bannerUrl}" crossorigin="anonymous" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; z-index: 1;">`;
             headerHTML += `
                     <div style="position: relative; z-index: 2;">
-                        ${logoUrl ? `<img src="${logoUrl}" crossorigin="anonymous" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); background-color: white;">` : '<div style="font-size: 60px; margin-bottom: 10px;">🛍️</div>'}
-                        <h1 style="font-size: 38px; font-weight: 900; margin: 0; letter-spacing: -1px; text-transform: uppercase;">${nombreTienda}</h1>
-                        <p style="font-size: 18px; margin: 10px 0 0 0; font-weight: 300; opacity: 0.9;">${descTienda}</p>
+                        ${logoUrl ? `<img src="${logoUrl}" crossorigin="anonymous" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid ${tema.acento}; object-fit: cover; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); background-color: ${tema.bg};">` : '<div style="font-size: 60px; margin-bottom: 10px;">🛍️</div>'}
+                        <h1 style="font-size: 38px; font-weight: 900; margin: 0; color: ${tema.texto}; letter-spacing: -1px; text-transform: uppercase;">${nombreTienda}</h1>
+                        <p style="font-size: 18px; margin: 10px 0 0 0; color: ${tema.texto}; font-weight: 300; opacity: 0.9;">${descTienda}</p>
                     </div>
                 </div>
                 <div style="padding: 40px; box-sizing: border-box;">
             `;
-            
             container.innerHTML = headerHTML;
 
-            // 2. Agrupación por categorías
             const agrupados = {};
             productosGlobales.forEach(prod => {
                 const prodCats = Array.isArray(prod.categoriaId) ? prod.categoriaId : [prod.categoriaId];
-                if (!prodCats || prodCats.length === 0 || (prodCats.length === 1 && !prodCats[0])) {
+                if (!prodCats || prodCats.length === 0 || !prodCats[0]) {
                     if (!agrupados["Sin Categoría"]) agrupados["Sin Categoría"] = [];
                     agrupados["Sin Categoría"].push(prod);
                 } else {
@@ -638,14 +651,11 @@
                 }
             });
 
-            const categoriesOrdenadas = Object.keys(agrupados).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
-
-            // 3. Grid de productos
-            categoriesOrdenadas.forEach(cat => {
+            Object.keys(agrupados).sort().forEach(cat => {
                 container.innerHTML += `
                     <div style="margin-bottom: 30px;">
-                        <h2 style="font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
-                            <span style="background-color: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">Categoría</span> ${cat}
+                        <h2 style="font-size: 24px; font-weight: 800; color: ${tema.texto}; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid ${tema.tarjeta}; display: flex; align-items: center; gap: 10px;">
+                            <span style="background-color: ${tema.acento}; color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 14px;">Categoría</span> ${cat}
                         </h2>
                         <div style="display: flex; flex-wrap: wrap; gap: 20px;">
                 `;
@@ -653,46 +663,131 @@
                 let gridHTML = '';
                 agrupados[cat].forEach(prod => {
                     const thumbnail = (prod.imagenesUrl && prod.imagenesUrl.length > 0) ? prod.imagenesUrl[0] : (prod.imagenUrl || 'https://via.placeholder.com/150');
-                    
                     gridHTML += `
-                        <div style="width: calc(33.333% - 14px); background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; box-sizing: border-box; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); page-break-inside: avoid;">
-                            <div style="width: 100%; height: 180px; background-color: #f1f5f9; border-radius: 10px; margin-bottom: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: calc(33.333% - 14px); background: ${tema.tarjeta}; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; box-sizing: border-box; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); page-break-inside: avoid;">
+                            <div style="width: 100%; height: 180px; background-color: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                                 <img src="${thumbnail}" crossorigin="anonymous" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                             </div>
-                            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 8px 0; line-height: 1.3;">${prod.nombre}</h3>
-                            <p style="font-size: 12px; color: #64748b; margin: 0; line-height: 1.5; max-height: 54px; overflow: hidden; text-overflow: ellipsis;">
+                            <h3 style="font-size: 15px; font-weight: 700; color: ${tema.texto}; margin: 0 0 8px 0; line-height: 1.3;">${prod.nombre}</h3>
+                            <p style="font-size: 12px; color: ${tema.textoSecundario}; margin: 0; line-height: 1.5; max-height: 54px; overflow: hidden; text-overflow: ellipsis;">
                                 ${prod.descripcion.length > 85 ? prod.descripcion.substring(0, 85) + '...' : prod.descripcion}
                             </p>
                         </div>
                     `;
                 });
-                
                 container.innerHTML += gridHTML + `</div></div>`;
             });
 
-            // 4. Pie de página del documento
             container.innerHTML += `
                 </div>
-                <div style="background-color: #f1f5f9; padding: 25px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 20px;">
-                    <p style="font-size: 16px; color: #475569; margin: 0; font-weight: 600;">¿Te interesa algún producto?</p>
-                    ${tlfTienda ? `<p style="font-size: 18px; color: #0f172a; margin: 8px 0 0 0; font-weight: 800;">Contáctanos al WhatsApp: <span style="color: #10b981;">+${tlfTienda}</span></p>` : ''}
+                <div style="background-color: ${tema.tarjeta}; padding: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
+                    <p style="font-size: 16px; color: ${tema.texto}; margin: 0; font-weight: 600;">¿Te interesa algún producto?</p>
+                    ${tlfTienda ? `<p style="font-size: 18px; color: ${tema.texto}; margin: 8px 0 0 0; font-weight: 800;">Contáctanos al WhatsApp: <span style="color: ${tema.acento};">+${tlfTienda}</span></p>` : ''}
                 </div>
             `;
 
-            // Configuración ajustada para que el encabezado pegue a los bordes
             const opcionesPDF = {
-                margin:       [0, 0, 0, 0], 
-                filename:     `Catalogo_${nombreTienda.replace(/\s+/g, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true }, 
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: [0, 0, 0, 0], 
+                filename: `Catalogo_${nombreTienda.replace(/\s+/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
+            try { await html2pdf().set(opcionesPDF).from(container).save(); } 
+            catch (error) { alert("Hubo un error al generar el PDF."); } 
+            finally { btn.innerHTML = textoOriginal; btn.disabled = false; }
+        });
+
+        // --- NUEVO: EXPORTAR A POWERPOINT (PPTX) RESPETA EL TEMA ---
+        document.getElementById("btn-download-pptx").addEventListener("click", async () => {
+            if (productosGlobales.length === 0) return alert("No hay productos disponibles para generar el catálogo.");
+            
+            const btn = document.getElementById("btn-download-pptx");
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = "<span>⏳</span> Generando PPTX..."; btn.disabled = true;
+
             try {
-                await html2pdf().set(opcionesPDF).from(container).save();
+                let pptx = new PptxGenJS();
+                pptx.layout = 'LAYOUT_16x9';
+                const tema = obtenerColoresTema();
+                const colorFondo = tema.bg.replace('#', '');
+                const colorTexto = tema.texto.replace('#', '');
+                const colorAcento = tema.acento.replace('#', '');
+                const colorTarjeta = tema.tarjeta.replace('#', '');
+
+                const nombreTienda = configGlobal.nombre || document.getElementById("c-nombre").value || "Catálogo de Productos";
+                const descTienda = configGlobal.descripcion || document.getElementById("c-descripcion").value || "";
+                const logoUrl = configGlobal.logoUrl || "";
+                const bannerUrl = configGlobal.bannerUrl || "";
+
+                // 1. DIAPOSITIVA DE PORTADA
+                let coverSlide = pptx.addSlide();
+                coverSlide.background = { color: colorTarjeta };
+                if (bannerUrl) coverSlide.addImage({ path: bannerUrl, x: 0, y: 0, w: '100%', h: '100%', sizing: { type: 'cover' }, transparency: 80 });
+                
+                let yOffset = 2.5;
+                if (logoUrl) {
+                    coverSlide.addImage({ path: logoUrl, x: 4.15, y: 1.5, w: 1.7, h: 1.7, sizing: { type: 'cover' }, rounding: true });
+                    yOffset = 3.5;
+                }
+                
+                coverSlide.addText(nombreTienda.toUpperCase(), { x: 0, y: yOffset, w: '100%', align: 'center', fontSize: 44, bold: true, color: colorTexto });
+                coverSlide.addText(descTienda, { x: 1, y: yOffset + 0.8, w: 8, align: 'center', fontSize: 18, color: colorTexto, transparency: 20 });
+                
+                // Agrupar para diapositivas
+                const agrupados = {};
+                productosGlobales.forEach(prod => {
+                    const prodCats = Array.isArray(prod.categoriaId) ? prod.categoriaId : [prod.categoriaId];
+                    let keys = (!prodCats || prodCats.length===0 || !prodCats[0]) ? ["Sin Categoría"] : prodCats.map(cId => categoriasGlobales[cId] || "Sin Categoría");
+                    keys.forEach(k => { if (!agrupados[k]) agrupados[k] = []; agrupados[k].push(prod); });
+                });
+
+                // 2. DIAPOSITIVAS POR CATEGORÍAS (Cuadrícula 3x2)
+                Object.keys(agrupados).sort().forEach(cat => {
+                    const productosCat = agrupados[cat];
+                    const itemsPorSlide = 6; 
+                    
+                    for (let i = 0; i < productosCat.length; i += itemsPorSlide) {
+                        let slide = pptx.addSlide();
+                        slide.background = { color: colorFondo };
+                        
+                        // Título de Categoría
+                        slide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 0.3, w: 9, h: 0.6, fill: { color: colorTarjeta } });
+                        slide.addText(`Categoría: ${cat}`, { x: 0.6, y: 0.35, w: 8, h: 0.5, fontSize: 20, bold: true, color: colorAcento });
+                        
+                        const chunk = productosCat.slice(i, i + itemsPorSlide);
+                        let col = 0; let row = 0;
+                        
+                        chunk.forEach(prod => {
+                            const pX = 0.5 + (col * 3.1);
+                            const pY = 1.2 + (row * 2.1);
+                            
+                            // Tarjeta de producto
+                            slide.addShape(pptx.ShapeType.rect, { x: pX, y: pY, w: 2.9, h: 1.9, fill: { color: colorTarjeta }, line: { color: colorAcento, width: 0.5 } });
+                            
+                            // Imagen del producto
+                            const thumbnail = (prod.imagenesUrl && prod.imagenesUrl.length > 0) ? prod.imagenesUrl[0] : (prod.imagenUrl || null);
+                            if(thumbnail) {
+                                slide.addImage({ path: thumbnail, x: pX + 0.1, y: pY + 0.1, w: 1.2, h: 1.7, sizing: { type: 'contain' } });
+                            }
+                            
+                            // Textos
+                            slide.addText(prod.nombre.substring(0, 30), { x: pX + 1.4, y: pY + 0.1, w: 1.4, h: 0.4, fontSize: 12, bold: true, color: colorTexto, valign: 'top' });
+                            slide.addText(prod.descripcion.substring(0, 60) + '...', { x: pX + 1.4, y: pY + 0.6, w: 1.4, h: 1, fontSize: 9, color: tema.textoSecundario.replace('#',''), valign: 'top' });
+                            
+                            col++;
+                            if (col > 2) { col = 0; row++; }
+                        });
+                    }
+                });
+
+                // Descargar PPTX
+                await pptx.writeFile({ fileName: `Catalogo_${nombreTienda.replace(/\s+/g, '_')}.pptx` });
+
             } catch (error) {
-                console.error("Detalle del error al exportar PDF:", error);
-                alert("Hubo un error al generar el PDF. Asegúrate de tener conexión estable.");
+                console.error("Error al generar PPTX:", error);
+                alert("Hubo un error al generar el PowerPoint.");
             } finally {
                 btn.innerHTML = textoOriginal;
                 btn.disabled = false;
