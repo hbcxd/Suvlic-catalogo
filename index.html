@@ -25,6 +25,16 @@
 
         select:disabled { opacity: 0.3; cursor: not-allowed; }
         
+        /* Ocultar flechas de inputs numéricos */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
         .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
@@ -269,11 +279,24 @@
         };
 
         // CONTROLADORES DE INTERFAZ DE PRODUCTO
+        
+        // --- NUEVO: Función para actualizar la cantidad desde input manual ---
+        window.actualizarCantidadManual = (id, valor) => {
+            let val = parseInt(valor);
+            // Si está vacío, no es número o es menor a 1, se asigna 1
+            if (isNaN(val) || val < 1) val = 1;
+            
+            cantidades[id] = val;
+            const cantEl = document.getElementById(`cant-${id}`);
+            if (cantEl) cantEl.value = val;
+        };
+
         window.cambiarCantidad = (id, cambio) => {
             if (!cantidades[id]) cantidades[id] = 1;
             cantidades[id] = Math.max(1, cantidades[id] + cambio);
             const cantEl = document.getElementById(`cant-${id}`);
-            if (cantEl) cantEl.textContent = cantidades[id];
+            // --- ACTUALIZADO: Cambiar textContent por value para el input ---
+            if (cantEl) cantEl.value = cantidades[id];
         };
 
         window.selecColor = (id, colorHex, btn, totalPasos) => {
@@ -341,7 +364,9 @@
             
             cantidades[id] = 1;
             const cantEl = document.getElementById(`cant-${id}`);
-            if (cantEl) cantEl.textContent = "1";
+            // --- ACTUALIZADO: Cambiar textContent por value ---
+            if (cantEl) cantEl.value = "1";
+            
             if (colorInput) colorInput.value = "";
             document.querySelectorAll(`.color-btn-${id}`).forEach(b => b.classList.remove('border-white', 'scale-110', 'metallic-active'));
             
@@ -604,7 +629,7 @@
                         </div>`;
                 }
 
-                // UNIFICACIÓN DE LA TARJETA DEL PRODUCTO
+                // --- ACTUALIZADO: Reemplazo del span por un input type="number" en la tarjeta del producto ---
                 card.innerHTML = `
                     ${htmlCarrusel}
                     <div class="p-5 flex flex-col gap-3">
@@ -620,7 +645,12 @@
                         <div class="mt-4 pt-4 border-t dyn-border flex items-center justify-between gap-4">
                             <div class="flex items-center border dyn-border rounded-xl overflow-hidden bg-[var(--bg-input)]">
                                 <button type="button" onclick="window.cambiarCantidad('${p.id}', -1)" class="px-3.5 py-2 text-sm font-bold dyn-text-title hover:bg-[var(--hover-item)] active:scale-95 transition-all">-</button>
-                                <span id="cant-${p.id}" class="px-2 text-xs font-bold dyn-text-title min-w-[20px] text-center">1</span>
+                                
+                                <input type="number" id="cant-${p.id}" value="1" min="1" 
+                                    onchange="window.actualizarCantidadManual('${p.id}', this.value)"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    class="w-10 px-1 py-2 text-xs font-bold dyn-text-title text-center bg-transparent focus:outline-none appearance-none m-0" />
+                                
                                 <button type="button" onclick="window.cambiarCantidad('${p.id}', 1)" class="px-3.5 py-2 text-sm font-bold dyn-text-title hover:bg-[var(--hover-item)] active:scale-95 transition-all">+</button>
                             </div>
                             
