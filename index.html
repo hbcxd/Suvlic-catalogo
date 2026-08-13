@@ -1,801 +1,780 @@
 <!DOCTYPE html>
-<html lang="es" class="light">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Productos - Vista Pública</title>
-    <!-- Tailwind CSS -->
+    <title>Catálogo Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0284c7',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilos personalizados para legibilidad y fluidez */
-        .select-option-break option {
+        .theme-dark { --bg-body: #0f172a; --bg-app: #121214; --bg-card: #18181b; --text-title: #ffffff; --text-desc: #a1a1aa; --border: #27272a; --bg-input: #27272a; --text-input: #e4e4e7; --bg-btn: #ffffff; --text-btn: #121214; --hover-item: #27272a; }
+        .theme-light { --bg-body: #e2e8f0; --bg-app: #ffffff; --bg-card: #f4f4f5; --text-title: #0f172a; --text-desc: #52525b; --border: #e4e4e7; --bg-input: #ffffff; --text-input: #18181b; --bg-btn: #18181b; --text-btn: #ffffff; --hover-item: #e4e4e7; }
+        .theme-tornasol { --bg-body: #0b0f19; --bg-app: #0b0f19; --bg-card: #0f172a; --text-title: #ffffff; --text-desc: #94a3b8; --border: #1e293b; --bg-input: #0b0f19; --text-input: #f8fafc; --bg-btn: linear-gradient(135deg, #d946ef 0%, #7c3aed 50%, #06b6d4 100%); --text-btn: #ffffff; --hover-item: #1e293b; }
+
+        body { background-color: var(--bg-body); font-family: system-ui, -apple-system, sans-serif; transition: background 0.4s ease; overflow-x: hidden; }
+        .app-container { max-width: 450px; margin: 0 auto; background-color: var(--bg-app); min-height: 100vh; position: relative; transition: background 0.4s ease; overflow-x: hidden;}
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .dyn-card { background-color: var(--bg-card); border-color: var(--border); transition: all 0.4s ease; }
+        .dyn-text-title { color: var(--text-title); transition: color 0.4s ease; }
+        .dyn-text-desc { color: var(--text-desc); transition: color 0.4s ease; }
+        .dyn-border { border-color: var(--border); transition: border-color 0.4s ease; }
+        .dyn-input { background-color: var(--bg-input); border-color: var(--border); color: var(--text-input); transition: all 0.4s ease; }
+        .dyn-btn { background: var(--bg-btn); color: var(--text-btn); transition: all 0.4s ease; background-size: 150% auto; }
+        .dyn-btn:hover { background-position: right center; }
+        .dyn-hover:hover { background-color: var(--hover-item); }
+
+        select:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        /* Ocultar flechas de inputs numéricos */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .metallic-focus:focus {
+            border-color: #94a3b8 !important;
+            box-shadow: 0 0 12px rgba(148, 163, 184, 0.5), inset 0 0 4px rgba(255, 255, 255, 0.1) !important;
+            outline: none;
+        }
+        .metallic-active {
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 0 14px rgba(203, 213, 225, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.3) !important;
+        }
+        .text-metallic-hover:hover {
+            color: #cbd5e1 !important;
+            text-shadow: 0 0 10px rgba(203, 213, 225, 0.6);
+        }
+
+        /* Estilos para soportar textos largos de selección */
+        select option {
             white-space: normal;
             word-wrap: break-word;
-            padding: 8px;
-        }
-        /* Personalización de scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
+<body class="theme-dark">
 
-    <!-- ENCABEZADO / NAVBAR -->
-    <header class="sticky top-0 z-40 bg-white/90 dark:bg-gray-800/90 backdrop-blur border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <!-- Logo / Título -->
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
-                    <i class="fa-solid fa-store"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold leading-tight text-gray-900 dark:text-white">Mi Catálogo</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Tienda Oficial</p>
-                </div>
+    <div id="image-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-300 opacity-0 cursor-zoom-out" onclick="cerrarZoom()">
+        <button class="absolute top-5 right-5 text-white/70 hover:text-white p-2 transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <img id="modal-img-zoom" src="" class="max-w-[95%] max-h-[85vh] object-contain drop-shadow-2xl rounded-lg scale-95 transition-transform duration-300">
+    </div>
+
+    <div id="welcome-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+        <div class="w-full max-w-sm rounded-3xl p-6 border text-center shadow-2xl space-y-5 transform scale-100 transition-all dyn-card dyn-border">
+            <img id="modal-welcome-img" src="" class="hidden w-32 h-32 object-cover rounded-full border-4 shadow-lg dyn-border mb-4 mx-auto transition-transform hover:scale-105 duration-300">
+            <div id="modal-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-lg flex items-center justify-center overflow-hidden dyn-border transition-transform hover:scale-105 duration-300" style="background-color: var(--bg-body)"><div class="text-xs dyn-text-desc">...</div></div>
+            <h2 class="text-lg font-bold tracking-tight px-2 dyn-text-title">¡Bienvenido al Catálogo de <span id="modal-nombre-header" class="text-slate-300">...</span>! 🚀</h2>
+            <div class="bg-slate-500/10 border border-slate-500/20 rounded-xl p-3">
+                <p class="text-xs font-bold text-slate-300">✨ Todos nuestros productos son 100% personalizables.</p>
             </div>
+            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Aquí puedes armar tu pedido. <span class="font-bold text-slate-300">No tienes que hacer ningún pago aquí</span>.</p>
+            <p class="text-xs leading-relaxed text-slate-300 text-left px-1 dyn-text-desc">Agrega productos a tu carrito y te conectaremos con nuestro WhatsApp.</p>
+            <button id="btn-close-modal" class="w-full font-bold text-sm py-3.5 px-4 rounded-xl shadow-lg transition-all transform active:scale-95 dyn-btn">Ver el Catálogo</button>
+        </div>
+    </div>
 
-            <!-- Buscador general -->
-            <div class="flex-1 max-w-md hidden md:block">
+    <div class="app-container pb-28 relative">
+        <button id="btn-open-menu" class="fixed top-4 left-4 z-50 p-2 rounded-xl shadow-lg border dyn-card dyn-border transition-transform active:scale-95">
+            <svg class="w-6 h-6 dyn-text-title" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+
+        <div id="dyn-banner" class="h-32 sm:h-40 bg-zinc-900 relative flex items-center justify-center bg-cover bg-center bg-no-repeat transition-all duration-500"></div>
+
+        <div class="px-6 text-center -mt-4 relative z-10">
+            <div id="wrapper-logo" class="w-24 h-24 mx-auto rounded-full p-1 border shadow-xl flex items-center justify-center overflow-hidden dyn-card dyn-border transition-transform duration-500 hover:scale-105"><div id="logo-loader" class="text-xs dyn-text-desc">...</div></div>
+            <h1 id="dyn-nombre" class="mt-3 text-xl font-bold tracking-tight dyn-text-title transition-colors">Cargando...</h1>
+            <p id="dyn-descripcion" class="text-xs mt-1 dyn-text-desc transition-colors">Espera un momento</p>
+        </div>
+
+        <div id="client-section" class="px-6 mt-6">
+            <div class="p-4 rounded-2xl border flex flex-col gap-2 dyn-card dyn-border transition-all duration-300 hover:shadow-md" id="client-box">
+                <label for="client-name" class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex items-center gap-1 text-slate-400">
+                    👤 Tu Nombre (Requerido para comprar)
+                </label>
+                <input type="text" id="client-name" required placeholder="Escribe tu Nombre y Apellido" class="text-sm rounded-xl p-3 focus:outline-none w-full border font-medium transition-all dyn-input metallic-focus">
+            </div>
+        </div>
+
+        <div id="catalog-scroll-anchor" class="mt-4 border-b sticky top-0 backdrop-blur z-20 dyn-border shadow-sm pb-2 transition-all duration-300" style="background-color: var(--bg-app); opacity: 0.98;">
+            <div class="pl-16 pr-6 pt-3 pb-1">
                 <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="input-buscar" oninput="filtrarProductos()" placeholder="Buscar productos..." class="w-full pl-9 pr-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-transparent rounded-lg focus:outline-none focus:border-brand-500 text-gray-900 dark:text-white placeholder-gray-400">
-                </div>
-            </div>
-
-            <!-- Acciones / Carrito & Modo Oscuro -->
-            <div class="flex items-center space-x-3">
-                <button onclick="toggleDarkMode()" class="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-moon dark:hidden"></i>
-                    <i class="fa-solid fa-sun hidden dark:inline"></i>
-                </button>
-                
-                <button onclick="abrirCarrito()" class="relative p-2 rounded-lg bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 hover:bg-brand-100 transition">
-                    <i class="fa-solid fa-cart-shopping text-lg"></i>
-                    <span id="badge-carrito" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Buscador Mobile -->
-        <div class="px-4 pb-3 md:hidden">
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="input-buscar-mobile" oninput="sincronizarBusquedaMobile(this.value)" placeholder="Buscar productos..." class="w-full pl-9 pr-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-transparent rounded-lg focus:outline-none focus:border-brand-500 text-gray-900 dark:text-white placeholder-gray-400">
-            </div>
-        </div>
-    </header>
-
-    <!-- BANNER DE BIENVENIDA -->
-    <section class="bg-gradient-to-r from-brand-700 via-brand-600 to-indigo-700 text-white py-8 px-4 sm:px-6 lg:px-8 shadow-inner">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-                <h2 class="text-2xl sm:text-3xl font-extrabold">Descubre nuestros productos en oferta</h2>
-                <p class="text-brand-100 text-sm mt-1">Selecciona tus personalizaciones y envía tu pedido directo por WhatsApp.</p>
-            </div>
-            <a href="#catalogo" class="px-5 py-2.5 bg-white text-brand-700 font-bold rounded-xl shadow-lg hover:bg-brand-50 transition transform hover:-translate-y-0.5 text-sm">
-                Ver Catálogo <i class="fa-solid fa-arrow-down ml-1"></i>
-            </a>
-        </div>
-    </section>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="catalogo">
-        <!-- BARRA DE FILTROS Y CATEGORÍAS -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0" id="contenedor-categorias">
-                <button onclick="filtrarCategoria('todas')" class="btn-categoria active px-4 py-2 rounded-xl text-sm font-semibold bg-brand-600 text-white shadow-sm whitespace-nowrap">Todas</button>
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 self-end sm:self-auto">
-                <span id="contador-productos">0</span> productos encontrados
-            </div>
-        </div>
-
-        <!-- GRILLA DE PRODUCTOS -->
-        <div id="grilla-productos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Render dinámico -->
-        </div>
-    </main>
-
-    <!-- MODAL VISTA PREVIA COMPLETA DE IMAGEN (IMÁGENES NO RECORTADAS) -->
-    <div id="modal-preview" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 hidden transition-opacity duration-300">
-        <div class="relative max-w-5xl max-h-[92vh] w-full flex flex-col items-center justify-center">
-            <!-- Botón Cerrar -->
-            <button onclick="cerrarVistaPrevia()" class="absolute -top-10 right-0 sm:right-2 text-white hover:text-gray-300 text-2xl font-bold bg-gray-800/60 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur z-10 transition">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            
-            <!-- Contenedor Imagen Completa (object-contain) -->
-            <div class="w-full flex items-center justify-center p-2">
-                <img id="img-ampliada" src="" alt="Vista Previa Completa" class="max-w-full max-h-[82vh] object-contain rounded-lg shadow-2xl bg-gray-900/40 border border-gray-700/50">
-            </div>
-
-            <div id="modal-titulo-producto" class="mt-3 text-center text-white text-base font-medium px-4 py-1.5 bg-gray-900/80 rounded-full backdrop-blur border border-gray-700">
-                Título del Producto
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DETALLE / OPCIONES DE SELECCIÓN DE PRODUCTO -->
-    <div id="modal-producto" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col">
-            <!-- Cabecera -->
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
-                <h3 id="modal-prod-nombre" class="text-xl font-bold text-gray-900 dark:text-white">Detalles del Producto</h3>
-                <button onclick="cerrarModalProducto()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 rounded-lg">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <div class="p-6 space-y-6 flex-1">
-                <!-- Imagen en Modal de Detalle (VISTA COMPLETA, NO RECORTADA) -->
-                <div class="w-full h-72 bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center p-3 relative cursor-pointer group border border-gray-200 dark:border-gray-700" onclick="abrirVistaPreviaModalActual()">
-                    <img id="modal-prod-img" src="" alt="" class="max-w-full max-h-full object-contain mx-auto transition-transform duration-300 group-hover:scale-105">
-                    <span class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-md backdrop-blur">
-                        <i class="fa-solid fa-expand mr-1"></i> Ver completa
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
-                </div>
-
-                <div>
-                    <p id="modal-prod-precio" class="text-2xl font-black text-brand-600 dark:text-brand-400">$0.00</p>
-                    <p id="modal-prod-descripcion" class="text-sm text-gray-600 dark:text-gray-300 mt-2 leading-relaxed"></p>
-                </div>
-
-                <hr class="border-gray-200 dark:border-gray-700">
-
-                <!-- OPCIONES MULTI-SELECCIÓN LEGIBLES -->
-                <div id="contenedor-opciones-seleccion" class="space-y-4">
-                    <!-- Generado dinámicamente -->
-                </div>
-
-                <!-- SELECTOR LIBRE DE COLOR (BARRA / LECTOR PRECISO) -->
-                <div id="bloque-color-personalizado" class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 hidden">
-                    <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                        <i class="fa-solid fa-palette text-brand-600 mr-1.5"></i> Selecciona un color personalizado a tu gusto:
-                    </label>
-                    <div class="flex items-center space-x-3">
-                        <input type="color" id="input-color-picker" value="#0284c7" onchange="actualizarLectorColor(this.value)" class="w-12 h-12 rounded-lg cursor-pointer border-0 bg-transparent p-0">
-                        <div class="flex-1 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-between">
-                            <span id="texto-nombre-color" class="font-bold text-sm text-gray-900 dark:text-white">Azul Celeste</span>
-                            <span id="texto-hex-color" class="text-xs font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300">#0284c7</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        Este tono exacto quedará registrado en tu orden de pedido para WhatsApp.
-                    </p>
-                </div>
-
-                <!-- CANTIDAD -->
-                <div class="flex items-center justify-between pt-2">
-                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">Cantidad:</span>
-                    <div class="flex items-center space-x-3 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                        <button onclick="cambiarCantidadModal(-1)" class="w-8 h-8 rounded-md bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold hover:bg-gray-200 shadow-sm flex items-center justify-center">-</button>
-                        <span id="modal-prod-cantidad" class="w-8 text-center font-bold text-sm">1</span>
-                        <button onclick="cambiarCantidadModal(1)" class="w-8 h-8 rounded-md bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold hover:bg-gray-200 shadow-sm flex items-center justify-center">+</button>
-                    </div>
+                    <input type="text" id="search-input" placeholder="Buscar en todo el catálogo..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus transition-all duration-300">
                 </div>
             </div>
+            <div id="tabs-container" class="flex overflow-x-auto pl-16 pr-6 gap-6 text-sm font-bold pt-2 hide-scrollbar transition-opacity duration-300"></div>
+        </div>
 
-            <!-- Botón Agregar -->
-            <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-b-2xl">
-                <button onclick="confirmarAgregarAlCarrito()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-cart-plus"></i>
-                    <span>Agregar al Pedido</span>
-                </button>
-            </div>
+        <div id="catalog-container" class="p-4 space-y-5 min-h-[300px]"></div>
+
+        <div class="fixed bottom-5 left-0 right-0 max-w-[450px] mx-auto px-4 z-30">
+            <button id="btn-whatsapp" class="w-full font-bold text-sm py-4 px-6 rounded-xl shadow-2xl flex justify-between items-center transition-all dyn-btn transform active:scale-95 hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                <span>Enviar pedido a WhatsApp</span>
+                <span id="counter" class="bg-slate-700/80 backdrop-blur text-white px-2.5 py-0.5 rounded text-xs font-bold transition-all">0 ítems</span>
+            </button>
         </div>
     </div>
 
-    <!-- CARRITO DE COMPRAS -->
-    <div id="drawer-carrito" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden transition-opacity">
-        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl flex flex-col">
-            <!-- Header -->
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-cart-shopping text-brand-600 text-xl"></i>
-                    <h3 class="font-bold text-lg text-gray-900 dark:text-white">Tu Pedido</h3>
-                </div>
-                <button onclick="cerrarCarrito()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
+    <div id="menu-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[50] hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="side-menu" class="fixed top-0 left-0 bottom-0 w-[280px] z-[55] transform -translate-x-full transition-transform duration-300 ease-out flex flex-col dyn-card dyn-border border-r shadow-2xl">
+        <div class="p-5 flex justify-between items-center border-b dyn-border">
+            <h2 class="font-bold text-lg dyn-text-title flex items-center gap-2"><span>📚</span> Secciones</h2>
+            <button id="btn-close-menu" class="p-2 rounded-lg dyn-hover dyn-text-desc hover:text-red-500 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="p-4 border-b dyn-border">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 dyn-text-desc" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" id="side-search-input" placeholder="Buscar productos..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium dyn-input dyn-border metallic-focus transition-all">
             </div>
+        </div>
 
-            <!-- Lista de items -->
-            <div id="lista-carrito" class="flex-1 overflow-y-auto p-4 space-y-4 divide-y divide-gray-100 dark:divide-gray-700">
-                <!-- Dinámico -->
-            </div>
-
-            <!-- Footer con Formulario y Botón WhatsApp -->
-            <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Nombre del Cliente:</label>
-                    <input type="text" id="cliente-nombre" placeholder="Tu nombre y apellido" class="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Notas o Dirección de Entrega:</label>
-                    <textarea id="cliente-notas" rows="2" placeholder="Detalles de entrega, referencia..." class="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white resize-none"></textarea>
-                </div>
-
-                <div class="pt-2 flex justify-between items-center text-lg font-black text-gray-900 dark:text-white">
-                    <span>Total Estimado:</span>
-                    <span id="total-carrito" class="text-brand-600 dark:text-brand-400">$0.00</span>
-                </div>
-
-                <button onclick="enviarPedidoWhatsApp()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center space-x-2 text-base">
-                    <i class="fa-brands fa-whatsapp text-xl"></i>
-                    <span>Enviar Pedido por WhatsApp</span>
-                </button>
-            </div>
+        <div class="flex-1 overflow-y-auto p-4 hide-scrollbar">
+            <h3 class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc mb-3 px-2">Filtrar Productos</h3>
+            <div id="side-categories" class="space-y-1"></div>
+        </div>
+        <div class="p-5 border-t dyn-border space-y-3">
+            <p class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc text-center">¿Tienes una duda rápida?</p>
+            <button id="btn-whatsapp-consulta" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-transform active:scale-95">
+                Chat Directo
+            </button>
         </div>
     </div>
 
-    <!-- JAVASCRIPT -->
-    <script>
-        // --- BASE DE DATOS LOCAL / MOCK DE PRODUCTOS ---
-        const productosEjemplo = [
-            {
-                id: "p1",
-                nombre: "Camiseta Personalizada Premium Algodón 100%",
-                categoria: "Ropa",
-                precio: 25.00,
-                descripcion: "Camiseta de alta densidad confeccionada en suave algodón peinado. Ideal para estampar tu diseño favorito o elegir un tono personalizado único.",
-                imagen: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
-                permitirColorPersonalizado: true,
-                opcionesMultiples: [
-                    {
-                        titulo: "Talla Disponible",
-                        opciones: [
-                            "Talla S - Small / Pequeña (Medidas de Pecho: 88cm - 92cm)",
-                            "Talla M - Medium / Mediana (Medidas de Pecho: 96cm - 100cm)",
-                            "Talla L - Large / Grande (Medidas de Pecho: 104cm - 108cm)",
-                            "Talla XL - Extra Large / Extra Grande (Medidas de Pecho: 112cm - 116cm con corte holgado)"
-                        ]
-                    },
-                    {
-                        titulo: "Tipo de Estampado o Acabado",
-                        opciones: [
-                            "Vinil Textil Mate de alta durabilidad resistente a lavados frecuentes",
-                            "DTF (Direct to Film) con colores fotográficos de alta resolución e intensidad",
-                            "Bordado Computarizado de alta definición en el pecho izquierdo"
-                        ]
-                    }
-                ]
-            },
-            {
-                id: "p2",
-                nombre: "Taza Cerámica Térmica de Colección",
-                categoria: "Accesorios",
-                precio: 12.50,
-                descripcion: "Taza ergonómica de cerámica brillante con acabado de grado alimenticio. Mantiene tus bebidas calientes durante más tiempo.",
-                imagen: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
-                permitirColorPersonalizado: true,
-                opcionesMultiples: [
-                    {
-                        titulo: "Capacidad y Estilo de Asa",
-                        opciones: [
-                            "11 Onzas (325ml) - Asa Estándar Tradicional",
-                            "15 Onzas (445ml) - Asa Grande de Agarre Cómodo Especial para Café Grande"
-                        ]
-                    }
-                ]
-            },
-            {
-                id: "p3",
-                nombre: "Gorra Deportiva Ajustable Transpirable",
-                categoria: "Ropa",
-                precio: 18.00,
-                descripcion: "Gorra de 6 paneles con visera curva preformada y broche metálico ajustable. Tela transpirable ligera.",
-                imagen: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80",
-                permitirColorPersonalizado: false,
-                opcionesMultiples: [
-                    {
-                        titulo: "Tipo de Cierre Posterior",
-                        opciones: [
-                            "Broche Metálico Deslizante Ajustable de alta precisión",
-                            "Cierre de Hebilla Plástica Snapback Clásica"
-                        ]
-                    }
-                ]
-            },
-            {
-                id: "p4",
-                nombre: "Cuaderno / Anotador Ecológico Tapa Dura",
-                categoria: "Papelería",
-                precio: 8.99,
-                descripcion: "Cuaderno universitario con hojas de papel reciclado suave, elástico de cierre y marcador de página incorporado.",
-                imagen: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
-                permitirColorPersonalizado: true,
-                opcionesMultiples: [
-                    {
-                        titulo: "Formato de Hojas Internas",
-                        opciones: [
-                            "Hojas Rayadas Tradicionales (Separación estándar de 8mm)",
-                            "Hojas Punteadas / Bullet Journal (Cuadrícula discreta de 5mm)",
-                            "Hojas Blancas Lisas sin líneas ideal para bocetos y dibujo"
-                        ]
-                    }
-                ]
-            }
-        ];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        let productos = JSON.parse(localStorage.getItem('catalogo_productos')) || productosEjemplo;
-        let carrito = JSON.parse(localStorage.getItem('catalogo_carrito')) || [];
-        let categoriaActual = 'todas';
-        let productoSeleccionadoModal = null;
-        let cantidadModal = 1;
-        let colorSeleccionadoHex = '#0284c7';
-        let colorSeleccionadoNombre = 'Azul Celeste';
+        const firebaseConfig = { apiKey: "AIzaSyCYFyZbr_wM5FAMVo_hS1gY4hdAK-q41pk", authDomain: "suvlic-catalogo.firebaseapp.com", projectId: "suvlic-catalogo", storageBucket: "suvlic-catalogo.firebasestorage.app", messagingSenderId: "944310483909", appId: "1:944310483909:web:81852b2a7edb73e807e9ac" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            inicializarCategorias();
-            renderizarProductos();
-            actualizarBadgeCarrito();
-        });
+        let catActiva = "";
+        let categoriasList = [];
+        let listadoCompleto = [];
+        let carrito = [];
+        let telefonoWhatsAppGlobal = "584244178356";
+        let searchTerm = "";
+        let isAnimating = false; 
+        let cantidades = {}; 
 
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
         }
 
-        // LECTOR PRECISO DE COLOR
-        function obtenerNombrePrecisoColor(hex) {
-            let r = parseInt(hex.substring(1, 3), 16);
-            let g = parseInt(hex.substring(3, 5), 16);
-            let b = parseInt(hex.substring(5, 7), 16);
-
-            const coloresPaleta = [
-                { nombre: "Negro", r: 0, g: 0, b: 0 },
-                { nombre: "Blanco", r: 255, g: 255, b: 255 },
-                { nombre: "Gris Oscuro", r: 80, g: 80, b: 80 },
-                { nombre: "Gris Plata", r: 190, g: 190, b: 190 },
-                { nombre: "Rojo Intenso", r: 220, g: 20, b: 60 },
-                { nombre: "Rojo Carmesí", r: 178, g: 34, b: 34 },
-                { nombre: "Rosado Pastel", r: 255, g: 192, b: 203 },
-                { nombre: "Fucsia / Magenta", r: 255, g: 0, b: 128 },
-                { nombre: "Naranja Brillante", r: 255, g: 102, b: 0 },
-                { nombre: "Amarillo Dorado", r: 255, g: 215, b: 0 },
-                { nombre: "Amarillo Limón", r: 255, g: 247, b: 0 },
-                { nombre: "Verde Esmeralda", r: 0, g: 201, b: 87 },
-                { nombre: "Verde Olivar", r: 107, g: 142, b: 35 },
-                { nombre: "Verde Menta", r: 152, g: 251, b: 152 },
-                { nombre: "Azul Rey", r: 0, g: 81, b: 255 },
-                { nombre: "Azul Marino", r: 0, g: 32, b: 96 },
-                { nombre: "Azul Celeste", r: 2, g: 132, b: 199 },
-                { nombre: "Turquesa", r: 64, g: 224, b: 208 },
-                { nombre: "Morado / Violeta", r: 138, g: 43, b: 226 },
-                { nombre: "Lila Soft", r: 200, g: 162, b: 200 },
-                { nombre: "Marrón Café", r: 112, g: 66, b: 20 },
-                { nombre: "Beige / Beige Crema", r: 245, g: 245, b: 220 }
+        function obtenerNombreColor(hex) {
+            const paleta = [
+                { nombre: "Negro", hex: "#000000" }, { nombre: "Blanco", hex: "#ffffff" },
+                { nombre: "Rojo", hex: "#ff0000" }, { nombre: "Verde", hex: "#00ff00" },
+                { nombre: "Azul", hex: "#0000ff" }, { nombre: "Amarillo", hex: "#ffff00" },
+                { nombre: "Naranja", hex: "#ffa500" }, { nombre: "Morado", hex: "#800080" },
+                { nombre: "Rosa", hex: "#ffc0cb" }, { nombre: "Gris", hex: "#808080" },
+                { nombre: "Marrón", hex: "#a52a2a" }, { nombre: "Cian", hex: "#00ffff" },
+                { nombre: "Fucsia", hex: "#ff00ff" }, { nombre: "Beige", hex: "#f5f5dc" },
+                { nombre: "Dorado", hex: "#ffd700" }, { nombre: "Plateado", hex: "#c0c0c0" },
+                { nombre: "Vino", hex: "#800000" }, { nombre: "Menta", hex: "#98ff98" },
+                { nombre: "Turquesa", hex: "#40e0d0"}, { nombre: "Coral", hex: "#ff7f50" }
             ];
-
+            const c1 = hexToRgb(hex);
+            if(!c1) return hex;
             let menorDistancia = Infinity;
-            let colorMasCercano = "Personalizado";
+            let colorCercano = hex;
+            paleta.forEach(c2 => {
+                const rgb2 = hexToRgb(c2.hex);
+                const distancia = Math.sqrt(Math.pow(c1.r - rgb2.r, 2) + Math.pow(c1.g - rgb2.g, 2) + Math.pow(c1.b - rgb2.b, 2));
+                if(distancia < menorDistancia) { menorDistancia = distancia; colorCercano = c2.nombre; }
+            });
+            return colorCercano;
+        }
 
-            coloresPaleta.forEach(c => {
-                let d = Math.sqrt(
-                    Math.pow(r - c.r, 2) +
-                    Math.pow(g - c.g, 2) +
-                    Math.pow(b - c.b, 2)
-                );
-                if (d < menorDistancia) {
-                    menorDistancia = d;
-                    colorMasCercano = c.nombre;
+        window.hexToRgb = hexToRgb;
+        window.obtenerNombreColor = obtenerNombreColor;
+
+        document.getElementById("btn-close-modal").onclick = () => {
+            const modal = document.getElementById("welcome-modal");
+            modal.style.opacity = '0';
+            setTimeout(() => modal.classList.add("hidden"), 300);
+        };
+        
+        const handleSearch = (e) => {
+            searchTerm = e.target.value.toLowerCase().trim();
+            document.getElementById("search-input").value = e.target.value;
+            document.getElementById("side-search-input").value = e.target.value;
+            
+            if (document.getElementById("side-menu").classList.contains("translate-x-0") || 
+               !document.getElementById("side-menu").classList.contains("-translate-x-full")) {
+                toggleMenu(false);
+            }
+            render();
+        };
+        
+        document.getElementById("search-input").addEventListener("input", handleSearch);
+        document.getElementById("side-search-input").addEventListener("input", handleSearch);
+
+        const toggleMenu = (show) => {
+            const b = document.getElementById("menu-backdrop"), m = document.getElementById("side-menu");
+            if (show) { b.classList.remove("hidden"); setTimeout(() => { b.classList.remove("opacity-0"); m.classList.remove("-translate-x-full"); }, 10); } 
+            else { b.classList.add("opacity-0"); m.classList.add("-translate-x-full"); setTimeout(() => b.classList.add("hidden"), 300); }
+        };
+        document.getElementById("btn-open-menu").onclick = () => toggleMenu(true);
+        document.getElementById("btn-close-menu").onclick = () => toggleMenu(false);
+        document.getElementById("menu-backdrop").onclick = () => toggleMenu(false);
+
+        window.abrirZoom = (url) => {
+            const m = document.getElementById("image-modal");
+            const img = document.getElementById("modal-img-zoom");
+            img.src = url;
+            m.classList.remove("hidden");
+            m.classList.add("flex"); 
+            setTimeout(() => { m.classList.remove("opacity-0"); img.classList.remove("scale-95"); img.classList.add("scale-100"); }, 10);
+        };
+        window.cerrarZoom = () => {
+            const m = document.getElementById("image-modal");
+            const img = document.getElementById("modal-img-zoom");
+            m.classList.add("opacity-0"); img.classList.remove("scale-100"); img.classList.add("scale-95");
+            setTimeout(() => { m.classList.add("hidden"); m.classList.remove("flex"); img.src = ""; }, 300);
+        };
+
+        // GESTIÓN DE CARRUSELES GLOBALES
+        window.moverCarrusel = (id, direccion) => {
+            const contenedor = document.getElementById(`carousel-${id}`);
+            if (contenedor) {
+                const anchoItem = contenedor.offsetWidth;
+                contenedor.scrollBy({ left: direccion * anchoItem, behavior: 'smooth' });
+            }
+        };
+
+        window.actualizarPuntosCarrusel = (id, el) => {
+            const anchoItem = el.offsetWidth;
+            const index = Math.round(el.scrollLeft / anchoItem);
+            const puntos = document.querySelectorAll(`.dot-${id}`);
+            puntos.forEach((punto, i) => {
+                if (i === index) {
+                    punto.classList.remove('bg-white/40', 'w-1.5');
+                    punto.classList.add('bg-white', 'w-3');
+                } else {
+                    punto.classList.remove('bg-white', 'w-3');
+                    punto.classList.add('bg-white/40', 'w-1.5');
                 }
             });
+        };
 
-            return { nombre: colorMasCercano, hex: hex.toUpperCase() };
-        }
+        // CONTROLADORES DE INTERFAZ DE PRODUCTO
+        window.actualizarCantidadManual = (id, valor) => {
+            let val = parseInt(valor);
+            if (isNaN(val) || val < 1) val = 1;
+            cantidades[id] = val;
+            const cantEl = document.getElementById(`cant-${id}`);
+            if (cantEl) cantEl.value = val;
+        };
 
-        function actualizarLectorColor(hex) {
-            const info = obtenerNombrePrecisoColor(hex);
-            colorSeleccionadoHex = info.hex;
-            colorSeleccionadoNombre = info.nombre;
+        window.cambiarCantidad = (id, cambio) => {
+            if (!cantidades[id]) cantidades[id] = 1;
+            cantidades[id] = Math.max(1, cantidades[id] + cambio);
+            const cantEl = document.getElementById(`cant-${id}`);
+            if (cantEl) cantEl.value = cantidades[id];
+        };
 
-            document.getElementById('texto-nombre-color').textContent = info.nombre;
-            document.getElementById('texto-hex-color').textContent = info.hex;
-        }
-
-        function inicializarCategorias() {
-            const cont = document.getElementById('contenedor-categorias');
-            const categoriasUnicas = ['todas', ...new Set(productos.map(p => p.categoria || 'General'))];
+        // SELECCIÓN DE COLOR PREDEFINIDO
+        window.selecColor = (id, colorHex, btn, totalPasos) => {
+            const input = document.getElementById(`c-val-${id}`);
+            if (input) input.value = obtenerNombreColor(colorHex);
             
-            cont.innerHTML = categoriasUnicas.map(cat => {
-                const esActiva = cat === categoriaActual;
-                const claseBtn = esActiva 
-                    ? 'bg-brand-600 text-white shadow-sm' 
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700';
-                
-                const textoCat = cat.charAt(0).toUpperCase() + cat.slice(1);
-                return `<button onclick="filtrarCategoria('${cat}')" class="btn-categoria px-4 py-2 rounded-xl text-sm font-semibold transition ${claseBtn} whitespace-nowrap">${textoCat}</button>`;
-            }).join('');
-        }
+            document.querySelectorAll(`.color-btn-${id}`).forEach(b => {
+                b.classList.remove('border-white', 'scale-110', 'metallic-active');
+                b.classList.add('border-transparent');
+            });
+            if (btn) {
+                btn.classList.remove('border-transparent');
+                btn.classList.add('border-white', 'scale-110', 'metallic-active');
+            }
 
-        function filtrarCategoria(cat) {
-            categoriaActual = cat;
-            inicializarCategorias();
-            renderizarProductos();
-        }
+            const labelCustom = document.getElementById(`c-custom-name-${id}`);
+            if (labelCustom) {
+                labelCustom.classList.add('hidden');
+                labelCustom.textContent = '';
+            }
+            
+            const primerSelect = document.getElementById(`s-${id}-0`);
+            if (primerSelect) primerSelect.removeAttribute('disabled');
+        };
 
-        function sincronizarBusquedaMobile(val) {
-            document.getElementById('input-buscar').value = val;
-            filtrarProductos();
-        }
-
-        function filtrarProductos() {
-            renderizarProductos();
-        }
-
-        // RENDER DE PRODUCTOS CON IMÁGENES NO RECORTADAS (object-contain)
-        function renderizarProductos() {
-            const busqueda = (document.getElementById('input-buscar').value || '').toLowerCase();
-            const grilla = document.getElementById('grilla-productos');
-
-            const filtrados = productos.filter(p => {
-                const coincideCat = (categoriaActual === 'todas') || (p.categoria === categoriaActual);
-                const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda) || (p.descripcion && p.descripcion.toLowerCase().includes(busqueda));
-                return coincideCat && coincideBusqueda;
+        // SELECCIÓN DE COLOR PERSONALIZADO (BARRA / LECTOR LIBRE)
+        window.selecColorPersonalizado = (id, colorHex) => {
+            const input = document.getElementById(`c-val-${id}`);
+            const nombreColor = obtenerNombreColor(colorHex);
+            const textoColorFinal = `${nombreColor} (${colorHex.toUpperCase()})`;
+            
+            if (input) input.value = textoColorFinal;
+            
+            document.querySelectorAll(`.color-btn-${id}`).forEach(b => {
+                b.classList.remove('border-white', 'scale-110', 'metallic-active');
+                b.classList.add('border-transparent');
             });
 
-            document.getElementById('contador-productos').textContent = filtrados.length;
+            const labelCustom = document.getElementById(`c-custom-name-${id}`);
+            if (labelCustom) {
+                labelCustom.textContent = `Elegido: ${textoColorFinal}`;
+                labelCustom.classList.remove('hidden');
+            }
+
+            const primerSelect = document.getElementById(`s-${id}-0`);
+            if (primerSelect) primerSelect.removeAttribute('disabled');
+        };
+
+        // EVALUACIÓN Y MOSTRADO LEGIBLE DE OPCIONES SELECCIONADAS
+        window.evalPaso = (id, pasoActual, totalPasos) => {
+            const actualSelect = document.getElementById(`s-${id}-${pasoActual}`);
+            const previewEl = document.getElementById(`prev-${id}-${pasoActual}`);
+            
+            if (actualSelect && actualSelect.value !== "") {
+                if (previewEl) {
+                    previewEl.textContent = `✓ Seleccionado: ${actualSelect.value}`;
+                    previewEl.classList.remove("hidden");
+                }
+                const siguienteSelect = document.getElementById(`s-${id}-${pasoActual + 1}`);
+                if (siguienteSelect) siguienteSelect.removeAttribute('disabled');
+            } else if (previewEl) {
+                previewEl.classList.add("hidden");
+            }
+        };
+
+        window.agregarAlCarrito = (id) => {
+            const prod = listadoCompleto.find(p => p.id === id);
+            if (!prod) return;
+            
+            const reqColor = (prod.colores && prod.colores.length > 0) || prod.permitirColorPersonalizado;
+            const colorInput = document.getElementById(`c-val-${id}`);
+            if (colorInput && !colorInput.value && reqColor) {
+                alert("Por favor, selecciona un color para el producto.");
+                return;
+            }
+            
+            let caractSeleccionadas = [];
+            if (prod.caracteristicas && prod.caracteristicas.length > 0) {
+                for (let i = 0; i < prod.caracteristicas.length; i++) {
+                    const sel = document.getElementById(`s-${id}-${i}`);
+                    if (sel && !sel.value) {
+                        alert(`Por favor, elige una opción para: ${prod.caracteristicas[i].titulo}`);
+                        return;
+                    }
+                    if (sel) {
+                        caractSeleccionadas.push({ titulo: prod.caracteristicas[i].titulo, valor: sel.value });
+                    }
+                }
+            }
+            
+            let accSeleccionados = [];
+            document.querySelectorAll(`.acc-checkbox-${id}:checked`).forEach(cb => {
+                accSeleccionados.push(cb.value);
+            });
+            
+            const cantidad = cantidades[id] || 1;
+            
+            carrito.push({
+                id: id,
+                nombre: prod.nombre,
+                color: colorInput ? colorInput.value : null,
+                caracteristicas: caractSeleccionadas,
+                accesorios: accSeleccionados,
+                cantidad: cantidad
+            });
+            
+            cantidades[id] = 1;
+            const cantEl = document.getElementById(`cant-${id}`);
+            if (cantEl) cantEl.value = "1";
+            
+            if (colorInput) colorInput.value = "";
+            document.querySelectorAll(`.color-btn-${id}`).forEach(b => b.classList.remove('border-white', 'scale-110', 'metallic-active'));
+            
+            const labelCustom = document.getElementById(`c-custom-name-${id}`);
+            if (labelCustom) {
+                labelCustom.textContent = "";
+                labelCustom.classList.add('hidden');
+            }
+
+            if (prod.caracteristicas && prod.caracteristicas.length > 0) {
+                prod.caracteristicas.forEach((_, i) => {
+                    const sel = document.getElementById(`s-${id}-${i}`);
+                    if (sel) {
+                        sel.value = "";
+                        if (i > 0 || reqColor) sel.setAttribute('disabled', 'true');
+                    }
+                    const prev = document.getElementById(`prev-${id}-${i}`);
+                    if (prev) {
+                        prev.textContent = "";
+                        prev.classList.add("hidden");
+                    }
+                });
+            }
+            document.querySelectorAll(`.acc-checkbox-${id}`).forEach(cb => cb.checked = false);
+            
+            actualizarBotonCarrito();
+            
+            const btnAdd = document.getElementById(`btn-add-${id}`);
+            const textOriginal = btnAdd.textContent;
+            btnAdd.textContent = "¡Agregado! ✓";
+            setTimeout(() => { btnAdd.textContent = textOriginal; }, 1200);
+        };
+
+        function actualizarBotonCarrito() {
+            const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+            document.getElementById("counter").textContent = `${totalItems} ítem${totalItems !== 1 ? 's' : ''}`;
+        }
+
+        onSnapshot(doc(db, "configuracion", "perfil"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById("dyn-nombre").textContent = data.nombre || "Tu Tienda";
+                document.getElementById("dyn-descripcion").textContent = data.descripcion || "";
+                document.title = data.nombre || "Catálogo";
+                document.getElementById("modal-nombre-header").textContent = data.nombre || "";
+                telefonoWhatsAppGlobal = data.telefono || telefonoWhatsAppGlobal;
+
+                const b = document.getElementById("dyn-banner");
+                if (data.bannerUrl) b.style.backgroundImage = `url('${data.bannerUrl}')`;
+
+                const root = document.documentElement;
+                const temaSeleccionado = data.temaPublico || data.tema || "tornasol";
+
+                if (temaSeleccionado === "tornasol") { document.body.className = "theme-tornasol"; root.removeAttribute('style'); } 
+                else if (temaSeleccionado === "personalizado" && data.colores) {
+                    document.body.className = "";
+                    root.style.setProperty('--bg-body', data.colores.bg); 
+                    root.style.setProperty('--bg-app', data.colores.bg); 
+                    root.style.setProperty('--bg-card', data.colores.card); 
+                    root.style.setProperty('--text-title', data.colores.text); 
+                    root.style.setProperty('--text-desc', data.colores.text); 
+                    root.style.setProperty('--bg-btn', data.colores.accent); 
+                    root.style.setProperty('--border', data.colores.card); 
+                    root.style.setProperty('--bg-input', data.colores.bg); 
+                    root.style.setProperty('--text-input', data.colores.text); 
+                    root.style.setProperty('--text-btn', '#ffffff'); 
+                    root.style.setProperty('--hover-item', data.colores.card);
+                } 
+                else if (temaSeleccionado === "claro") { document.body.className = "theme-light"; root.removeAttribute('style'); } 
+                else { document.body.className = "theme-dark"; root.removeAttribute('style'); }
+
+                if (data.welcomeUrl) {
+                    const wImg = document.getElementById("modal-welcome-img");
+                    wImg.src = data.welcomeUrl;
+                    wImg.classList.remove("hidden");
+                    document.getElementById("modal-logo").classList.add("hidden");
+                } else if (data.logoUrl) {
+                    document.getElementById("modal-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
+                    document.getElementById("modal-logo").classList.remove("hidden");
+                    document.getElementById("modal-welcome-img").classList.add("hidden");
+                }
+
+                if (data.logoUrl) document.getElementById("wrapper-logo").innerHTML = `<img src="${data.logoUrl}" class="w-full h-full object-cover rounded-full">`;
+                render();
+            }
+        });
+
+        onSnapshot(collection(db, "categorias"), (snapshot) => {
+            const tC = document.getElementById("tabs-container"), sC = document.getElementById("side-categories");
+            tC.innerHTML = ""; sC.innerHTML = "";
+            categoriasList = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
+                
+            if(categoriasList.length > 0 && !catActiva) catActiva = categoriasList[0].id;
+
+            categoriasList.forEach(cat => {
+                const bT = document.createElement("button");
+                bT.id = `t-${cat.id}`;
+                bT.className = catActiva === cat.id ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all hover:text-[var(--text-title)]";
+                bT.textContent = cat.nombre.toUpperCase();
+                bT.onclick = () => { document.getElementById("search-input").value = ""; document.getElementById("side-search-input").value = ""; searchTerm = ""; selectCategoryAndScroll(cat.id); };
+                tC.appendChild(bT);
+
+                const bS = document.createElement("button");
+                bS.className = `w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover ${catActiva === cat.id ? 'bg-[var(--hover-item)]' : ''}`;
+                bS.textContent = `• ${cat.nombre}`;
+                bS.onclick = () => { document.getElementById("search-input").value = ""; document.getElementById("side-search-input").value = ""; searchTerm = ""; selectCategoryAndScroll(cat.id); toggleMenu(false); };
+                sC.appendChild(bS);
+            });
+            render();
+        });
+
+        onSnapshot(collection(db, "productos"), (snap) => {
+            listadoCompleto = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
+            render();
+        });
+
+        function selectCategoryAndScroll(id) {
+            if (isAnimating || catActiva === id) return;
+            isAnimating = true;
+
+            const currentIndex = categoriasList.findIndex(c => c.id === catActiva);
+            const newIndex = categoriasList.findIndex(c => c.id === id);
+            let direction = newIndex > currentIndex ? 1 : -1;
+            if (currentIndex === -1) direction = 1; 
+
+            catActiva = id;
+            const container = document.getElementById("catalog-container");
+
+            container.style.transition = "transform 0.2s ease-in, opacity 0.2s ease-in";
+            container.style.opacity = "0";
+            container.style.transform = direction > 0 ? "translateX(-30px)" : "translateX(30px)";
+
+            setTimeout(() => {
+                render();
+                window.scrollTo({ top: document.getElementById("catalog-scroll-anchor").offsetTop - 20, behavior: "smooth" });
+                const activeTab = document.getElementById(`t-${catActiva}`);
+                if(activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                
+                container.style.transition = "none";
+                container.style.transform = direction > 0 ? "translateX(30px)" : "translateX(-30px)";
+                
+                void container.offsetWidth;
+                
+                container.style.transition = "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease-out";
+                container.style.opacity = "1";
+                container.style.transform = "translateX(0)";
+                
+                setTimeout(() => { isAnimating = false; container.style.transition = ""; }, 400);
+            }, 200);
+        }
+
+        function render() {
+            const isSearching = searchTerm.length > 0;
+            const tabsContainer = document.getElementById("tabs-container");
+            
+            if (isSearching) {
+                tabsContainer.classList.add("opacity-30", "pointer-events-none");
+            } else {
+                tabsContainer.classList.remove("opacity-30", "pointer-events-none");
+                document.querySelectorAll("#tabs-container button").forEach(btn => {
+                    btn.className = btn.id === `t-${catActiva}` ? "pb-2 whitespace-nowrap dyn-text-title border-b-2 border-[var(--text-title)] transition-all" : "pb-2 whitespace-nowrap dyn-text-desc border-b-2 border-transparent transition-all hover:text-[var(--text-title)]";
+                });
+                document.querySelectorAll("#side-categories button").forEach((btn, index) => {
+                    if(categoriasList[index] && categoriasList[index].id && categoriasList[index].id === catActiva) btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title bg-[var(--hover-item)]";
+                    else btn.className = "w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all dyn-text-title dyn-hover";
+                });
+            }
+
+            const container = document.getElementById("catalog-container");
+            container.innerHTML = "";
+            
+            const filtrados = listadoCompleto.filter(p => {
+                if (!p.activo) return false;
+                if (isSearching) {
+                    const searchLower = searchTerm.toLowerCase();
+                    const nameMatch = p.nombre.toLowerCase().includes(searchLower);
+                    const descMatch = p.descripcion ? p.descripcion.toLowerCase().includes(searchLower) : false;
+                    return nameMatch || descMatch;
+                }
+                const prodCats = Array.isArray(p.categoriaId) ? p.categoriaId : [p.categoriaId];
+                return prodCats.includes(catActiva);
+            });
 
             if (filtrados.length === 0) {
-                grilla.innerHTML = `
-                    <div class="col-span-full py-12 text-center text-gray-400 dark:text-gray-500">
-                        <i class="fa-solid fa-box-open text-5xl mb-3"></i>
-                        <p class="text-base font-medium">No se encontraron productos en esta categoría.</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="text-center py-10 animate-fade-in-up">
+                    <span class="text-3xl mb-3 block opacity-50">🔍</span>
+                    <p class="text-sm dyn-text-desc">No encontramos productos con esa descripción.</p>
+                </div>`;
                 return;
             }
 
-            grilla.innerHTML = filtrados.map(p => `
-                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
-                    
-                    <!-- IMAGEN COMPLETA (object-contain) EN CONTENEDOR CON FONDO Y PADDING -->
-                    <div class="w-full h-64 bg-gray-100 dark:bg-gray-900/90 flex items-center justify-center p-3 relative overflow-hidden group-hover:bg-gray-200/60 dark:group-hover:bg-gray-900 transition-colors cursor-pointer" onclick="abrirVistaPreviaDirecta('${p.imagen}', '${p.nombre.replace(/'/g, "\\'")}')">
-                        <img src="${p.imagen}" alt="${p.nombre}" class="max-w-full max-h-full object-contain mx-auto transition-transform duration-300 group-hover:scale-105">
-                        
-                        ${p.permitirColorPersonalizado ? `
-                            <span class="absolute top-3 left-3 bg-brand-600/90 backdrop-blur text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
-                                <i class="fa-solid fa-palette text-xs"></i> Color a Gusto
-                            </span>
-                        ` : ''}
+            filtrados.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = "border rounded-2xl flex flex-col dyn-card dyn-border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl animate-fade-in-up";
+                card.style.animationDelay = `${index * 0.05}s`; 
+                
+                let imagenes = p.imagenesUrl && p.imagenesUrl.length > 0 ? p.imagenesUrl : (p.imagenUrl ? [p.imagenUrl] : ['https://via.placeholder.com/400']);
 
-                        <button class="absolute bottom-3 right-3 bg-black/60 hover:bg-black/80 text-white p-2 rounded-lg backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs flex items-center space-x-1" title="Ver Imagen Completa">
-                            <i class="fa-solid fa-magnifying-glass-plus"></i>
-                            <span class="hidden sm:inline">Ampliar</span>
-                        </button>
-                    </div>
-
-                    <div class="p-5 flex-1 flex flex-col justify-between">
-                        <div>
-                            <div class="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-1">${p.categoria || 'General'}</div>
-                            <h3 class="font-bold text-gray-900 dark:text-white text-base leading-snug line-clamp-2 mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">${p.nombre}</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-4 leading-relaxed">${p.descripcion || ''}</p>
+                let htmlCarrusel = `
+                    <div class="relative w-full aspect-square bg-black/10 overflow-hidden border-b dyn-border">
+                        <div id="carousel-${p.id}" class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-full w-full" onscroll="window.actualizarPuntosCarrusel('${p.id}', this)">
+                            ${imagenes.map(url => `
+                                <div class="w-full h-full flex-shrink-0 snap-start relative">
+                                    <img src="${url}" onclick="window.abrirZoom('${url}')" class="w-full h-full object-cover cursor-zoom-in" alt="${p.nombre}">
+                                </div>
+                            `).join('')}
                         </div>
-
-                        <div>
-                            <div class="flex items-baseline justify-between mb-4">
-                                <span class="text-2xl font-black text-gray-900 dark:text-white">$${Number(p.precio).toFixed(2)}</span>
+                        
+                        ${imagenes.length > 1 ? `
+                            <button type="button" onclick="window.moverCarrusel('${p.id}', -1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center text-base font-bold z-10 active:scale-90 transition-transform">‹</button>
+                            <button type="button" onclick="window.moverCarrusel('${p.id}', 1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center text-base font-bold z-10 active:scale-90 transition-transform">›</button>
+                            
+                            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                                ${imagenes.map((_, i) => `<span class="dot-${p.id} w-1.5 h-1.5 rounded-full transition-all ${i === 0 ? 'bg-white w-3' : 'bg-white/40'}"></span>`).join('')}
                             </div>
+                        ` : ''}
+                    </div>
+                `;
 
-                            <button onclick="abrirModalProducto('${p.id}')" class="w-full py-2.5 px-4 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-bold text-sm rounded-xl hover:bg-brand-600 dark:hover:bg-brand-500 dark:hover:text-white transition-all shadow-sm flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-sliders"></i>
-                                <span>Ver Opciones / Elegir</span>
+                let htmlColores = ""; 
+                let reqColor = false;
+                const tieneColoresFijos = p.colores && p.colores.length > 0;
+                const tieneColorLibre = p.permitirColorPersonalizado;
+
+                if (tieneColoresFijos || tieneColorLibre) {
+                    reqColor = true;
+                    htmlColores = `
+                        <div class="flex flex-col gap-2 mt-1 mb-2">
+                            <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">🎨 Color del Producto (Requerido)</label>
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                ${tieneColoresFijos ? p.colores.map(c => `
+                                    <button type="button" onclick="window.selecColor('${p.id}', '${c}', this, ${p.caracteristicas ? p.caracteristicas.length : 0})" 
+                                            class="color-btn-${p.id} w-8 h-8 rounded-full border-2 border-transparent shadow-md hover:scale-110 transition-all flex items-center justify-center" 
+                                            style="background-color: ${c};" title="Seleccionar color ${obtenerNombreColor(c)}"></button>
+                                `).join('') : ''}
+                                
+                                ${tieneColorLibre ? `
+                                    <div class="flex items-center gap-2 bg-slate-800/40 p-1 px-2.5 rounded-xl border border-slate-700/50">
+                                        <label for="picker-${p.id}" class="text-xs font-bold dyn-text-title flex items-center gap-2 cursor-pointer select-none">
+                                            <span>🎨 Personalizado:</span>
+                                            <input type="color" id="picker-${p.id}" value="#3b82f6" oninput="window.selecColorPersonalizado('${p.id}', this.value)" class="w-7 h-7 rounded-full cursor-pointer border-0 p-0 bg-transparent shadow-sm">
+                                        </label>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <span id="c-custom-name-${p.id}" class="text-xs font-semibold text-emerald-400 mt-0.5 hidden"></span>
+                            <input type="hidden" id="c-val-${p.id}" value="">
+                        </div>`;
+                }
+
+                // MANEJO DE SELECTORES DE CARACTERÍSTICAS ALTAMENTE LEGIBLES
+                let htmlSelects = "";
+                if (p.caracteristicas && p.caracteristicas.length > 0) {
+                    htmlSelects = `<div class="mt-2 space-y-4">`;
+                    p.caracteristicas.forEach((feat, i) => {
+                        const isDisabled = (i > 0 || reqColor) ? "disabled" : "";
+                        htmlSelects += `
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc flex justify-between items-center">
+                                    <span>👉 ${feat.titulo}</span>
+                                </label>
+                                <select id="s-${p.id}-${i}" data-prod="${p.id}" data-titulo="${feat.titulo}"
+                                    onchange="window.evalPaso('${p.id}', ${i}, ${p.caracteristicas.length})"
+                                    class="text-xs sm:text-sm font-medium rounded-xl p-3.5 focus:outline-none w-full border dyn-input shadow-inner transition-all metallic-focus whitespace-normal break-words h-auto leading-relaxed cursor-pointer" ${isDisabled}>
+                                    <option value="" disabled selected class="text-xs">-- Elige una opción --</option>
+                                    ${feat.opciones.map(o => `<option value="${o}" class="py-2.5 px-2 whitespace-normal break-words text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800">${o}</option>`).join('')}
+                                </select>
+                                <div id="prev-${p.id}-${i}" class="hidden text-xs font-medium p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 leading-relaxed break-words animate-fade-in-up"></div>
+                            </div>`;
+                    });
+                    htmlSelects += `</div>`;
+                }
+
+                let htmlAccesorios = "";
+                if (p.accesorios && p.accesorios.length > 0) {
+                    htmlAccesorios = `
+                        <div class="mt-3 flex flex-col gap-2">
+                            <label class="text-[10px] font-bold uppercase tracking-wider dyn-text-desc">🎁 Accesorios Opcionales</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${p.accesorios.map(acc => `
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-xl border dyn-input cursor-pointer hover:bg-[var(--hover-item)] transition-colors select-none">
+                                        <input type="checkbox" value="${acc}" class="acc-checkbox-${p.id} mt-0.5 w-4 h-4 rounded bg-slate-800 border-slate-700 text-slate-500 focus:ring-0 flex-shrink-0">
+                                        <span class="text-xs leading-snug font-medium break-words">${acc}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+
+                card.innerHTML = `
+                    ${htmlCarrusel}
+                    <div class="p-5 flex flex-col gap-3">
+                        <div>
+                            <h3 class="text-base font-bold dyn-text-title">${p.nombre}</h3>
+                            ${p.descripcion ? `<p class="text-xs mt-1 leading-relaxed dyn-text-desc">${p.descripcion}</p>` : ''}
+                        </div>
+                        
+                        ${htmlColores}
+                        ${htmlSelects}
+                        ${htmlAccesorios}
+                        
+                        <div class="mt-4 pt-4 border-t dyn-border flex items-center justify-between gap-4">
+                            <div class="flex items-center border dyn-border rounded-xl overflow-hidden bg-[var(--bg-input)]">
+                                <button type="button" onclick="window.cambiarCantidad('${p.id}', -1)" class="px-3.5 py-2 text-sm font-bold dyn-text-title hover:bg-[var(--hover-item)] active:scale-95 transition-all">-</button>
+                                
+                                <input type="number" id="cant-${p.id}" value="1" min="1" 
+                                    onchange="window.actualizarCantidadManual('${p.id}', this.value)"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    class="w-10 px-1 py-2 text-xs font-bold dyn-text-title text-center bg-transparent focus:outline-none appearance-none m-0" />
+                                
+                                <button type="button" onclick="window.cambiarCantidad('${p.id}', 1)" class="px-3.5 py-2 text-sm font-bold dyn-text-title hover:bg-[var(--hover-item)] active:scale-95 transition-all">+</button>
+                            </div>
+                            
+                            <button type="button" id="btn-add-${p.id}" onclick="window.agregarAlCarrito('${p.id}')" class="flex-1 font-bold text-xs py-3.5 px-4 rounded-xl shadow-md transform active:scale-95 transition-all dyn-btn">
+                                Agregar al Pedido
                             </button>
                         </div>
                     </div>
-                </div>
-            `).join('');
-        }
-
-        function abrirVistaPreviaDirecta(src, titulo) {
-            const modal = document.getElementById('modal-preview');
-            const img = document.getElementById('img-ampliada');
-            const txtTitulo = document.getElementById('modal-titulo-producto');
-
-            img.src = src;
-            txtTitulo.textContent = titulo || 'Vista Previa';
-            modal.classList.remove('hidden');
-        }
-
-        function abrirVistaPreviaModalActual() {
-            if (productoSeleccionadoModal) {
-                abrirVistaPreviaDirecta(productoSeleccionadoModal.imagen, productoSeleccionadoModal.nombre);
-            }
-        }
-
-        function cerrarVistaPrevia() {
-            document.getElementById('modal-preview').classList.add('hidden');
-        }
-
-        function abrirModalProducto(id) {
-            const prod = productos.find(p => p.id === id);
-            if (!prod) return;
-
-            productoSeleccionadoModal = prod;
-            cantidadModal = 1;
-
-            document.getElementById('modal-prod-nombre').textContent = prod.nombre;
-            document.getElementById('modal-prod-precio').textContent = `$${Number(prod.precio).toFixed(2)}`;
-            document.getElementById('modal-prod-descripcion').textContent = prod.descripcion;
-            document.getElementById('modal-prod-img').src = prod.imagen;
-            document.getElementById('modal-prod-cantidad').textContent = cantidadModal;
-
-            const bloqueColor = document.getElementById('bloque-color-personalizado');
-            if (prod.permitirColorPersonalizado) {
-                bloqueColor.classList.remove('hidden');
-                actualizarLectorColor('#0284c7');
-                document.getElementById('input-color-picker').value = '#0284c7';
-            } else {
-                bloqueColor.classList.add('hidden');
-            }
-
-            const contOpciones = document.getElementById('contenedor-opciones-seleccion');
-            contOpciones.innerHTML = '';
-
-            if (prod.opcionesMultiples && prod.opcionesMultiples.length > 0) {
-                prod.opcionesMultiples.forEach((opcGrupo, idx) => {
-                    const selectId = `select-opcion-${idx}`;
-                    const previewId = `preview-opcion-${idx}`;
-
-                    const htmlGrupo = `
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                                ${opcGrupo.titulo}:
-                            </label>
-                            
-                            <select id="${selectId}" onchange="actualizarVistaPreviaOpcion('${selectId}', '${previewId}')" class="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:outline-none select-option-break">
-                                ${opcGrupo.opciones.map(opt => `<option value="${opt.replace(/"/g, '&quot;')}">${opt}</option>`).join('')}
-                            </select>
-
-                            <div class="mt-2 p-2.5 bg-brand-50/70 dark:bg-gray-900/60 rounded-lg border border-brand-200 dark:border-gray-700 flex items-start space-x-2">
-                                <i class="fa-solid fa-circle-info text-brand-600 dark:text-brand-400 mt-0.5 text-xs"></i>
-                                <div class="text-xs text-gray-700 dark:text-gray-300 font-medium leading-relaxed whitespace-normal break-words" id="${previewId}">
-                                    ${opcGrupo.opciones[0] || 'Opción seleccionada'}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    contOpciones.insertAdjacentHTML('beforeend', htmlGrupo);
-                });
-            } else {
-                contOpciones.innerHTML = `<p class="text-xs text-gray-400 italic">Este producto no requiere selecciones adicionales.</p>`;
-            }
-
-            document.getElementById('modal-producto').classList.remove('hidden');
-        }
-
-        function actualizarVistaPreviaOpcion(selectId, previewId) {
-            const selectEl = document.getElementById(selectId);
-            const previewEl = document.getElementById(previewId);
-            if (selectEl && previewEl) {
-                previewEl.textContent = selectEl.value;
-            }
-        }
-
-        function cambiarCantidadModal(delta) {
-            cantidadModal = Math.max(1, cantidadModal + delta);
-            document.getElementById('modal-prod-cantidad').textContent = cantidadModal;
-        }
-
-        function cerrarModalProducto() {
-            document.getElementById('modal-producto').classList.add('hidden');
-        }
-
-        function confirmarAgregarAlCarrito() {
-            if (!productoSeleccionadoModal) return;
-
-            const selecciones = [];
-            if (productoSeleccionadoModal.opcionesMultiples) {
-                productoSeleccionadoModal.opcionesMultiples.forEach((grupo, idx) => {
-                    const selEl = document.getElementById(`select-opcion-${idx}`);
-                    if (selEl) {
-                        selecciones.push({
-                            titulo: grupo.titulo,
-                            valor: selEl.value
-                        });
-                    }
-                });
-            }
-
-            let colorInfo = null;
-            if (productoSeleccionadoModal.permitirColorPersonalizado) {
-                colorInfo = {
-                    nombre: colorSeleccionadoNombre,
-                    hex: colorSeleccionadoHex
-                };
-            }
-
-            const itemCart = {
-                idCart: 'cart_' + Date.now(),
-                productoId: productoSeleccionadoModal.id,
-                nombre: productoSeleccionadoModal.nombre,
-                precio: productoSeleccionadoModal.precio,
-                imagen: productoSeleccionadoModal.imagen,
-                cantidad: cantidadModal,
-                selecciones: selecciones,
-                colorPersonalizado: colorInfo
-            };
-
-            carrito.push(itemCart);
-            guardarCarrito();
-            actualizarBadgeCarrito();
-            cerrarModalProducto();
-            abrirCarrito();
-        }
-
-        function guardarCarrito() {
-            localStorage.setItem('catalogo_carrito', JSON.stringify(carrito));
-        }
-
-        function actualizarBadgeCarrito() {
-            const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-            document.getElementById('badge-carrito').textContent = total;
-        }
-
-        function abrirCarrito() {
-            renderizarListaCarrito();
-            document.getElementById('drawer-carrito').classList.remove('hidden');
-        }
-
-        function cerrarCarrito() {
-            document.getElementById('drawer-carrito').classList.add('hidden');
-        }
-
-        function eliminarItemCarrito(idCart) {
-            carrito = carrito.filter(item => item.idCart !== idCart);
-            guardarCarrito();
-            actualizarBadgeCarrito();
-            renderizarListaCarrito();
-        }
-
-        function renderizarListaCarrito() {
-            const cont = document.getElementById('lista-carrito');
-            const totalEl = document.getElementById('total-carrito');
-
-            if (carrito.length === 0) {
-                cont.innerHTML = `
-                    <div class="py-12 text-center text-gray-400">
-                        <i class="fa-solid fa-basket-shopping text-4xl mb-2"></i>
-                        <p class="text-sm">Tu carrito está vacío</p>
-                    </div>
                 `;
-                totalEl.textContent = '$0.00';
-                return;
-            }
-
-            let totalAcc = 0;
-            cont.innerHTML = carrito.map(item => {
-                const subtotal = item.precio * item.cantidad;
-                totalAcc += subtotal;
-
-                const optsHtml = item.selecciones.map(s => `
-                    <div class="text-[11px] text-gray-600 dark:text-gray-400 leading-tight mt-1">
-                        <span class="font-semibold text-gray-700 dark:text-gray-300">${s.titulo}:</span> ${s.valor}
-                    </div>
-                `).join('');
-
-                const colorHtml = item.colorPersonalizado ? `
-                    <div class="flex items-center space-x-1.5 mt-1.5 text-[11px] bg-gray-100 dark:bg-gray-700 p-1.5 rounded-md">
-                        <span class="w-3 h-3 rounded-full border border-black/20 shadow-sm" style="background-color: ${item.colorPersonalizado.hex}"></span>
-                        <span class="font-bold text-gray-800 dark:text-gray-200">Color: ${item.colorPersonalizado.nombre}</span>
-                        <span class="font-mono text-gray-400 text-[10px]">(${item.colorPersonalizado.hex})</span>
-                    </div>
-                ` : '';
-
-                return `
-                    <div class="pt-3 first:pt-0 flex gap-3 items-start">
-                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-lg p-1 flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700">
-                            <img src="${item.imagen}" class="max-w-full max-h-full object-contain">
-                        </div>
-
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <h4 class="font-bold text-xs text-gray-900 dark:text-white leading-tight">${item.nombre}</h4>
-                                <button onclick="eliminarItemCarrito('${item.idCart}')" class="text-gray-400 hover:text-red-500 text-xs ml-1">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                            
-                            ${optsHtml}
-                            ${colorHtml}
-
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="text-xs text-gray-500">Cant: <b class="text-gray-800 dark:text-gray-200">${item.cantidad}</b></span>
-                                <span class="text-xs font-bold text-brand-600 dark:text-brand-400">$${subtotal.toFixed(2)}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            totalEl.textContent = `$${totalAcc.toFixed(2)}`;
+                container.appendChild(card);
+            });
         }
 
-        function enviarPedidoWhatsApp() {
-            if (carrito.length === 0) {
-                alert('El carrito está vacío. Agrega al menos un producto.');
-                return;
-            }
-
-            const nombreCliente = document.getElementById('cliente-nombre').value.trim();
-            const notasCliente = document.getElementById('cliente-notas').value.trim();
-
+        // CONTROL DE SALIDA HACIA WHATSAPP
+        document.getElementById("btn-whatsapp").onclick = () => {
+            const inputNombre = document.getElementById("client-name");
+            const nombreCliente = inputNombre.value.trim();
+            
             if (!nombreCliente) {
-                alert('Por favor ingresa tu nombre para procesar el pedido.');
-                document.getElementById('cliente-nombre').focus();
+                inputNombre.classList.add("shake-error");
+                inputNombre.focus();
+                setTimeout(() => inputNombre.classList.remove("shake-error"), 500);
                 return;
             }
-
-            let total = 0;
-            let mensaje = `*NUEVO PEDIDO DE COMPRA*\n`;
-            mensaje += `-----------------------------------\n`;
-            mensaje += `👤 *Cliente:* ${nombreCliente}\n`;
-            if (notasCliente) {
-                mensaje += `📝 *Notas/Entrega:* ${notasCliente}\n`;
+            
+            if (carrito.length === 0) {
+                alert("Tu carrito está vacío. Agrega algún artículo primero.");
+                return;
             }
-            mensaje += `-----------------------------------\n\n`;
-            mensaje += `📦 *DETALLE DEL PEDIDO:*\n\n`;
-
-            carrito.forEach((item, index) => {
-                const subtotal = item.precio * item.cantidad;
-                total += subtotal;
-
-                mensaje += `*${index + 1}. ${item.nombre}*\n`;
-                mensaje += `   • Cantidad: ${item.cantidad}\n`;
-                mensaje += `   • Precio Unit: $${Number(item.precio).toFixed(2)}\n`;
-
-                if (item.selecciones && item.selecciones.length > 0) {
-                    item.selecciones.forEach(s => {
-                        mensaje += `   • ${s.titulo}: ${s.valor}\n`;
+            
+            let mensaje = `Hola, mi nombre es *${nombreCliente}* y me gustaría realizar el siguiente pedido:\n\n`;
+            
+            carrito.forEach((item) => {
+                mensaje += `📦 *${item.cantidad}x ${item.nombre}*\n`;
+                if (item.color) mensaje += `   • *Color:* ${item.color}\n`;
+                if (item.caracteristicas && item.caracteristicas.length > 0) {
+                    item.caracteristicas.forEach(c => {
+                        mensaje += `   • *${c.titulo}:* ${c.valor}\n`;
                     });
                 }
-
-                if (item.colorPersonalizado) {
-                    mensaje += `   • 🎨 *Color Elegido:* ${item.colorPersonalizado.nombre} (${item.colorPersonalizado.hex})\n`;
+                if (item.accesorios && item.accesorios.length > 0) {
+                    mensaje += `   • *Accesorios:* ${item.accesorios.join(", ")}\n`;
                 }
-
-                mensaje += `   • *Subtotal:* $${subtotal.toFixed(2)}\n\n`;
+                mensaje += `\n`;
             });
+            
+            mensaje += `Quedo atento para coordinar los detalles. ¡Muchas gracias!`;
+            
+            const url = `https://wa.me/${telefonoWhatsAppGlobal}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        };
 
-            mensaje += `-----------------------------------\n`;
-            mensaje += `💰 *TOTAL A PAGAR:* $${total.toFixed(2)}\n`;
-            mensaje += `-----------------------------------\n\n`;
-            mensaje += `¡Hola! Me gustaría confirmar la disponibilidad y coordinar el pago/envío de este pedido.`;
-
-            const numeroTelefono = "584120000000"; // Sustituir por el número de WhatsApp receptor
-            const urlWhatsApp = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
-
-            window.open(urlWhatsApp, '_blank');
-        }
+        document.getElementById("btn-whatsapp-consulta").onclick = () => {
+            const msg = encodeURIComponent("Hola, me gustaría hacer una consulta sobre los productos del catálogo.");
+            window.open(`https://wa.me/${telefonoWhatsAppGlobal}?text=${msg}`, '_blank');
+        };
     </script>
 </body>
 </html>
