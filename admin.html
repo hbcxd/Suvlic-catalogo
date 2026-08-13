@@ -134,8 +134,9 @@
         </div>
 
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
-            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
-                <span>📁</span> Gestión de Categorías
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2"><span>📁</span> Gestión y Orden de Categorías</div>
+                <span class="text-[10px] text-slate-400 font-normal">Usa ⬆ y ⬇ para reordenar</span>
             </h2>
             <form id="category-form" class="flex flex-col sm:flex-row gap-3 mb-4">
                 <div class="flex-1">
@@ -144,7 +145,7 @@
                 <button type="submit" class="bg-slate-300 hover:bg-slate-200 text-slate-900 font-bold text-xs py-3 px-6 rounded-xl transition-colors shadow-md whitespace-nowrap">+ Crear Categoría</button>
             </form>
             <div class="border-t border-slate-800 pt-3">
-                <div id="admin-categories-list" class="space-y-2 max-h-48 overflow-y-auto pr-2 hide-scrollbar"></div>
+                <div id="admin-categories-list" class="space-y-2 max-h-60 overflow-y-auto pr-2 hide-scrollbar"></div>
             </div>
         </div>
 
@@ -190,7 +191,6 @@
                     </div>
                     <div id="dynamic-colors-container" class="flex flex-wrap gap-4 mb-4"></div>
 
-                    <!-- NUEVA OPCIÓN: Habilitar selector libre de colores -->
                     <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-4">
                         <div>
                             <label for="a-permitir-color-custom" class="text-xs font-bold text-slate-300 cursor-pointer">Habilitar Selector/Lector de Color Personalizado 🎨</label>
@@ -257,6 +257,7 @@
 
         let productosGlobales = [];
         let categoriasGlobales = {}; 
+        let arrayCategoriasOrdenadas = [];
         let imagenesEditar = []; 
         let configGlobal = {};
 
@@ -380,7 +381,15 @@
                 }
             });
 
-            const categoriesOrdenadas = Object.keys(agrupados).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+            // Respetar el orden personalizado de categorías
+            const ordenMap = {};
+            arrayCategoriasOrdenadas.forEach((cat, idx) => { ordenMap[cat.nombre] = idx; });
+
+            const categoriesOrdenadas = Object.keys(agrupados).sort((a, b) => {
+                const posA = ordenMap[a] !== undefined ? ordenMap[a] : 999;
+                const posB = ordenMap[b] !== undefined ? ordenMap[b] : 999;
+                return posA - posB;
+            });
 
             categoriesOrdenadas.forEach(cat => {
                 const header = document.createElement("div");
@@ -431,23 +440,40 @@
             listenCat = onSnapshot(collection(db, "categorias"), (snapshot) => {
                 const checkContainer = document.getElementById("a-categoria-container"), catList = document.getElementById("admin-categories-list");
                 checkContainer.innerHTML = ""; catList.innerHTML = ""; categoriasGlobales = {};
-                snapshot.docs.forEach(docSnap => {
-                    const cat = docSnap.data(); categoriasGlobales[docSnap.id] = cat.nombre; 
+
+                arrayCategoriasOrdenadas = snapshot.docs.map(docSnap => ({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                }));
+
+                // Ordenar array por la propiedad 'orden'
+                arrayCategoriasOrdenadas.sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+
+                arrayCategoriasOrdenadas.forEach((cat, index) => {
+                    categoriasGlobales[cat.id] = cat.nombre; 
                     
                     checkContainer.innerHTML += `
                         <label class="flex items-center gap-2 p-2 bg-slate-900 border border-slate-800 rounded-lg cursor-pointer hover:border-slate-500 transition-colors">
-                            <input type="checkbox" value="${docSnap.id}" class="cat-checkbox w-4 h-4 rounded bg-slate-800 border-slate-700 text-slate-500 focus:ring-0">
+                            <input type="checkbox" value="${cat.id}" class="cat-checkbox w-4 h-4 rounded bg-slate-800 border-slate-700 text-slate-500 focus:ring-0">
                             <span class="text-xs text-slate-300 font-medium truncate">${cat.nombre}</span>
                         </label>
                     `;
 
+                    const esPrimero = index === 0;
+                    const esUltimo = index === arrayCategoriasOrdenadas.length - 1;
+
                     const catDiv = document.createElement("div");
                     catDiv.className = "flex justify-between items-center bg-[#0b0f19] border border-slate-700/50 hover:border-slate-600 p-3 rounded-xl transition-colors shadow-sm";
                     catDiv.innerHTML = `
-                        <span class="text-xs font-bold text-white">${cat.nombre}</span>
-                        <div class="flex gap-2">
-                            <button onclick="editarCategoria('${docSnap.id}', '${cat.nombre}')" class="text-slate-300 hover:text-white text-[10px] font-bold px-3 py-1.5 bg-slate-800 rounded-lg border border-slate-600 transition-colors">Editar</button>
-                            <button onclick="eliminarCategoria('${docSnap.id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-3 py-1.5 bg-red-900/30 rounded-lg border border-red-800 transition-colors">Borrar</button>
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <span class="text-xs font-extrabold text-slate-500 w-4 text-center">${index + 1}</span>
+                            <span class="text-xs font-bold text-white truncate">${cat.nombre}</span>
+                        </div>
+                        <div class="flex gap-1.5 items-center">
+                            <button type="button" onclick="window.moverCategoria(${index}, -1)" ${esPrimero ? 'disabled class="opacity-30 cursor-not-allowed text-slate-400 px-2 py-1 bg-slate-800 rounded-lg border border-slate-700 text-xs"' : 'class="text-slate-200 hover:bg-slate-700 px-2 py-1 bg-slate-800 rounded-lg border border-slate-600 text-xs transition-colors" title="Mover arriba"'} >⬆</button>
+                            <button type="button" onclick="window.moverCategoria(${index}, 1)" ${esUltimo ? 'disabled class="opacity-30 cursor-not-allowed text-slate-400 px-2 py-1 bg-slate-800 rounded-lg border border-slate-700 text-xs"' : 'class="text-slate-200 hover:bg-slate-700 px-2 py-1 bg-slate-800 rounded-lg border border-slate-600 text-xs transition-colors" title="Mover abajo"'} >⬇</button>
+                            <button type="button" onclick="editarCategoria('${cat.id}', '${cat.nombre}')" class="text-slate-300 hover:text-white text-[10px] font-bold px-2.5 py-1.5 bg-slate-800 rounded-lg border border-slate-600 transition-colors">Editar</button>
+                            <button type="button" onclick="eliminarCategoria('${cat.id}')" class="text-red-400 hover:text-red-300 text-[10px] font-bold px-2.5 py-1.5 bg-red-900/30 rounded-lg border border-red-800 transition-colors">Borrar</button>
                         </div>
                     `;
                     catList.appendChild(catDiv);
@@ -460,6 +486,29 @@
                 renderizarProductosAdmin();
             });
         }
+
+        window.moverCategoria = async (index, direccion) => {
+            const nuevoIndex = index + direccion;
+            if (nuevoIndex < 0 || nuevoIndex >= arrayCategoriasOrdenadas.length) return;
+
+            const catActual = arrayCategoriasOrdenadas[index];
+            const catDestino = arrayCategoriasOrdenadas[nuevoIndex];
+
+            let ordenActual = typeof catActual.orden === "number" ? catActual.orden : index * 10;
+            let ordenDestino = typeof catDestino.orden === "number" ? catDestino.orden : nuevoIndex * 10;
+
+            if (ordenActual === ordenDestino) {
+                ordenActual = index * 10;
+                ordenDestino = nuevoIndex * 10;
+            }
+
+            try {
+                await updateDoc(doc(db, "categorias", catActual.id), { orden: ordenDestino });
+                await updateDoc(doc(db, "categorias", catDestino.id), { orden: ordenActual });
+            } catch (err) {
+                alert("Error al reordenar la categoría: " + err.message);
+            }
+        };
 
         document.getElementById("config-form").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -482,7 +531,13 @@
 
         document.getElementById("category-form").addEventListener("submit", async (e) => {
             e.preventDefault(); const input = document.getElementById("cat-nombre");
-            await setDoc(doc(db, "categorias", input.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "_")), { nombre: input.value.trim(), orden: Date.now() });
+            const maxOrden = arrayCategoriasOrdenadas.length > 0 
+                ? Math.max(...arrayCategoriasOrdenadas.map(c => (typeof c.orden === 'number' ? c.orden : 0))) + 10 
+                : 10;
+            await setDoc(doc(db, "categorias", input.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "_")), { 
+                nombre: input.value.trim(), 
+                orden: maxOrden 
+            });
             input.value = "";
         });
 
@@ -668,7 +723,14 @@
                 }
             });
 
-            Object.keys(agrupados).sort().forEach(cat => {
+            const ordenMap = {};
+            arrayCategoriasOrdenadas.forEach((cat, idx) => { ordenMap[cat.nombre] = idx; });
+
+            Object.keys(agrupados).sort((a, b) => {
+                const posA = ordenMap[a] !== undefined ? ordenMap[a] : 999;
+                const posB = ordenMap[b] !== undefined ? ordenMap[b] : 999;
+                return posA - posB;
+            }).forEach(cat => {
                 container.innerHTML += `
                     <div style="margin-bottom: 30px;">
                         <h2 style="font-size: 24px; font-weight: 800; color: ${tema.texto}; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid ${tema.tarjeta}; display: flex; align-items: center; gap: 10px;">
@@ -757,7 +819,14 @@
                     keys.forEach(k => { if (!agrupados[k]) agrupados[k] = []; agrupados[k].push(prod); });
                 });
 
-                Object.keys(agrupados).sort().forEach(cat => {
+                const ordenMap = {};
+                arrayCategoriasOrdenadas.forEach((cat, idx) => { ordenMap[cat.nombre] = idx; });
+
+                Object.keys(agrupados).sort((a, b) => {
+                    const posA = ordenMap[a] !== undefined ? ordenMap[a] : 999;
+                    const posB = ordenMap[b] !== undefined ? ordenMap[b] : 999;
+                    return posA - posB;
+                }).forEach(cat => {
                     const productosCat = agrupados[cat];
                     const itemsPorSlide = 6; 
                     
